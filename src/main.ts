@@ -4,7 +4,6 @@ import * as dotenv from 'dotenv';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
 import * as admin from 'firebase-admin';
-import { applicationDefault } from 'firebase-admin/app';
 
 async function bootstrap() {
   dotenv.config();
@@ -28,7 +27,11 @@ async function bootstrap() {
   //FIREBASE ADMIN
   // Initialize the firebase admin app
   admin.initializeApp({
-    credential: applicationDefault(),
+    credential: admin.credential.cert({
+      projectId: process.env.FIREBASE_PROJECT_ID,
+      privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+    }),
     databaseURL: process.env.FIREBASE_DATABASE_URL,
   });
 
