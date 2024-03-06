@@ -1,8 +1,19 @@
-import { Controller, Post, Body, Request, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  Request,
+  UseGuards,
+  Get,
+  HttpException,
+  HttpStatus,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthDto } from './dto/auth.dto';
 import { JwtRefreshTokenStrategy } from './strategy/jwt-refresh.strategy';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { JwtStrategy } from './strategy/jwt.strategy';
+import { EUserRole } from 'src/user/enums/user-role.enum';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -12,7 +23,7 @@ export class AuthController {
   @Post('/oauth')
   @ApiOperation({
     description:
-      'Login qua Google, Facebook và cả Email & Password Firebase, vào link ENDPOINT/index.html để login với Google và lấy token',
+      'Admin & Client Login qua Google Firebase, vào link ENDPOINT/index.html để login với Google và lấy token',
   })
   oauth(@Body() body: AuthDto) {
     return this.authService.oauth(body);
@@ -22,5 +33,15 @@ export class AuthController {
   @Post('/refresh-token')
   refreshToken(@Request() req) {
     return this.authService.refreshToken(req.user);
+  }
+
+  @UseGuards(JwtStrategy)
+  @Get('is-admin')
+  isAdmin(@Request() req) {
+    if (req.user.role == EUserRole.admin) {
+      return 'OK';
+    }
+
+    throw new HttpException('NOT_ADMIN', HttpStatus.UNAUTHORIZED);
   }
 }

@@ -9,7 +9,6 @@ import {
   UseInterceptors,
   ClassSerializerInterceptor,
   Delete,
-  Post,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
@@ -33,16 +32,6 @@ export class UserController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Get('profile')
-  @ApiOperation({
-    description:
-      'Get profile của chính mình, API này sẽ trả các thông tin ẩn của user',
-  })
-  async getOwnProfile(@Request() req) {
-    return this.userService.getProfileMine(req.user.id);
-  }
-
-  @UseGuards(JwtAuthGuard)
   @Put('profile')
   @ApiOperation({
     description: 'Update thông tin của user',
@@ -55,13 +44,5 @@ export class UserController {
   @Delete()
   async deleteById(@Request() req): Promise<void> {
     await this.userService.deleteById(req.user.id);
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @Get('/referral')
-  async getReferral(
-    @Request() req
-  ) {
-    return this.userService.getReferral(req.user.id);
   }
 }

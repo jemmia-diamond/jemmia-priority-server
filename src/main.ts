@@ -4,10 +4,6 @@ import * as dotenv from 'dotenv';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
 import * as admin from 'firebase-admin';
-
-console.log(process.env.PORT);
-console.log(process.env.DB_UNAME);
-console.log(process.env.DB_PASSWORD);
 import { applicationDefault } from 'firebase-admin/app';
 
 async function bootstrap() {
@@ -38,7 +34,7 @@ async function bootstrap() {
 
   //SWAGGER
   const config = new DocumentBuilder()
-    .setTitle('LinkID Server')
+    .setTitle('Jemmia Priority Server')
     .setVersion('1.0')
     .addBearerAuth()
     .build();

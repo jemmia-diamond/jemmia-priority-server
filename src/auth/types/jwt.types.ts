@@ -1,8 +1,10 @@
+import { EUserRole } from 'src/user/enums/user-role.enum';
+
 export type AccessTokenPayload = {
   id: string;
-  name: string;
   authId: string;
   sub: string;
+  role: EUserRole;
 };
 
 export type RefreshTokenPayload = {
