@@ -14,12 +14,21 @@ import { UserService } from './user.service';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { UserUpdateProfileDto } from './dto/user-update-profile.dto';
+import { HaravanService } from 'src/haravan/haravan.service';
 
 @ApiTags('User')
 @ApiBearerAuth()
 @Controller('user')
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    private readonly haravanService: HaravanService,
+  ) {}
+
+  @Get('/user')
+  async d() {
+    return this.haravanService.addCustomerTags(1116364255, ['b']);
+  }
 
   @UseInterceptors(ClassSerializerInterceptor)
   @UseGuards(JwtAuthGuard)
