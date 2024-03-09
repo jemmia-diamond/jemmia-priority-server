@@ -14,8 +14,8 @@ export class User {
   id: string;
 
   @Exclude()
-  @PrimaryColumn('varchar', { length: 128, unique: true })
-  haravanId: string;
+  @Column('integer', { nullable: true })
+  haravanId: number;
 
   @Exclude()
   @PrimaryColumn('varchar', { length: 128, unique: true })
@@ -33,7 +33,7 @@ export class User {
   refreshToken: string;
 
   @Exclude()
-  @Column('varchar', { length: 6, unique: true })
+  @Column('varchar', { length: 6, unique: true, nullable: true })
   inviteCode: string;
 
   /** Nếu user đăng ký nhập invite code được mời thì user mời đưa vào đây */

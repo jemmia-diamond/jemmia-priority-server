@@ -13,7 +13,7 @@ import { AuthDto } from './dto/auth.dto';
 import { JwtRefreshTokenStrategy } from './strategy/jwt-refresh.strategy';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { JwtStrategy } from './strategy/jwt.strategy';
-import { EUserRole } from 'src/user/enums/user-role.enum';
+import { EUserRole } from '../user/enums/user-role.enum';
 
 @ApiTags('Auth')
 @Controller('auth')

@@ -23,7 +23,16 @@ export class AuthService {
   );
 
   async verifyOAuth(idToken: string) {
-    return await firebaseAdmin.auth().verifyIdToken(idToken);
+    // const ticket = await this.oauthClient.verifyIdToken({
+    //   idToken: idToken,
+    //   audience: [
+    //     process.env.GOOGLE_CLIENT_ID_WEB,
+    //     process.env.GOOGLE_CLIENT_ID_ADMIN,
+    //   ],
+    // });
+    // return ticket.getPayload();
+
+    return firebaseAdmin.auth().verifyIdToken(idToken);
   }
 
   async signAccessToken(payload: AccessTokenPayload) {
@@ -42,15 +51,15 @@ export class AuthService {
 
   async oauth(payload: AuthDto) {
     //VERIFY OAUTH TOKEN
-    const tokenPayload = await this.verifyOAuth(payload.idToken);
+    const tokenPayload = await this.verifyOAuth(payload.token);
     const user = await this.userRepository.findOne({
       where: [
         {
           authId: tokenPayload.email,
         },
-        {
-          authId: tokenPayload.phone_number,
-        },
+        // {
+        //   authId: tokenPayload.phone_number,
+        // },
       ],
     });
 
@@ -82,6 +91,7 @@ export class AuthService {
       authId: user.authId,
       sub: user.id,
       role: user.role,
+      haravanId: user.haravanId.toString(),
     });
 
     return {
@@ -101,6 +111,7 @@ export class AuthService {
       role: user.role,
       authId: user.authId,
       sub: user.id,
+      haravanId: user.haravanId.toString(),
     });
 
     const refreshToken = await this.signRefreshToken({

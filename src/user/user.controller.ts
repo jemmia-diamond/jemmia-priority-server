@@ -8,13 +8,18 @@ import {
   Request,
   UseInterceptors,
   ClassSerializerInterceptor,
-  Delete,
+  Query,
+  Post,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { UserUpdateProfileDto } from './dto/user-update-profile.dto';
-import { HaravanService } from 'src/haravan/haravan.service';
+import { HaravanService } from '../haravan/haravan.service';
+import { RequestPayload } from '../types/controller.type';
+import { EUserRole } from './enums/user-role.enum';
+import { UserQueryDto } from './dto/user-query.dto';
+import { UserInfoDto } from './dto/user-info';
+import { Roles } from '../auth/decorators/roles.decorator';
 
 @ApiTags('User')
 @ApiBearerAuth()
@@ -25,33 +30,60 @@ export class UserController {
     private readonly haravanService: HaravanService,
   ) {}
 
-  @Get('/user')
-  async d() {
-    return this.haravanService.addCustomerTags(1116364255, ['b']);
+  @UseGuards(JwtAuthGuard)
+  @Roles(EUserRole.admin)
+  @Get()
+  @ApiOperation({
+    description: 'List toàn bộ user trên hệ thống',
+  })
+  async getAllUser(@Query() query: UserQueryDto) {
+    return this.userService.findAllUser(query);
   }
 
   @UseInterceptors(ClassSerializerInterceptor)
   @UseGuards(JwtAuthGuard)
-  @Get('profile/:id')
+  @Get(':id')
   @ApiOperation({
-    description: 'Get profile của user khác',
+    description: 'Get thông tin user',
   })
-  async getProfile(@Param('id') id: string) {
-    return this.userService.getProfile(id);
+  async getUser(@Request() req: RequestPayload, @Param('id') id: string) {
+    if (req.user.role != EUserRole.admin) {
+      id = req.user.id;
+    }
+
+    return this.userService.findUser(id);
   }
 
   @UseGuards(JwtAuthGuard)
-  @Put('profile')
+  @Roles(EUserRole.admin)
+  @Post()
+  @ApiOperation({
+    description: 'Tạo user',
+  })
+  async createUser(@Request() req: RequestPayload, @Body() body: UserInfoDto) {
+    return this.userService.createUser(body);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Put(':id')
   @ApiOperation({
     description: 'Update thông tin của user',
   })
-  async updateProfile(@Request() req, @Body() body: UserUpdateProfileDto) {
-    return this.userService.updateProfile(body, req.user);
+  async updateUser(
+    @Request() req: RequestPayload,
+    @Param('id') userId: string,
+    @Body() body: UserInfoDto,
+  ) {
+    if (req.user.role != EUserRole.admin) {
+      userId = req.user.id;
+    }
+
+    return this.userService.updateUser(userId, body);
   }
 
-  @UseGuards(JwtAuthGuard)
-  @Delete()
-  async deleteById(@Request() req): Promise<void> {
-    await this.userService.deleteById(req.user.id);
-  }
+  // @UseGuards(JwtAuthGuard)
+  // @Delete()
+  // async deleteById(@Request() req: RequestPayload): Promise<void> {
+  //   await this.userService.deleteById(req.user.id);
+  // }
 }

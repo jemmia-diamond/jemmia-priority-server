@@ -1,8 +1,9 @@
-import { EUserRole } from 'src/user/enums/user-role.enum';
+import { EUserRole } from '../../user/enums/user-role.enum';
 
 export type AccessTokenPayload = {
   id: string;
   authId: string;
+  haravanId: string;
   sub: string;
   role: EUserRole;
 };
