@@ -18,21 +18,18 @@ export class CreateBlogDto {
 
   @ApiProperty()
   @IsOptional()
-  @IsPhoneNumber()
   @MaxLength(128)
-  @MinLength(10)
+  @MinLength(1)
   author?: string;
 
   @ApiProperty()
   @IsOptional()
-  @IsPhoneNumber()
   @MaxLength(128)
   @MinLength(10)
   tags?: string;
 
   @ApiProperty()
   @IsOptional()
-  @IsPhoneNumber()
   @MinLength(1)
   bodyHtml?: string;
 

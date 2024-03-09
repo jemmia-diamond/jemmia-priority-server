@@ -5,8 +5,7 @@ import {
   HaravanCustomerSearchDto,
 } from './dto/haravan-customer.dto';
 import { validate } from 'class-validator';
-import { instanceToPlain, plainToClass } from 'class-transformer';
-import { HaravanBlogDto } from './dto/haravan-blog.dto';
+import { HaravanBlogDto, HaravanBlogSearchDto } from './dto/haravan-blog.dto';
 import { instanceToPlain, plainToInstance } from 'class-transformer';
 
 const ax = axios.create({
@@ -87,16 +86,65 @@ export class HaravanService {
   }
 
   /** Tạo blog mới */
-  async createBlog(data: HaravanBlogDto) {
+  async createBlog(data: HaravanBlogDto, blogId: number) {
     await validate(data);
 
-    const res = await ax.post(`/web/blogs/`+data.blogId+`/articles.json`, {
-      blog: instanceToPlain(
+    console.log(data);
+
+    const res = await ax.post(`/web/blogs/${blogId}/articles.json`, {
+      article: instanceToPlain(
         Object.setPrototypeOf(data, HaravanBlogDto.prototype),
       ),
     });
 
-    return plainToClass(HaravanBlogDto, res.data.blog);
+    return plainToInstance(HaravanBlogDto, res.data.article);
+  }
+
+  /** Update blog */
+  async updateBlog(data: HaravanBlogDto, blogId: number) {
+    await validate(data);
+
+    console.log(data);
+
+    const res = await ax.put(`/web/blogs/${blogId}/articles/${data.id}.json`, {
+      article: instanceToPlain(
+        Object.setPrototypeOf(data, HaravanBlogDto.prototype),
+      ),
+    });
+
+    return plainToInstance(HaravanBlogDto, res.data.article);
+  }
+
+  /** Delete blog */
+  async deleteBlog(id: number, blogId: number) {
+
+    const res = await ax.delete(`/web/blogs/${blogId}/articles/${id}.json`);
+
+    return res.data;
+  }
+
+  /** Get one blog */
+  async getBlog(id: number, blogId: number) {
+
+    const res = await ax.get(`/web/blogs/${blogId}/articles/${id}.json`);
+
+    return res.data;
+  }
+
+  /** List toàn bộ bài viết đang có trên haravan
+  @param {string} query - Sử dụng field này để tìm kiếm trên data bài viết */
+  async findAllBlog(query: HaravanBlogSearchDto, blogId: number) {
+    await validate(query);
+
+    query = instanceToPlain(
+      Object.setPrototypeOf(query, HaravanBlogDto.prototype),
+    );
+
+    const res = await ax.get(
+      `/web/blogs/${blogId}/articles.json?${new URLSearchParams(query as any)}`,
+    );
+
+    return plainToInstance(HaravanBlogDto, <any[]>res.data.articles);
   }
 
   //#endregion
