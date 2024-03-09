@@ -5,6 +5,8 @@ import { AuthModule } from './auth/auth.module';
 import { HaravanModule } from './haravan/haravan.module';
 import { UserModule } from './user/user.module';
 import { BlogModule } from './blog/blog.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 @Module({
   imports: [
@@ -18,6 +20,9 @@ import { BlogModule } from './blog/blog.module';
       database: process.env.DB,
       synchronize: false,
       logging: false,
+    }),
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'public'),
     }),
     AuthModule,
     UserModule,

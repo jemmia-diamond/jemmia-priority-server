@@ -7,6 +7,7 @@ import {
 import { validate } from 'class-validator';
 import { instanceToPlain, plainToClass } from 'class-transformer';
 import { HaravanBlogDto } from './dto/haravan-blog.dto';
+import { instanceToPlain, plainToInstance } from 'class-transformer';
 
 const ax = axios.create({
   baseURL: process.env.HARAVAN_ENDPOINT,
@@ -28,23 +29,31 @@ export class HaravanService {
   async findAllCustomer(query: HaravanCustomerSearchDto) {
     await validate(query);
 
+    query = instanceToPlain(
+      Object.setPrototypeOf(query, HaravanCustomerDto.prototype),
+    );
+
     const res = await ax.get(
       `/com/customers.json?${new URLSearchParams(query as any)}`,
     );
 
-    return plainToClass(HaravanCustomerDto, res.data.customers);
+    return plainToInstance(HaravanCustomerDto, <any[]>res.data.customers);
   }
 
   /** Tìm kiếm khách hàng dựa trên ID */
   async findCustomer(customerId: number) {
     const res = await ax.get(`/com/customers/${customerId}.json`);
 
-    return plainToClass(HaravanCustomerDto, res.data.customer);
+    return plainToInstance(HaravanCustomerDto, res.data.customer);
   }
 
   /** Tạo khách hàng mới */
   async createCustomer(data: HaravanCustomerDto) {
     await validate(data);
+
+    // console.log(instanceToPlain(
+    //   Object.setPrototypeOf(data, HaravanCustomerDto.prototype),
+    // ));
 
     const res = await ax.post(`/com/customers.json`, {
       customer: instanceToPlain(
@@ -52,7 +61,7 @@ export class HaravanService {
       ),
     });
 
-    return plainToClass(HaravanCustomerDto, res.data.customer);
+    return plainToInstance(HaravanCustomerDto, res.data.customer);
   }
 
   /** Update thông tin khách hàng */
@@ -65,7 +74,7 @@ export class HaravanService {
       ),
     });
 
-    return plainToClass(HaravanCustomerDto, res.data.customer);
+    return plainToInstance(HaravanCustomerDto, res.data.customer);
   }
 
   /** Thêm tags vào khách hàng */
@@ -74,7 +83,7 @@ export class HaravanService {
       tags: tags.join(','),
     });
 
-    return plainToClass(HaravanCustomerDto, res.data.customer);
+    return plainToInstance(HaravanCustomerDto, res.data.customer);
   }
 
   /** Tạo blog mới */

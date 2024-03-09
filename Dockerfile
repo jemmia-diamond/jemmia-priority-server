@@ -11,6 +11,8 @@ FROM base AS prerelease
 COPY --from=install /temp/node_modules node_modules
 COPY . .
 
+RUN chown -R bun /app/node_modules
+
 #Build
 RUN bun run build 
 

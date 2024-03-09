@@ -3,7 +3,7 @@ import { UserService } from './user.service';
 import { UserController } from './user.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
-import { HaravanModule } from 'src/haravan/haravan.module';
+import { HaravanModule } from '../haravan/haravan.module';
 
 @Module({
   imports: [TypeOrmModule.forFeature([User]), HaravanModule],

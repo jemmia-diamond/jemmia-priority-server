@@ -4,5 +4,5 @@ import { IsString } from 'class-validator';
 export class AuthDto {
   @ApiProperty()
   @IsString()
-  idToken: string;
+  token: string;
 }

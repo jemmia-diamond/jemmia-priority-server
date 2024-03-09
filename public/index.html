@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Google Sign-In Example</title>
+  <!-- Thêm thư viện Google Sign-In -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <script>
+      function handleCredentialResponse(response) {
+          decodeJwtResponse(response.credential);
+      }
+  </script>
+  <meta name="referrer" content="no-referrer-when-downgrade">
+  <meta name="Cross-Origin-Opener-Policy" content="same-origin-allow-popups">
+</head>
+<body>
+  <h1>ADMIN</h1>
+  <div id="g_id_onload"
+      data-client_id="303403978779-vsvm9fl0hr7mv7mtup0o89vmo1d7hio1.apps.googleusercontent.com"
+      data-context="signin"
+      data-ux_mode="popup"
+      data-callback="onSignIn"
+      data-auto_prompt="false">
+  </div>
+
+  <div class="g_id_signin"
+      data-type="standard"
+      data-shape="rectangular"
+      data-theme="outline"
+      data-text="signin_with"
+      data-size="large"
+      data-logo_alignment="left">
+  </div>
+  
+  <script>
+    // Hàm được gọi khi đăng nhập thành công
+    function onSignIn(payload) {
+      prompt('Token', payload.credential);
+    }
+  </script>
+</body>
+</html>
