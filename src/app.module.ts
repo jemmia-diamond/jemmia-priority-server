@@ -4,6 +4,7 @@ import { User } from './user/entities/user.entity';
 import { AuthModule } from './auth/auth.module';
 import { HaravanModule } from './haravan/haravan.module';
 import { UserModule } from './user/user.module';
+import { BlogModule } from './blog/blog.module';
 
 @Module({
   imports: [
@@ -15,12 +16,13 @@ import { UserModule } from './user/user.module';
       username: process.env.DB_UNAME,
       entities: [User],
       database: process.env.DB,
-      synchronize: true,
+      synchronize: false,
       logging: false,
     }),
     AuthModule,
     UserModule,
     HaravanModule,
+    BlogModule,
   ],
   providers: [],
 })

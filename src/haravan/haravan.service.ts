@@ -6,6 +6,7 @@ import {
 } from './dto/haravan-customer.dto';
 import { validate } from 'class-validator';
 import { instanceToPlain, plainToClass } from 'class-transformer';
+import { HaravanBlogDto } from './dto/haravan-blog.dto';
 
 const ax = axios.create({
   baseURL: process.env.HARAVAN_ENDPOINT,
@@ -74,6 +75,19 @@ export class HaravanService {
     });
 
     return plainToClass(HaravanCustomerDto, res.data.customer);
+  }
+
+  /** Tạo blog mới */
+  async createBlog(data: HaravanBlogDto) {
+    await validate(data);
+
+    const res = await ax.post(`/web/blogs/`+data.blogId+`/articles.json`, {
+      blog: instanceToPlain(
+        Object.setPrototypeOf(data, HaravanBlogDto.prototype),
+      ),
+    });
+
+    return plainToClass(HaravanBlogDto, res.data.blog);
   }
 
   //#endregion
