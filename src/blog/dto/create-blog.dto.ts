@@ -12,13 +12,11 @@ import {
 export class CreateBlogDto {
   @ApiProperty()
   @IsString()
-  @MaxLength(128)
   @IsOptional()
   title?: string;
 
   @ApiProperty()
   @IsOptional()
-  @MaxLength(128)
   @MinLength(1)
   author?: string;
 

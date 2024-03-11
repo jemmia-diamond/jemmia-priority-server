@@ -17,8 +17,8 @@ export class BlogController {
 
   @UseGuards(JwtAuthGuard)
   @Roles(EUserRole.admin)
-  @Post()
-  async create(@Query('blogType') blogType: EBlogType, @Body() createBlogDto: CreateBlogDto) {
+  @Post(':blogType')
+  async create(@Param('blogType') blogType: EBlogType, @Body() createBlogDto: CreateBlogDto) {
     return this.blogService.create(createBlogDto, blogType);
   }
 
@@ -28,8 +28,8 @@ export class BlogController {
     return this.blogService.findAll(query, blogType);
   }
 
-  @Get(':id')
-  async findOne(@Param('id') id: string, @Query('blogType') blogType: EBlogType) {
+  @Get(':blogType/:id')
+  async findOne(@Param('id') id: string, @Param('blogType') blogType: EBlogType) {
     return this.blogService.getOne(+id, blogType);
   }
 
@@ -42,8 +42,8 @@ export class BlogController {
 
   @UseGuards(JwtAuthGuard)
   @Roles(EUserRole.admin)
-  @Delete(':id')
-  remove(@Param('id') id: string, @Query('blogType') blogType: EBlogType) {
+  @Delete(':blogType/:id')
+  remove(@Param('id') id: string, @Param('blogType') blogType: EBlogType) {
     return this.blogService.remove(+id, blogType);
   }
 }
