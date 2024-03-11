@@ -40,10 +40,6 @@ export class CreateBlogDto {
 
   @ApiProperty()
   @IsOptional()
-  blogType?: string;
-
-  @ApiProperty()
-  @IsOptional()
   @IsDateString()
   publishedAt?: Date;
 }

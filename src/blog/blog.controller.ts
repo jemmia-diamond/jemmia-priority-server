@@ -7,6 +7,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { EUserRole } from '../user/enums/user-role.enum';
 import { HaravanBlogSearchDto } from '../haravan/dto/haravan-blog.dto';
+import { EBlogType } from './enums/blog-type.enum';
 
 @ApiTags("Blog")
 @ApiBearerAuth()
@@ -17,32 +18,32 @@ export class BlogController {
   @UseGuards(JwtAuthGuard)
   @Roles(EUserRole.admin)
   @Post()
-  async create(@Body() createBlogDto: CreateBlogDto) {
-    return this.blogService.create(createBlogDto);
+  async create(@Query('blogType') blogType: EBlogType, @Body() createBlogDto: CreateBlogDto) {
+    return this.blogService.create(createBlogDto, blogType);
   }
 
   @UseGuards(JwtAuthGuard)
   @Get()
-  async findAll(@Query('blogType') blogType: string, @Query() query: HaravanBlogSearchDto) {
+  async findAll(@Query('blogType') blogType: EBlogType, @Query() query: HaravanBlogSearchDto) {
     return this.blogService.findAll(query, blogType);
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: string, @Query('blogType') blogType: string) {
+  async findOne(@Param('id') id: string, @Query('blogType') blogType: EBlogType) {
     return this.blogService.getOne(+id, blogType);
   }
 
   @UseGuards(JwtAuthGuard)
   @Roles(EUserRole.admin)
-  @Patch(':id')
-  async update(@Param('id') id: string, @Body() updateBlogDto: CreateBlogDto) {
-    return this.blogService.update(+id, updateBlogDto);
+  @Patch(':blogType/:id')
+  async update(@Param('id') id: string, @Param('blogType') blogType: EBlogType, @Body() updateBlogDto: CreateBlogDto) {
+    return this.blogService.update(+id, updateBlogDto, blogType);
   }
 
   @UseGuards(JwtAuthGuard)
   @Roles(EUserRole.admin)
   @Delete(':id')
-  remove(@Param('id') id: string, @Query('blogType') blogType: string) {
+  remove(@Param('id') id: string, @Query('blogType') blogType: EBlogType) {
     return this.blogService.remove(+id, blogType);
   }
 }

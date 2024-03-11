@@ -4,12 +4,11 @@ import { BlogController } from './blog.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Blog } from './entities/blog.entity';
 import { User } from '../user/entities/user.entity';
-import { UserService } from '../user/user.service';
-import { HaravanService } from '../haravan/haravan.service';
+import { HaravanModule } from '../haravan/haravan.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Blog, User])],
+  imports: [TypeOrmModule.forFeature([Blog, User]), HaravanModule],
   controllers: [BlogController],
-  providers: [BlogService, UserService, HaravanService],
+  providers: [BlogService],
 })
 export class BlogModule {}

@@ -2,77 +2,83 @@ import { ForbiddenException, Injectable, NotFoundException, UnauthorizedExceptio
 import { CreateBlogDto } from './dto/create-blog.dto';
 import { UpdateBlogDto } from './dto/update-blog.dto';
 import { EBlogType } from './enums/blog-type.enum';
-import { UserService } from '../user/user.service';
 import { HaravanService } from '../haravan/haravan.service';
 import { HaravanBlogDto, HaravanBlogSearchDto } from '../haravan/dto/haravan-blog.dto';
+import { validate } from 'class-validator';
 
 @Injectable()
 export class BlogService {
   constructor(
-    private readonly userService: UserService,
     private readonly haravanService: HaravanService,
   ) {}
 
-  async create(createBlogDto: CreateBlogDto) {
-    var blogId = this.getBlogId(createBlogDto.blogType);
-    const data = new HaravanBlogDto();
-    
-    data.title = createBlogDto.title;
-    data.author = createBlogDto.author;
-    data.tags = createBlogDto.tags;
-    data.bodyHtml = createBlogDto.bodyHtml;
-    data.publishedAt = createBlogDto.publishedAt;
-    data.image = {
-      src: createBlogDto.image
-    };
-    return this.haravanService.createBlog(data, blogId);
+  async create(createBlogDto: CreateBlogDto, blogType: EBlogType) {
+    try {
+      await validate(createBlogDto, { whitelist: true });
+
+      var blogId = blogType;
+      const data = new HaravanBlogDto();
+      
+      data.title = createBlogDto.title;
+      data.author = createBlogDto.author;
+      data.tags = createBlogDto.tags;
+      data.bodyHtml = createBlogDto.bodyHtml;
+      data.publishedAt = createBlogDto.publishedAt;
+      data.image = {
+        src: createBlogDto.image
+      };
+      return this.haravanService.createBlog(data, blogId);
+    } catch (error) {
+      return error;
+    }
   }
 
-  async findAll(query: HaravanBlogSearchDto, blogType: string) {
-    var blogId = this.getBlogId(blogType);
-    return this.haravanService.findAllBlog(query, blogId);
+  async findAll(query: HaravanBlogSearchDto, blogType: EBlogType) {
+    try {
+      var blogId = blogType;
+      return this.haravanService.findAllBlog(query, blogId);
+    } catch (error) {
+      return error;
+    }
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} blog`;
+  async update(id: number, updateBlogDto: UpdateBlogDto, blogType: EBlogType) {
+    try {
+      await validate(updateBlogDto, { whitelist: true });
+
+      var blogId = blogType;
+      const data = new HaravanBlogDto();
+      
+      data.id = id;
+      data.title = updateBlogDto.title;
+      data.author = updateBlogDto.author;
+      data.tags = updateBlogDto.tags;
+      data.bodyHtml = updateBlogDto.bodyHtml;
+      data.publishedAt = updateBlogDto.publishedAt;
+      data.image = {
+        src: updateBlogDto.image
+      };
+      return this.haravanService.updateBlog(data, blogId);
+    } catch (error) {
+      return error;
+    }
   }
 
-  async update(id: number, updateBlogDto: UpdateBlogDto) {
-    var blogId = this.getBlogId(updateBlogDto.blogType);
-    const data = new HaravanBlogDto();
-    
-    data.id = id;
-    data.title = updateBlogDto.title;
-    data.author = updateBlogDto.author;
-    data.tags = updateBlogDto.tags;
-    data.bodyHtml = updateBlogDto.bodyHtml;
-    data.publishedAt = updateBlogDto.publishedAt;
-    data.image = {
-      src: updateBlogDto.image
-    };
-    return this.haravanService.updateBlog(data, blogId);
+  async remove(id: number, blogType: EBlogType) {
+    try {
+      var blogId = blogType;
+      return this.haravanService.deleteBlog(id, blogId);
+    } catch (error) {
+      return error;
+    }
   }
 
-  async remove(id: number, blogType: string) {
-    var blogId = this.getBlogId(blogType);
-    return this.haravanService.deleteBlog(id, blogId);
-  }
-
-  async getOne(id: number, blogType: string) {
-    var blogId = this.getBlogId(blogType);
-    return this.haravanService.getBlog(id, blogId);
-  }
-
-  getBlogId(blogType: string){
-    if (blogType === 'promotion') 
-      return EBlogType.promotion;
-    else if (blogType === 'news') 
-      return EBlogType.news;
-    else if (blogType === 'product') 
-      return EBlogType.product;
-    else if (blogType === 'program') 
-      return EBlogType.program;
-    else 
-      throw new NotFoundException('Blog type not found.');
+  async getOne(id: number, blogType: EBlogType) {
+    try {
+      var blogId = blogType;
+      return this.haravanService.getBlog(id, blogId);
+    } catch (error) {
+      return error;
+    }
   }
 }
