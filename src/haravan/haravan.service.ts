@@ -47,11 +47,9 @@ export class HaravanService {
 
   /** Tạo khách hàng mới */
   async createCustomer(data: HaravanCustomerDto) {
-    await validate(data);
-
-    // console.log(instanceToPlain(
-    //   Object.setPrototypeOf(data, HaravanCustomerDto.prototype),
-    // ));
+    await validate(data, {
+      whitelist: true,
+    });
 
     const res = await ax.post(`/com/customers.json`, {
       customer: instanceToPlain(
@@ -64,7 +62,9 @@ export class HaravanService {
 
   /** Update thông tin khách hàng */
   async updateCustomer(customerId: number, data: HaravanCustomerDto) {
-    await validate(data);
+    await validate(data, {
+      whitelist: true,
+    });
 
     const res = await ax.put(`/com/customers/${customerId}.json`, {
       customer: instanceToPlain(
