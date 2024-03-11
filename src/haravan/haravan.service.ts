@@ -6,6 +6,12 @@ import {
 } from './dto/haravan-customer.dto';
 import { validate } from 'class-validator';
 import { instanceToPlain, plainToInstance } from 'class-transformer';
+import {
+  HaravanCountryDto,
+  HaravanDistrictDto,
+  HaravanProvinceDto,
+  HaravanWardDto,
+} from './dto/haravan-shipping.dto';
 
 const ax = axios.create({
   baseURL: process.env.HARAVAN_ENDPOINT,
@@ -85,4 +91,29 @@ export class HaravanService {
   }
 
   //#endregion
+
+  //*SHIPPING AND FULLFILMENT
+  async getCountries() {
+    const res = await ax.get(`/com/countries.json`);
+
+    return plainToInstance(HaravanCountryDto, res.data.countries);
+  }
+
+  async getProvinces(countryId: string) {
+    const res = await ax.get(`/com/countries/${countryId}/provinces.json`);
+
+    return plainToInstance(HaravanProvinceDto, res.data.provinces);
+  }
+
+  async getDistricts(provinceId: string) {
+    const res = await ax.get(`/com/provinces/${provinceId}/districts.json`);
+
+    return plainToInstance(HaravanDistrictDto, res.data.districts);
+  }
+
+  async getWards(districtId: string) {
+    const res = await ax.get(`/com/districts/${districtId}/wards.json`);
+
+    return plainToInstance(HaravanWardDto, res.data.wards);
+  }
 }
