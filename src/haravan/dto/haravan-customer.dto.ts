@@ -28,7 +28,7 @@ export class HaravanCustomerSearchDto {
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'created_at_min' })
-  createdAtMin?: Date;
+  createdAtMin?: string;
 
   /** Giới hạn kết quả trả về */
   @ApiPropertyOptional()
@@ -193,7 +193,7 @@ export class HaravanCustomerDto {
   @IsDateString()
   @IsOptional()
   @IsDefined()
-  birthday?: Date;
+  birthday?: string;
 
   @ApiPropertyOptional()
   @IsNumber()
@@ -260,7 +260,7 @@ export class HaravanCustomerDto {
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'created_at' })
-  createdAt?: Date;
+  createdAt?: string;
 
   @Expose({ name: 'multipass_identifier' })
   multipassIdentifier?: string;

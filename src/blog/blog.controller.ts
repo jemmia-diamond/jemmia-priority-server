@@ -37,6 +37,7 @@ export class BlogController {
     return this.blogService.findAll(query);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get(':id')
   async findOne(
     @Param('id') id: string,

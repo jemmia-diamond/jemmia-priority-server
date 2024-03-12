@@ -98,7 +98,7 @@ export class HaravanCouponDto {
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'ends_at' })
-  endsAt?: Date;
+  endsAt?: string;
 
   /** Giá trị đơn hàng tối thiểu khi áp mã */
   @ApiPropertyOptional()
@@ -113,7 +113,7 @@ export class HaravanCouponDto {
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'starts_at' })
-  startsAt?: Date;
+  startsAt?: string;
 
   /** Giới hạn số lượng mã */
   @ApiPropertyOptional()
@@ -183,10 +183,10 @@ export class HaravanCouponDto {
   lastName?: string;
 
   @Expose({ name: 'created_at' })
-  createdAt?: Date;
+  createdAt?: string;
 
   @Expose({ name: 'updated_at' })
-  updatedAt?: Date;
+  updatedAt?: string;
 
   @Expose({ name: 'promotion_apply_type' })
   promotionApplyType?: number;

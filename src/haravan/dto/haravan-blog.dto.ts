@@ -47,42 +47,42 @@ export class HaravanBlogSearchDto {
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'created_at_min' })
-  createdAtMin?: Date;
+  createdAtMin?: string;
 
   /** Hiển thị các bài viết được tạo trước ngày (định dạng: 2008-12-31T02:01:27.483Z). */
   @ApiPropertyOptional()
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'created_at_max' })
-  createdAtMax?: Date;
+  createdAtMax?: string;
 
   /** Hiển thị các bài viết được cập nhật lần cuối sau ngày (định dạng: 2008-12-31T02:01:27.483Z). */
   @ApiPropertyOptional()
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'updated_at_min' })
-  updatedAtMin?: Date;
+  updatedAtMin?: string;
 
   /** Hiển thị các bài viết được cập nhật lần cuối trước ngày (định dạng: 2008-12-31T02:01:27.483Z). */
   @ApiPropertyOptional()
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'updated_at_max' })
-  updatedAtMax?: Date;
+  updatedAtMax?: string;
 
   /** Hiển thị các bài viết được xuất bản sau ngày đó (định dạng: 2008-12-31T02:01:27.483Z). */
   @ApiPropertyOptional()
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'published_at_min' })
-  publishedAtMin?: Date;
+  publishedAtMin?: string;
 
   /** Hiển thị các bài viết được xuất bản trước ngày (định dạng: 2008-12-31T02:01:27.483Z). */
   @ApiPropertyOptional()
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'published_at_max' })
-  publishedAtMax?: Date;
+  publishedAtMax?: string;
 
   /** 
     published - Show only published articles
@@ -132,7 +132,8 @@ class BlogImageDto {
   @ApiProperty()
   @IsOptional()
   @IsDefined()
-  createdAt?: Date;
+  @Expose({ name: 'created_at' })
+  createdAt?: string;
 }
 
 export class HaravanBlogDto {
@@ -148,7 +149,7 @@ export class HaravanBlogDto {
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'created_at' })
-  createdAt?: Date;
+  createdAt?: string;
 
   @ApiPropertyOptional()
   @IsOptional()
@@ -183,13 +184,13 @@ export class HaravanBlogDto {
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'published_at' })
-  publishedAt?: Date;
+  publishedAt?: string;
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'updated_at' })
-  updatedAt?: Date;
+  updatedAt?: string;
 
   @ApiPropertyOptional()
   @IsOptional()
@@ -223,4 +224,18 @@ export class HaravanBlogDto {
   @Type(() => BlogImageDto)
   @ValidateNested()
   image: BlogImageDto;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsDefined()
+  @IsString()
+  @Expose({ name: 'page_title' })
+  pageTitle?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsDefined()
+  @IsString()
+  @Expose({ name: 'meta_description' })
+  metaDescription?: string;
 }
