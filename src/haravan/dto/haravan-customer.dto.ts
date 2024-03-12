@@ -261,4 +261,28 @@ export class HaravanCustomerDto {
   @IsDefined()
   @Expose({ name: 'created_at' })
   createdAt?: Date;
+
+  @Expose({ name: 'multipass_identifier' })
+  multipassIdentifier?: string;
+
+  @Expose({ name: 'last_order_id' })
+  lastOrderId?: number;
+
+  @Expose({ name: 'last_order_name' })
+  lastOrderName?: string;
+
+  @Expose({ name: 'total_spent' })
+  totalSpent?: number;
+
+  @Expose({ name: 'total_paid' })
+  totalPaid?: number;
+
+  @Expose({ name: 'updated_at' })
+  updatedAt?: string;
+
+  @Expose({ name: 'group_name' })
+  groupName?: string;
+
+  @Expose({ name: 'last_order_date' })
+  lastOrderDate?: string;
 }
