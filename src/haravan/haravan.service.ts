@@ -126,16 +126,16 @@ export class HaravanService {
 
   /** Delete blog */
   async deleteBlog(id: number, blogType: EBlogType) {
-    const res = await ax.delete(`/web/blogs/${blogType}/articles/${id}.json`);
+    await ax.delete(`/web/blogs/${blogType}/articles/${id}.json`);
 
-    return res.data;
+    return;
   }
 
   /** Get one blog */
   async getBlog(id: number, blogType: EBlogType) {
     const res = await ax.get(`/web/blogs/${blogType}/articles/${id}.json`);
 
-    return res.data;
+    return plainToInstance(HaravanBlogDto, res.data.article);
   }
 
   /** List toàn bộ bài viết đang có trên haravan
