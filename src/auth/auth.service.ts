@@ -91,7 +91,7 @@ export class AuthService {
       authId: user.authId,
       sub: user.id,
       role: user.role,
-      haravanId: user.haravanId.toString(),
+      haravanId: user.haravanId?.toString(),
     });
 
     return {

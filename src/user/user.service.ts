@@ -57,65 +57,77 @@ export class UserService {
   }
 
   async createUser(data: UserInfoDto) {
-    await validate(data);
+    try {
+      await validate(data, {
+        whitelist: true,
+      });
 
-    if (data.role == EUserRole.admin) {
-      throw new HttpException(
-        "Can't create customer with admin role",
-        HttpStatus.BAD_REQUEST,
-      );
+      if (data.role == EUserRole.admin) {
+        throw new HttpException(
+          "Can't create customer with admin role",
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+
+      const haravanCusData = await this.haravanService.createCustomer(data);
+      const user = await this.userRepository.save({
+        haravanId: haravanCusData.id,
+        authId: data.phone,
+        phoneNumber: data.phone,
+        inviteCode: StringUtils.random(6),
+        role: data.role,
+      });
+
+      return {
+        ...haravanCusData,
+        ...user,
+      };
+    } catch (e) {
+      return e;
     }
-
-    const haravanCusData = await this.haravanService.createCustomer(data);
-    const user = await this.userRepository.save({
-      haravanId: haravanCusData.id,
-      authId: data.phone,
-      phoneNumber: data.phone,
-      inviteCode: StringUtils.random(6),
-      role: data.role,
-    });
-
-    return {
-      ...haravanCusData,
-      ...user,
-    };
   }
 
   async updateUser(userId: string, data: UserInfoDto) {
-    await validate(data);
+    try {
+      await validate(data, {
+        whitelist: true,
+      });
 
-    if (data.role == EUserRole.admin) {
-      throw new HttpException(
-        "Can't update customer with admin role",
-        HttpStatus.BAD_REQUEST,
+      if (data.role == EUserRole.admin) {
+        throw new HttpException(
+          "Can't update customer with admin role",
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+
+      let user = await this.userRepository.findOne({
+        where: {
+          id: userId,
+        },
+      });
+
+      if (!user) {
+        throw new HttpException('User not found!', HttpStatus.NOT_FOUND);
+      }
+
+      const haravanCusData = await this.haravanService.updateCustomer(
+        user.haravanId,
+        data,
       );
+
+      user = await this.userRepository.save({
+        authId: data.phone ?? user.phoneNumber,
+        phoneNumber: data.phone ?? user.phoneNumber,
+        role: data.role ?? user.role,
+      });
+
+      return {
+        ...haravanCusData,
+        ...user,
+      };
+    } catch (e) {
+      return e;
     }
-
-    let user = await this.userRepository.findOne({
-      where: {
-        id: userId,
-      },
-    });
-
-    if (!user) {
-      throw new HttpException('User not found!', HttpStatus.NOT_FOUND);
-    }
-
-    const haravanCusData = await this.haravanService.updateCustomer(
-      user.haravanId,
-      data,
-    );
-
-    user = await this.userRepository.save({
-      authId: data.phone ?? user.phoneNumber,
-      phoneNumber: data.phone ?? user.phoneNumber,
-      role: data.role ?? user.role,
-    });
-
-    return {
-      ...haravanCusData,
-      ...user,
-    };
   }
 
   async deleteById(id: string): Promise<void> {
