@@ -13,6 +13,7 @@ import {
   HaravanProvinceDto,
   HaravanWardDto,
 } from './dto/haravan-shipping.dto';
+import { EBlogType } from '../blog/enums/blog-type.enum';
 
 const ax = axios.create({
   baseURL: process.env.HARAVAN_ENDPOINT,
@@ -26,6 +27,67 @@ const ax = axios.create({
 @Injectable()
 export class HaravanService {
   constructor() {}
+  //*BLOG
+  //#region
+  /** Tạo blog mới */
+  async createBlog(data: HaravanBlogDto) {
+    await validate(data, { whitelist: true });
+
+    const res = await ax.post(`/web/blogs/${data.blogId}/articles.json`, {
+      article: instanceToPlain(
+        Object.setPrototypeOf(data, HaravanBlogDto.prototype),
+      ),
+    });
+
+    return plainToInstance(HaravanBlogDto, res.data.article);
+  }
+
+  /** Update blog */
+  async updateBlog(data: HaravanBlogDto) {
+    await validate(data, { whitelist: true });
+
+    const res = await ax.put(
+      `/web/blogs/${data.blogId}/articles/${data.id}.json`,
+      {
+        article: instanceToPlain(
+          Object.setPrototypeOf(data, HaravanBlogDto.prototype),
+        ),
+      },
+    );
+
+    return plainToInstance(HaravanBlogDto, res.data.article);
+  }
+
+  /** Delete blog */
+  async deleteBlog(id: number, blogType: EBlogType) {
+    const res = await ax.delete(`/web/blogs/${blogType}/articles/${id}.json`);
+
+    return res.data;
+  }
+
+  /** Get one blog */
+  async getBlog(id: number, blogType: EBlogType) {
+    const res = await ax.get(`/web/blogs/${blogType}/articles/${id}.json`);
+
+    return res.data;
+  }
+
+  /** List toàn bộ bài viết đang có trên haravan
+  @param {string} query - Sử dụng field này để tìm kiếm trên data bài viết */
+  async findAllBlog(query: HaravanBlogSearchDto) {
+    await validate(query, { whitelist: true });
+
+    query = instanceToPlain(
+      Object.setPrototypeOf(query, HaravanBlogSearchDto.prototype),
+    );
+
+    const res = await ax.get(
+      `/web/blogs/${query.blogId}/articles.json?${new URLSearchParams(query as any)}`,
+    );
+
+    return plainToInstance(HaravanBlogDto, <any[]>res.data.articles);
+  }
+  //#endregion
 
   //*CUSTOMERS
   //#region
@@ -35,7 +97,7 @@ export class HaravanService {
     await validate(query);
 
     query = instanceToPlain(
-      Object.setPrototypeOf(query, HaravanCustomerDto.prototype),
+      Object.setPrototypeOf(query, HaravanCustomerSearchDto.prototype),
     );
 
     const res = await ax.get(
@@ -90,69 +152,6 @@ export class HaravanService {
 
     return plainToInstance(HaravanCustomerDto, res.data.customer);
   }
-
-  /** Tạo blog mới */
-  async createBlog(data: HaravanBlogDto, blogId: number) {
-    await validate(data);
-
-    console.log(data);
-
-    const res = await ax.post(`/web/blogs/${blogId}/articles.json`, {
-      article: instanceToPlain(
-        Object.setPrototypeOf(data, HaravanBlogDto.prototype),
-      ),
-    });
-
-    return plainToInstance(HaravanBlogDto, res.data.article);
-  }
-
-  /** Update blog */
-  async updateBlog(data: HaravanBlogDto, blogId: number) {
-    await validate(data);
-
-    console.log(data);
-
-    const res = await ax.put(`/web/blogs/${blogId}/articles/${data.id}.json`, {
-      article: instanceToPlain(
-        Object.setPrototypeOf(data, HaravanBlogDto.prototype),
-      ),
-    });
-
-    return plainToInstance(HaravanBlogDto, res.data.article);
-  }
-
-  /** Delete blog */
-  async deleteBlog(id: number, blogId: number) {
-
-    const res = await ax.delete(`/web/blogs/${blogId}/articles/${id}.json`);
-
-    return res.data;
-  }
-
-  /** Get one blog */
-  async getBlog(id: number, blogId: number) {
-
-    const res = await ax.get(`/web/blogs/${blogId}/articles/${id}.json`);
-
-    return res.data;
-  }
-
-  /** List toàn bộ bài viết đang có trên haravan
-  @param {string} query - Sử dụng field này để tìm kiếm trên data bài viết */
-  async findAllBlog(query: HaravanBlogSearchDto, blogId: number) {
-    await validate(query);
-
-    query = instanceToPlain(
-      Object.setPrototypeOf(query, HaravanBlogDto.prototype),
-    );
-
-    const res = await ax.get(
-      `/web/blogs/${blogId}/articles.json?${new URLSearchParams(query as any)}`,
-    );
-
-    return plainToInstance(HaravanBlogDto, <any[]>res.data.articles);
-  }
-
   //#endregion
 
   //*SHIPPING AND FULLFILMENT

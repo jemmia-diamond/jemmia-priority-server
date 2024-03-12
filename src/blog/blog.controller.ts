@@ -1,15 +1,24 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Request, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+  Query,
+} from '@nestjs/common';
 import { BlogService } from './blog.service';
-import { CreateBlogDto } from './dto/create-blog.dto';
-import { UpdateBlogDto } from './dto/update-blog.dto';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { EUserRole } from '../user/enums/user-role.enum';
 import { HaravanBlogSearchDto } from '../haravan/dto/haravan-blog.dto';
 import { EBlogType } from './enums/blog-type.enum';
+import { BlogDto } from './dto/blog.dto';
 
-@ApiTags("Blog")
+@ApiTags('Blog')
 @ApiBearerAuth()
 @Controller('blog')
 export class BlogController {
@@ -17,33 +26,36 @@ export class BlogController {
 
   @UseGuards(JwtAuthGuard)
   @Roles(EUserRole.admin)
-  @Post(':blogType')
-  async create(@Param('blogType') blogType: EBlogType, @Body() createBlogDto: CreateBlogDto) {
-    return this.blogService.create(createBlogDto, blogType);
+  @Post()
+  async create(@Body() createBlogDto: BlogDto) {
+    return this.blogService.create(createBlogDto);
   }
 
   @UseGuards(JwtAuthGuard)
   @Get()
-  async findAll(@Query('blogType') blogType: EBlogType, @Query() query: HaravanBlogSearchDto) {
-    return this.blogService.findAll(query, blogType);
+  async findAll(@Query() query: HaravanBlogSearchDto) {
+    return this.blogService.findAll(query);
   }
 
-  @Get(':blogType/:id')
-  async findOne(@Param('id') id: string, @Param('blogType') blogType: EBlogType) {
+  @Get(':id')
+  async findOne(
+    @Param('id') id: string,
+    @Query('blogType') blogType: EBlogType,
+  ) {
     return this.blogService.getOne(+id, blogType);
   }
 
   @UseGuards(JwtAuthGuard)
   @Roles(EUserRole.admin)
-  @Patch(':blogType/:id')
-  async update(@Param('id') id: string, @Param('blogType') blogType: EBlogType, @Body() updateBlogDto: CreateBlogDto) {
-    return this.blogService.update(+id, updateBlogDto, blogType);
+  @Patch(':id')
+  async update(@Param('id') id: string, @Body() updateBlogDto: BlogDto) {
+    return this.blogService.update(+id, updateBlogDto);
   }
 
   @UseGuards(JwtAuthGuard)
   @Roles(EUserRole.admin)
-  @Delete(':blogType/:id')
-  remove(@Param('id') id: string, @Param('blogType') blogType: EBlogType) {
+  @Delete(':id')
+  remove(@Param('id') id: string, @Query('blogType') blogType: EBlogType) {
     return this.blogService.remove(+id, blogType);
   }
 }
