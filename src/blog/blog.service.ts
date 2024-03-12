@@ -1,65 +1,36 @@
 import { Injectable } from '@nestjs/common';
-import { CreateBlogDto } from './dto/create-blog.dto';
-import { UpdateBlogDto } from './dto/update-blog.dto';
 import { EBlogType } from './enums/blog-type.enum';
 import { HaravanService } from '../haravan/haravan.service';
-import {
-  HaravanBlogDto,
-  HaravanBlogSearchDto,
-} from '../haravan/dto/haravan-blog.dto';
 import { validate } from 'class-validator';
+import { BlogDto } from './dto/blog.dto';
+import { HaravanBlogSearchDto } from '../haravan/dto/haravan-blog.dto';
 
 @Injectable()
 export class BlogService {
   constructor(private readonly haravanService: HaravanService) {}
 
-  async create(createBlogDto: CreateBlogDto, blogType: EBlogType) {
+  async create(createBlogDto: BlogDto) {
     try {
       await validate(createBlogDto, { whitelist: true });
-
-      const blogId = blogType;
-      const data = new HaravanBlogDto();
-
-      data.title = createBlogDto.title;
-      data.author = createBlogDto.author;
-      data.tags = createBlogDto.tags;
-      data.bodyHtml = createBlogDto.bodyHtml;
-      data.publishedAt = createBlogDto.publishedAt;
-      data.image = {
-        src: createBlogDto.image,
-      };
-      return this.haravanService.createBlog(data, blogId);
+      return this.haravanService.createBlog(createBlogDto);
     } catch (error) {
       return error;
     }
   }
 
-  async findAll(query: HaravanBlogSearchDto, blogType: EBlogType) {
+  async findAll(query: HaravanBlogSearchDto) {
     try {
-      const blogId = blogType;
-      return this.haravanService.findAllBlog(query, blogId);
+      return this.haravanService.findAllBlog(query);
     } catch (error) {
       return error;
     }
   }
 
-  async update(id: number, updateBlogDto: UpdateBlogDto, blogType: EBlogType) {
+  async update(id: number, updateBlogDto: BlogDto) {
     try {
+      updateBlogDto.id = id;
       await validate(updateBlogDto, { whitelist: true });
-
-      const blogId = blogType;
-      const data = new HaravanBlogDto();
-
-      data.id = id;
-      data.title = updateBlogDto.title;
-      data.author = updateBlogDto.author;
-      data.tags = updateBlogDto.tags;
-      data.bodyHtml = updateBlogDto.bodyHtml;
-      data.publishedAt = updateBlogDto.publishedAt;
-      data.image = {
-        src: updateBlogDto.image,
-      };
-      return this.haravanService.updateBlog(data, blogId);
+      return this.haravanService.updateBlog(updateBlogDto);
     } catch (error) {
       return error;
     }
@@ -67,8 +38,7 @@ export class BlogService {
 
   async remove(id: number, blogType: EBlogType) {
     try {
-      const blogId = blogType;
-      return this.haravanService.deleteBlog(id, blogId);
+      return this.haravanService.deleteBlog(id, blogType);
     } catch (error) {
       return error;
     }
@@ -76,8 +46,7 @@ export class BlogService {
 
   async getOne(id: number, blogType: EBlogType) {
     try {
-      const blogId = blogType;
-      return this.haravanService.getBlog(id, blogId);
+      return this.haravanService.getBlog(id, blogType);
     } catch (error) {
       return error;
     }
