@@ -2,7 +2,6 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import * as dotenv from 'dotenv';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { ValidationPipe } from '@nestjs/common';
 import * as admin from 'firebase-admin';
 
 async function bootstrap() {
@@ -10,22 +9,10 @@ async function bootstrap() {
 
   const app = await NestFactory.create(AppModule);
   app.enableCors({
-    origin: [
-      'http://localhost:3000',
-      'https://api.jemmia.lavenes.com',
-      'http://localhost',
-    ],
+    origin: process.env.CORS.split(',') || [],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
   });
-
-  //PIPELINES
-  app.useGlobalPipes(
-    new ValidationPipe({
-      //Remove all unknown properties when validate DTO
-      whitelist: true,
-    }),
-  );
 
   //FIREBASE ADMIN
   // Initialize the firebase admin app

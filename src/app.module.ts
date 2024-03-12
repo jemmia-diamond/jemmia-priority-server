@@ -7,6 +7,7 @@ import { UserModule } from './user/user.module';
 import { BlogModule } from './blog/blog.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+import { InformationModule } from './information/information.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { join } from 'path';
     UserModule,
     HaravanModule,
     BlogModule,
+    InformationModule,
   ],
   providers: [],
 })
