@@ -2,7 +2,6 @@ import { ApiProperty } from '@nestjs/swagger';
 import {
   IsDateString,
   IsOptional,
-  IsPhoneNumber,
   IsString,
   IsUrl,
   MaxLength,

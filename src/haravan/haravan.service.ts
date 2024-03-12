@@ -117,7 +117,6 @@ export class HaravanService {
 
   /** Delete blog */
   async deleteBlog(id: number, blogId: number) {
-
     const res = await ax.delete(`/web/blogs/${blogId}/articles/${id}.json`);
 
     return res.data;
@@ -125,7 +124,6 @@ export class HaravanService {
 
   /** Get one blog */
   async getBlog(id: number, blogId: number) {
-
     const res = await ax.get(`/web/blogs/${blogId}/articles/${id}.json`);
 
     return res.data;
