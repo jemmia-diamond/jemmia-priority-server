@@ -18,6 +18,10 @@ import {
   HaravanCouponDto,
   HaravanCouponSearchDto,
 } from './dto/haravan-coupon.dto';
+import {
+  HaravanOrderDto,
+  HaravanOrderSearchDto,
+} from './dto/haravan-order.dto';
 
 const ax = axios.create({
   baseURL: process.env.HARAVAN_ENDPOINT,
@@ -246,4 +250,37 @@ export class HaravanService {
     return plainToInstance(HaravanWardDto, res.data.wards);
   }
   //#endregion
+
+  //*Order
+  /** List toàn bộ order đang có trên haravan
+   * @param {string} query - Sử dụng field này để tìm kiếm trên data order */
+  async findAllOrder(query: HaravanOrderSearchDto) {
+    await validate(query, { whitelist: true });
+
+    query = instanceToPlain(
+      Object.setPrototypeOf(query, HaravanOrderSearchDto.prototype),
+    );
+
+    const res = await ax.get(
+      `/com/orders.json?${new URLSearchParams(query as any)}`,
+    );
+
+    return plainToInstance(HaravanOrderDto, <any[]>res.data.orders);
+  }
+
+  /** List order đang có trên haravan
+   * @param {string} query - Sử dụng field này để tìm kiếm trên data order */
+  async findOneOrder(query: HaravanOrderSearchDto, id: number) {
+    await validate(query, { whitelist: true });
+
+    query = instanceToPlain(
+      Object.setPrototypeOf(query, HaravanOrderSearchDto.prototype),
+    );
+
+    const res = await ax.get(
+      `/com/orders/${id}.json?${new URLSearchParams(query as any)}`,
+    );
+
+    return plainToInstance(HaravanOrderDto, <any>res.data.order);
+  }
 }
