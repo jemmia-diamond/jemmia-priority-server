@@ -3,11 +3,11 @@ import {
   Get,
   Post,
   Body,
-  Patch,
   Param,
   Delete,
   UseGuards,
   Query,
+  Put,
 } from '@nestjs/common';
 import { BlogService } from './blog.service';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
@@ -37,6 +37,7 @@ export class BlogController {
     return this.blogService.findAll(query);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get(':id')
   async findOne(
     @Param('id') id: string,
@@ -47,7 +48,7 @@ export class BlogController {
 
   @UseGuards(JwtAuthGuard)
   @Roles(EUserRole.admin)
-  @Patch(':id')
+  @Put(':id')
   async update(@Param('id') id: string, @Body() updateBlogDto: BlogDto) {
     return this.blogService.update(+id, updateBlogDto);
   }
