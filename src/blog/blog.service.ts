@@ -20,7 +20,9 @@ export class BlogService {
 
   async findAll(query: HaravanBlogSearchDto) {
     try {
-      return this.haravanService.findAllBlog(query);
+      return {
+        blogs: await this.haravanService.findAllBlog(query),
+      };
     } catch (error) {
       return error;
     }

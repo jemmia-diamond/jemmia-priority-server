@@ -14,12 +14,20 @@ import {
   HaravanWardDto,
 } from './dto/haravan-shipping.dto';
 import { EBlogType } from '../blog/enums/blog-type.enum';
+import {
+  HaravanCouponDto,
+  HaravanCouponSearchDto,
+} from './dto/haravan-coupon.dto';
+import {
+  HaravanOrderDto,
+  HaravanOrderSearchDto,
+} from './dto/haravan-order.dto';
 
 const ax = axios.create({
   baseURL: process.env.HARAVAN_ENDPOINT,
   timeout: 120000,
   headers: {
-    'Content-Type': 'application/json',
+    'Content-Type': 'application/json; charset=utf-8',
     Authorization: `Bearer ${process.env.HARAVAN_SECRET}`,
   },
 });
@@ -27,13 +35,75 @@ const ax = axios.create({
 @Injectable()
 export class HaravanService {
   constructor() {}
+  //*COUPON
+  //#region
+  async createCoupon(data: HaravanCouponDto) {
+    await validate(data, { whitelist: true });
+
+    const res = await ax.post(`/com/discounts.json`, {
+      discount: instanceToPlain(
+        Object.setPrototypeOf(data, HaravanCouponDto.prototype),
+      ),
+    });
+
+    return plainToInstance(HaravanCouponDto, res.data.discount);
+  }
+
+  async updateCoupon(data: HaravanCouponDto) {
+    await validate(data, { whitelist: true });
+
+    const res = await ax.put(`/com/discounts/${data.id}.json`, {
+      discount: instanceToPlain(
+        Object.setPrototypeOf(data, HaravanCouponDto.prototype),
+      ),
+    });
+
+    return plainToInstance(HaravanCouponDto, res.data.discount);
+  }
+
+  async toggleStatus(couponId: number, enable: boolean) {
+    const res = await ax.put(
+      `/com/discounts/${couponId}/${enable ? 'enable' : 'disable'}.json`,
+      {},
+    );
+
+    return plainToInstance(HaravanCouponDto, res.data.discount);
+  }
+
+  async deleteCoupon(couponId: number) {
+    await ax.delete(`/com/discounts/${couponId}.json`);
+
+    return;
+  }
+
+  async findCoupon(couponId: number) {
+    const res = await ax.get(`/com/discounts/${couponId}.json`);
+
+    return plainToInstance(HaravanCouponDto, res.data.discount);
+  }
+
+  async findAllCoupon(query: HaravanCouponSearchDto) {
+    await validate(query, { whitelist: true });
+
+    query = instanceToPlain(
+      Object.setPrototypeOf(query, HaravanCouponSearchDto.prototype),
+    );
+
+    const res = await ax.get(
+      `/com/discounts.json?${new URLSearchParams(query as any)}`,
+    );
+
+    return plainToInstance(HaravanCouponDto, <any[]>res.data.discounts);
+  }
+  //#endregion
+
   //*BLOG
   //#region
   /** Tạo blog mới */
   async createBlog(data: HaravanBlogDto) {
     await validate(data, { whitelist: true });
 
-    const res = await ax.post(`/web/blogs/${data.blogId}/articles.json`, {
+    const res = await ax.post(`/web/blogs/${data.blogType}/articles.json`, {
       article: instanceToPlain(
         Object.setPrototypeOf(data, HaravanBlogDto.prototype),
       ),
@@ -47,7 +117,7 @@ export class HaravanService {
     await validate(data, { whitelist: true });
 
     const res = await ax.put(
-      `/web/blogs/${data.blogId}/articles/${data.id}.json`,
+      `/web/blogs/${data.blogType}/articles/${data.id}.json`,
       {
         article: instanceToPlain(
           Object.setPrototypeOf(data, HaravanBlogDto.prototype),
@@ -60,16 +130,16 @@ export class HaravanService {
 
   /** Delete blog */
   async deleteBlog(id: number, blogType: EBlogType) {
-    const res = await ax.delete(`/web/blogs/${blogType}/articles/${id}.json`);
+    await ax.delete(`/web/blogs/${blogType}/articles/${id}.json`);
 
-    return res.data;
+    return;
   }
 
   /** Get one blog */
   async getBlog(id: number, blogType: EBlogType) {
     const res = await ax.get(`/web/blogs/${blogType}/articles/${id}.json`);
 
-    return res.data;
+    return plainToInstance(HaravanBlogDto, res.data.article);
   }
 
   /** List toàn bộ bài viết đang có trên haravan
@@ -82,7 +152,7 @@ export class HaravanService {
     );
 
     const res = await ax.get(
-      `/web/blogs/${query.blogId}/articles.json?${new URLSearchParams(query as any)}`,
+      `/web/blogs/${query.blogType}/articles.json?${new URLSearchParams(query as any)}`,
     );
 
     return plainToInstance(HaravanBlogDto, <any[]>res.data.articles);
@@ -155,6 +225,7 @@ export class HaravanService {
   //#endregion
 
   //*SHIPPING AND FULLFILMENT
+  //#region
   async getCountries() {
     const res = await ax.get(`/com/countries.json`);
 
@@ -177,5 +248,39 @@ export class HaravanService {
     const res = await ax.get(`/com/districts/${districtId}/wards.json`);
 
     return plainToInstance(HaravanWardDto, res.data.wards);
+  }
+  //#endregion
+
+  //*Order
+  /** List toàn bộ order đang có trên haravan
+   * @param {string} query - Sử dụng field này để tìm kiếm trên data order */
+  async findAllOrder(query: HaravanOrderSearchDto) {
+    await validate(query, { whitelist: true });
+
+    query = instanceToPlain(
+      Object.setPrototypeOf(query, HaravanOrderSearchDto.prototype),
+    );
+
+    const res = await ax.get(
+      `/com/orders.json?${new URLSearchParams(query as any)}`,
+    );
+
+    return plainToInstance(HaravanOrderDto, <any[]>res.data.orders);
+  }
+
+  /** List order đang có trên haravan
+   * @param {string} query - Sử dụng field này để tìm kiếm trên data order */
+  async findOneOrder(query: HaravanOrderSearchDto, id: number) {
+    await validate(query, { whitelist: true });
+
+    query = instanceToPlain(
+      Object.setPrototypeOf(query, HaravanOrderSearchDto.prototype),
+    );
+
+    const res = await ax.get(
+      `/com/orders/${id}.json?${new URLSearchParams(query as any)}`,
+    );
+
+    return plainToInstance(HaravanOrderDto, <any>res.data.order);
   }
 }
