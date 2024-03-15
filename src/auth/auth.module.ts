@@ -7,9 +7,14 @@ import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './strategy/jwt.strategy';
 import { APP_GUARD } from '@nestjs/core';
 import { RolesGuard } from './guards/roles.guard';
+import { HaravanModule } from '../haravan/haravan.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User]), JwtModule.register({})],
+  imports: [
+    TypeOrmModule.forFeature([User]),
+    JwtModule.register({}),
+    HaravanModule,
+  ],
   controllers: [AuthController],
   providers: [
     AuthService,
