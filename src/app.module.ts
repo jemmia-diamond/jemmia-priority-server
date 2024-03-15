@@ -8,6 +8,7 @@ import { BlogModule } from './blog/blog.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { InformationModule } from './information/information.module';
+import { CouponModule } from './coupon/coupon.module';
 
 @Module({
   imports: [
@@ -19,7 +20,7 @@ import { InformationModule } from './information/information.module';
       username: process.env.DB_UNAME,
       entities: [User],
       database: process.env.DB,
-      synchronize: false,
+      synchronize: true,
       logging: false,
     }),
     ServeStaticModule.forRoot({
@@ -30,6 +31,7 @@ import { InformationModule } from './information/information.module';
     HaravanModule,
     BlogModule,
     InformationModule,
+    CouponModule,
   ],
   providers: [],
 })
