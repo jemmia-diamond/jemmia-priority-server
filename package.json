@@ -7,7 +7,7 @@
   "license": "UNLICENSED",
   "scripts": {
     "build": "nest build",
-    "dock": "docker build -t docker.lavenes.com/jemmia . && docker push docker.lavenes.com/jemmia",
+    "dock": "docker build --no-cache -t docker.lavenes.com/jemmia . && docker push docker.lavenes.com/jemmia",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "dev": "nest start --watch",
     "start": "nest start",
