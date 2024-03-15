@@ -110,7 +110,7 @@ export class HaravanBlogSearchDto {
   })
   @IsEnum(EBlogType)
   @IsDefined()
-  blogType?: EBlogType;
+  blogId?: EBlogType;
 }
 
 class BlogImageDto {
@@ -165,7 +165,7 @@ export class HaravanBlogDto {
   @IsEnum(EBlogType)
   @IsDefined()
   @Expose({ name: 'blog_id' })
-  blogType?: EBlogType;
+  blogId?: EBlogType;
 
   @ApiPropertyOptional()
   @IsOptional()
