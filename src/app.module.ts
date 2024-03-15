@@ -20,7 +20,7 @@ import { CouponModule } from './coupon/coupon.module';
       username: process.env.DB_UNAME,
       entities: [User],
       database: process.env.DB,
-      synchronize: true,
+      synchronize: false,
       logging: false,
     }),
     ServeStaticModule.forRoot({
