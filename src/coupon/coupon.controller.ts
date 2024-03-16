@@ -8,6 +8,7 @@ import {
   Query,
   Put,
   UseGuards,
+  Request,
 } from '@nestjs/common';
 import { CouponService } from './coupon.service';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
@@ -16,6 +17,8 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { EUserRole } from '../user/enums/user-role.enum';
 import { CouponServerDto } from './dto/coupon-server.dto';
+import { Coupon } from './entities/coupon.entity';
+import { Pagination } from 'nestjs-typeorm-paginate';
 
 @ApiTags('Coupon')
 @ApiBearerAuth()
@@ -40,6 +43,31 @@ export class CouponController {
   @Get()
   findAll(@Query() query: CouponSearchDto) {
     return this.couponService.findAllCoupon(query);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('/coupon-server')
+  async findAllCouponServer(
+    @Request() req,
+    @Query('page') page = 1,
+    @Query('limit') limit = 10,
+  ): Promise<Pagination<Coupon>> {
+    limit = Math.min(50, limit); // Giới hạn limit tối đa là 50
+    return this.couponService.findAllCouponServer(
+      req.user.id,
+      req.user.role,
+      page,
+      limit,
+    );
+  }
+
+  @Get('/coupon-server/:id')
+  async findOneCouponServer(@Request() req, @Param('id') id: string) {
+    return this.couponService.findCouponServerById(
+      req.user.id,
+      req.user.role,
+      id,
+    );
   }
 
   @Get(':id')

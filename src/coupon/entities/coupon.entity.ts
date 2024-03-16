@@ -1,7 +1,8 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { Exclude } from 'class-transformer';
 import { ECouponType } from '../enums/coupon-type.enum';
 import { IsUrl } from 'class-validator';
+import { CouponUser } from './coupon-user.entity';
 
 @Entity('coupons')
 export class Coupon {
@@ -49,4 +50,10 @@ export class Coupon {
 
   @Column('varchar')
   product: string;
+
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  createdDate: Date;
+
+  @OneToMany(() => CouponUser, (couponUser) => couponUser.coupon)
+  couponUser: CouponUser[];
 }
