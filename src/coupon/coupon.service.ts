@@ -3,13 +3,15 @@ import { HaravanService } from '../haravan/haravan.service';
 import { CouponDto, CouponSearchDto } from './dto/coupon.dto';
 import { CouponServerDto } from './dto/coupon-server.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, LessThanOrEqual, MoreThanOrEqual, Repository } from 'typeorm';
 import { Coupon } from './entities/coupon.entity';
 import { ECouponType } from './enums/coupon-type.enum';
 import { User } from '../user/entities/user.entity';
 import { CouponUser } from './entities/coupon-user.entity';
 import { validate } from 'class-validator';
 import { ECouponDiscountType } from '../haravan/enums/coupon.enum';
+import { Pagination } from 'nestjs-typeorm-paginate';
+import { EUserRole } from '../user/enums/user-role.enum';
 
 @Injectable()
 export class CouponService {
@@ -71,6 +73,108 @@ export class CouponService {
       };
     } catch (e) {
       return e;
+    }
+  }
+
+  async findAllCouponServer(
+    userId: string,
+    role: string,
+    page: number,
+    limit: number,
+  ): Promise<Pagination<Coupon>> {
+    try {
+      const offset = (page - 1) * limit;
+      const currentDate = new Date();
+      let items: Coupon[];
+      let totalItems: number;
+
+      const couponUser = await this.couponUserRepository.findOneBy({
+        user: await this.userRepository.findOneBy({ id: userId }),
+      });
+
+      if (role === EUserRole.admin) {
+        [items, totalItems] = await this.couponRepository.findAndCount({
+          order: { createdDate: 'DESC' },
+          skip: offset,
+          take: limit,
+        });
+      } else {
+        [items, totalItems] = await this.couponRepository.findAndCount({
+          where: {
+            startDate: MoreThanOrEqual(currentDate),
+            endDate: LessThanOrEqual(currentDate),
+            quantityLimit: MoreThanOrEqual(0),
+            couponUser: In([null, couponUser]),
+          },
+          order: { createdDate: 'DESC' },
+          skip: offset,
+          take: limit,
+          join: {
+            alias: 'coupon',
+            leftJoinAndSelect: {
+              couponUser: 'coupon.couponUser',
+            },
+          },
+        });
+      }
+
+      const totalPages = Math.ceil(totalItems / limit);
+
+      const meta = {
+        itemCount: items.length,
+        itemsPerPage: limit,
+        totalPages,
+        totalItems,
+        currentPage: page,
+      };
+
+      return new Pagination<Coupon>(items, meta);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async findCouponServerById(
+    userId: string,
+    role: string,
+    couponId: string,
+  ): Promise<Coupon | null> {
+    try {
+      const currentDate = new Date();
+      let coupon: Coupon | null = null;
+
+      const couponUser = await this.couponUserRepository.findOneBy({
+        user: await this.userRepository.findOneBy({ id: userId }),
+      });
+
+      if (role === EUserRole.admin) {
+        coupon = await this.couponRepository.findOneBy({ id: couponId });
+      } else {
+        coupon = await this.couponRepository.findOne({
+          where: {
+            id: couponId,
+            startDate: MoreThanOrEqual(currentDate),
+            endDate: LessThanOrEqual(currentDate),
+            quantityLimit: MoreThanOrEqual(0),
+            couponUser: In([null, couponUser]),
+          },
+          join: {
+            alias: 'coupon',
+            leftJoinAndSelect: {
+              couponUser: 'coupon.couponUser',
+            },
+          },
+        });
+      }
+
+      const dataReturn = {
+        ...coupon,
+        coupon: await this.findCoupon(coupon.couponId),
+      };
+
+      return dataReturn;
+    } catch (error) {
+      throw error;
     }
   }
 
