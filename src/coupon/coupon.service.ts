@@ -3,7 +3,7 @@ import { HaravanService } from '../haravan/haravan.service';
 import { CouponDto, CouponSearchDto } from './dto/coupon.dto';
 import { CouponServerDto } from './dto/coupon-server.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, LessThanOrEqual, MoreThanOrEqual, Repository } from 'typeorm';
+import { LessThanOrEqual, MoreThanOrEqual, Repository } from 'typeorm';
 import { Coupon } from './entities/coupon.entity';
 import { ECouponType } from './enums/coupon-type.enum';
 import { User } from '../user/entities/user.entity';
@@ -104,17 +104,11 @@ export class CouponService {
             startDate: MoreThanOrEqual(currentDate),
             endDate: LessThanOrEqual(currentDate),
             quantityLimit: MoreThanOrEqual(0),
-            couponUser: In([null, couponUser]),
+            couponUser: [null, couponUser],
           },
           order: { createdDate: 'DESC' },
           skip: offset,
           take: limit,
-          join: {
-            alias: 'coupon',
-            leftJoinAndSelect: {
-              couponUser: 'coupon.couponUser',
-            },
-          },
         });
       }
 
@@ -155,14 +149,8 @@ export class CouponService {
             id: couponId,
             startDate: MoreThanOrEqual(currentDate),
             endDate: LessThanOrEqual(currentDate),
-            quantityLimit: MoreThanOrEqual(0),
-            couponUser: In([null, couponUser]),
-          },
-          join: {
-            alias: 'coupon',
-            leftJoinAndSelect: {
-              couponUser: 'coupon.couponUser',
-            },
+            quantityLimit: MoreThanOrEqual(1),
+            couponUser: [null, couponUser],
           },
         });
       }
@@ -365,6 +353,36 @@ export class CouponService {
       if (couponEntity.type === ECouponType.product) {
         await this.deleteCoupon(couponEntity.couponId);
       }
+
+      return couponEntity;
+    } catch (error) {
+      return error;
+    }
+  }
+
+  async receiveCouponServer(userId: string, id: string) {
+    try {
+      const currentDate = new Date();
+      const user = await this.userRepository.findOneBy({ id: userId });
+      const couponUser = await this.couponUserRepository.findOneBy({
+        user: user,
+      });
+      const couponEntity = await this.couponRepository.findOne({
+        where: {
+          id,
+          startDate: MoreThanOrEqual(currentDate),
+          endDate: LessThanOrEqual(currentDate),
+          quantityLimit: MoreThanOrEqual(1),
+          point: LessThanOrEqual(user.point),
+          couponUser: [null, couponUser],
+        },
+      });
+      if (!couponEntity) {
+        throw new BadRequestException('Coupon not found.');
+      }
+
+      user.point = user.point - couponEntity.point;
+      await this.userRepository.save(user);
 
       return couponEntity;
     } catch (error) {

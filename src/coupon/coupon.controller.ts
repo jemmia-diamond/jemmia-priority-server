@@ -40,6 +40,12 @@ export class CouponController {
     return this.couponService.createCouponServer(data);
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Post('/coupon-server/:id')
+  receiveCouponServer(@Request() req, @Param('id') id: string) {
+    return this.couponService.receiveCouponServer(req.user.id, id);
+  }
+
   @Get()
   findAll(@Query() query: CouponSearchDto) {
     return this.couponService.findAllCoupon(query);
