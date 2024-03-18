@@ -8,6 +8,10 @@ import { JwtService } from '@nestjs/jwt';
 import { AccessTokenPayload, RefreshTokenPayload } from './types/jwt.types';
 import { jwtConstants } from './constants';
 import * as firebaseAdmin from 'firebase-admin';
+import { HaravanService } from '../haravan/haravan.service';
+import { StringUtils } from '../utils/string.utils';
+import { EUserRole } from '../user/enums/user-role.enum';
+import { HaravanCustomerDto } from '../haravan/dto/haravan-customer.dto';
 
 @Injectable()
 export class AuthService {
@@ -15,6 +19,7 @@ export class AuthService {
     @InjectRepository(User)
     private userRepository: Repository<User>,
     private jwtService: JwtService,
+    private haravanService: HaravanService,
   ) {}
 
   private oauthClient = new OAuth2Client(
@@ -52,20 +57,48 @@ export class AuthService {
   async oauth(payload: AuthDto) {
     //VERIFY OAUTH TOKEN
     const tokenPayload = await this.verifyOAuth(payload.token);
-    const user = await this.userRepository.findOne({
+    const fPhoneNum = tokenPayload.phone_number.replace(/^\+84/, '0');
+    const haravanUser: HaravanCustomerDto = (
+      await this.haravanService.findAllCustomer({
+        query: fPhoneNum,
+      })
+    )[0];
+
+    //Trường hợp user k phải admin & cũng không phải khách hàng haravan
+    if (!tokenPayload.email && !haravanUser.id) {
+      throw new HttpException('USER_NOT_FOUND', HttpStatus.UNAUTHORIZED);
+    }
+
+    let user = await this.userRepository.findOne({
       where: [
         {
+          //Admin account query
           authId: tokenPayload.email,
+          haravanId: null,
         },
-        // {
-        //   authId: tokenPayload.phone_number,
-        // },
+        {
+          //Customer account query
+          haravanId: haravanUser.id,
+        },
       ],
     });
 
-    if (!user) {
+    if (!user && !haravanUser) {
       throw new HttpException('USER_NOT_FOUND', HttpStatus.UNAUTHORIZED);
     }
+
+    //Sync dữ liệu khách hàng từ haravan sang
+    if (haravanUser) {
+      user = await this.userRepository.save({
+        ...user,
+        authId: fPhoneNum,
+        phoneNumber: fPhoneNum,
+        inviteCode: user?.inviteCode || StringUtils.random(6),
+        role: user?.role || EUserRole.customer,
+        haravanId: haravanUser.id,
+      });
+    }
+
     //LOGIN
     const refreshToken = await this.signRefreshToken({
       id: user.id,
@@ -75,16 +108,6 @@ export class AuthService {
 
     user.refreshToken = refreshToken;
     await this.userRepository.save(user);
-
-    //REGISTER
-    //!TODO: SYNC HARAVAN CUSTOMER AND PUT ID INTO THIS IF USER EXIST ON HARAVAN
-    // user = await this.userRepository.save({
-    //   authId: tokenPayload.phone_number,
-    //   phoneNumber: tokenPayload.phone_number,
-    //   inviteCode: StringUtils.random(6),
-    //   haravanId: tokenPayload.phone_number,
-    //   role
-    // });
 
     const accessToken = await this.signAccessToken({
       id: user.id,
@@ -97,7 +120,10 @@ export class AuthService {
     return {
       accessToken,
       refreshToken,
-      user,
+      user: {
+        ...user,
+        haravan: haravanUser || {},
+      },
     };
   }
 
