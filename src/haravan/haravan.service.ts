@@ -103,7 +103,7 @@ export class HaravanService {
   async createBlog(data: HaravanBlogDto) {
     await validate(data, { whitelist: true });
 
-    const res = await ax.post(`/web/blogs/${data.blogType}/articles.json`, {
+    const res = await ax.post(`/web/blogs/${data.blogId}/articles.json`, {
       article: instanceToPlain(
         Object.setPrototypeOf(data, HaravanBlogDto.prototype),
       ),
@@ -117,7 +117,7 @@ export class HaravanService {
     await validate(data, { whitelist: true });
 
     const res = await ax.put(
-      `/web/blogs/${data.blogType}/articles/${data.id}.json`,
+      `/web/blogs/${data.blogId}/articles/${data.id}.json`,
       {
         article: instanceToPlain(
           Object.setPrototypeOf(data, HaravanBlogDto.prototype),
@@ -152,7 +152,7 @@ export class HaravanService {
     );
 
     const res = await ax.get(
-      `/web/blogs/${query.blogType}/articles.json?${new URLSearchParams(query as any)}`,
+      `/web/blogs/${query.blogId}/articles.json?${new URLSearchParams(query as any)}`,
     );
 
     return plainToInstance(HaravanBlogDto, <any[]>res.data.articles);
