@@ -1,13 +1,13 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { HaravanService } from '../haravan/haravan.service';
 import { CouponDto, CouponSearchDto } from './dto/coupon.dto';
-import { CouponServerDto } from './dto/coupon-server.dto';
+import { GiftDto } from './dto/gift.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { LessThanOrEqual, MoreThanOrEqual, Repository } from 'typeorm';
-import { Coupon } from './entities/coupon.entity';
-import { ECouponType } from './enums/coupon-type.enum';
+import { Coupon } from './entities/gift.entity';
+import { ECouponType } from './enums/gift-type.enum';
 import { User } from '../user/entities/user.entity';
-import { CouponUser } from './entities/coupon-user.entity';
+import { CouponUser } from './entities/gift-user.entity';
 import { validate } from 'class-validator';
 import { ECouponDiscountType } from '../haravan/enums/coupon.enum';
 import { Pagination } from 'nestjs-typeorm-paginate';
@@ -76,7 +76,7 @@ export class CouponService {
     }
   }
 
-  async findAllCouponServer(
+  async findAllGift(
     userId: string,
     role: string,
     page: number,
@@ -128,7 +128,7 @@ export class CouponService {
     }
   }
 
-  async findCouponServerById(
+  async findGiftById(
     userId: string,
     role: string,
     couponId: string,
@@ -166,7 +166,7 @@ export class CouponService {
     }
   }
 
-  async createCouponServer(data: CouponServerDto) {
+  async createGift(data: GiftDto) {
     try {
       const queryRunner =
         this.couponRepository.manager.connection.createQueryRunner();
@@ -199,7 +199,7 @@ export class CouponService {
           couponEntity.startDate = coupon.startsAt;
           couponEntity.endDate = coupon.EndsAt;
         }
-        const couponServer = await queryRunner.manager.save(couponEntity);
+        const Gift = await queryRunner.manager.save(couponEntity);
 
         const promises = data.userList.map(async (userId) => {
           const user = await this.userRepository.findOneBy({ id: userId });
@@ -210,7 +210,7 @@ export class CouponService {
 
           const couponUser = new CouponUser();
           couponUser.user = user;
-          couponUser.coupon = couponServer;
+          couponUser.coupon = Gift;
 
           await queryRunner.manager.save(couponUser);
         });
@@ -250,7 +250,7 @@ export class CouponService {
     }
   }
 
-  async updateCouponServer(id: string, data: CouponServerDto) {
+  async updateGift(id: string, data: GiftDto) {
     try {
       const queryRunner =
         this.couponRepository.manager.connection.createQueryRunner();
@@ -283,10 +283,10 @@ export class CouponService {
           couponEntity.endDate = coupon.EndsAt;
           couponEntity.couponId = data.couponId;
         }
-        const couponServer = await queryRunner.manager.save(couponEntity);
+        const Gift = await queryRunner.manager.save(couponEntity);
 
         await this.couponUserRepository.delete({
-          coupon: couponServer,
+          coupon: Gift,
         });
 
         const promises = data.userList.map(async (userId) => {
@@ -298,7 +298,7 @@ export class CouponService {
 
           const couponUser = new CouponUser();
           couponUser.user = user;
-          couponUser.coupon = couponServer;
+          couponUser.coupon = Gift;
 
           await queryRunner.manager.save(couponUser);
         });
@@ -337,7 +337,7 @@ export class CouponService {
     }
   }
 
-  async deleteCouponServer(id: string) {
+  async deleteGift(id: string) {
     try {
       const couponEntity = await this.couponRepository.findOneBy({ id: id });
       if (!couponEntity) {
@@ -360,7 +360,7 @@ export class CouponService {
     }
   }
 
-  async receiveCouponServer(userId: string, id: string) {
+  async receiveGift(userId: string, id: string) {
     try {
       const currentDate = new Date();
       const user = await this.userRepository.findOneBy({ id: userId });

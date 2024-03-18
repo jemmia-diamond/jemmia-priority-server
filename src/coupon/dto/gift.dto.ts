@@ -5,7 +5,7 @@ import {
   IsUrl,
   ValidateNested,
 } from 'class-validator';
-import { ECouponType } from '../enums/coupon-type.enum';
+import { ECouponType } from '../enums/gift-type.enum';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 
@@ -21,7 +21,7 @@ class Variants {
   variantId: number;
 }
 
-export class CouponServerDto {
+export class GiftDto {
   @ApiPropertyOptional({
     enum: ECouponType,
   })
