@@ -1,10 +1,10 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { Exclude } from 'class-transformer';
-import { ECouponType } from '../enums/coupon-type.enum';
+import { ECouponType } from '../enums/gift-type.enum';
 import { IsUrl } from 'class-validator';
-import { CouponUser } from './coupon-user.entity';
+import { CouponUser } from './gift-user.entity';
 
-@Entity('coupons')
+@Entity('gifts')
 export class Coupon {
   @PrimaryGeneratedColumn('uuid')
   id: string;

@@ -11,17 +11,16 @@ import {
   Request,
 } from '@nestjs/common';
 import { CouponService } from './coupon.service';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiTags } from '@nestjs/swagger';
 import { CouponDto, CouponSearchDto } from './dto/coupon.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { EUserRole } from '../user/enums/user-role.enum';
-import { CouponServerDto } from './dto/coupon-server.dto';
-import { Coupon } from './entities/coupon.entity';
+import { GiftDto } from './dto/gift.dto';
+import { Coupon } from './entities/gift.entity';
 import { Pagination } from 'nestjs-typeorm-paginate';
 
 @ApiTags('Coupon')
-@ApiBearerAuth()
 @Controller('coupon')
 export class CouponController {
   constructor(private readonly couponService: CouponService) {}
@@ -35,15 +34,15 @@ export class CouponController {
 
   @UseGuards(JwtAuthGuard)
   @Roles(EUserRole.admin)
-  @Post('/coupon-server')
-  createCouponServer(@Body() data: CouponServerDto) {
-    return this.couponService.createCouponServer(data);
+  @Post('/gift')
+  createGift(@Body() data: GiftDto) {
+    return this.couponService.createGift(data);
   }
 
   @UseGuards(JwtAuthGuard)
-  @Post('/coupon-server/:id')
-  receiveCouponServer(@Request() req, @Param('id') id: string) {
-    return this.couponService.receiveCouponServer(req.user.id, id);
+  @Post('/gift/:id')
+  receiveGift(@Request() req, @Param('id') id: string) {
+    return this.couponService.receiveGift(req.user.id, id);
   }
 
   @Get()
@@ -52,14 +51,14 @@ export class CouponController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Get('/coupon-server')
-  async findAllCouponServer(
+  @Get('/gift')
+  async findAllGift(
     @Request() req,
     @Query('page') page = 1,
     @Query('limit') limit = 10,
   ): Promise<Pagination<Coupon>> {
     limit = Math.min(50, limit); // Giới hạn limit tối đa là 50
-    return this.couponService.findAllCouponServer(
+    return this.couponService.findAllGift(
       req.user.id,
       req.user.role,
       page,
@@ -67,13 +66,9 @@ export class CouponController {
     );
   }
 
-  @Get('/coupon-server/:id')
-  async findOneCouponServer(@Request() req, @Param('id') id: string) {
-    return this.couponService.findCouponServerById(
-      req.user.id,
-      req.user.role,
-      id,
-    );
+  @Get('/gift/:id')
+  async findOneGift(@Request() req, @Param('id') id: string) {
+    return this.couponService.findGiftById(req.user.id, req.user.role, id);
   }
 
   @Get(':id')
@@ -84,13 +79,13 @@ export class CouponController {
   @UseGuards(JwtAuthGuard)
   @Roles(EUserRole.admin)
   @Put(':id/status/enable')
-  updateCouponServer(@Param('id') id: string, @Body() data: CouponServerDto) {
-    return this.couponService.updateCouponServer(id, data);
+  updateGift(@Param('id') id: string, @Body() data: GiftDto) {
+    return this.couponService.updateGift(id, data);
   }
 
   @UseGuards(JwtAuthGuard)
   @Roles(EUserRole.admin)
-  @Put(':id/coupon-server')
+  @Put(':id/gift')
   enableStatus(@Param('id') id: string) {
     return this.couponService.toggleStatus(+id, true);
   }
@@ -108,9 +103,9 @@ export class CouponController {
   // }
   @UseGuards(JwtAuthGuard)
   @Roles(EUserRole.admin)
-  @Delete(':id/coupon-server')
-  removeCouponServer(@Param('id') id: string) {
-    return this.couponService.deleteCouponServer(id);
+  @Delete(':id/gift')
+  removeGift(@Param('id') id: string) {
+    return this.couponService.deleteGift(id);
   }
 
   @UseGuards(JwtAuthGuard)
