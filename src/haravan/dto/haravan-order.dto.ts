@@ -714,7 +714,7 @@ export class HaravanOrderDto {
   @Type(() => BillingAddress)
   @ValidateNested()
   @Expose({ name: 'billing_address' })
-  BillingAddress: BillingAddress;
+  billingAddress: BillingAddress;
 
   @ApiPropertyOptional()
   @IsOptional()

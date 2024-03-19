@@ -17,7 +17,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { EUserRole } from '../user/enums/user-role.enum';
 import { GiftDto } from './dto/gift.dto';
-import { Coupon } from './entities/gift.entity';
+import { Coupon } from './entities/coupon.entity';
 import { Pagination } from 'nestjs-typeorm-paginate';
 
 @ApiTags('Coupon')

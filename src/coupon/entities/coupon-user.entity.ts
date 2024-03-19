@@ -1,6 +1,6 @@
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { User } from '../../user/entities/user.entity';
-import { Coupon } from './gift.entity';
+import { Coupon } from './coupon.entity';
 
 @Entity('gift_users')
 export class CouponUser {
