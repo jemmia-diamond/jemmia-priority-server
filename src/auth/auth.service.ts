@@ -57,7 +57,7 @@ export class AuthService {
   async oauth(payload: AuthDto) {
     //VERIFY OAUTH TOKEN
     const tokenPayload = await this.verifyOAuth(payload.token);
-    const fPhoneNum = tokenPayload.phone_number.replace(/^\+84/, '0');
+    const fPhoneNum = tokenPayload.phone_number?.replace(/^\+84/, '0');
     const haravanUser: HaravanCustomerDto = (
       await this.haravanService.findAllCustomer({
         query: fPhoneNum,
