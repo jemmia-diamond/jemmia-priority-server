@@ -8,7 +8,10 @@ import { BlogModule } from './blog/blog.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { InformationModule } from './information/information.module';
+import { OrderModule } from './order/order.module';
 import { CouponModule } from './coupon/coupon.module';
+import { Coupon } from './coupon/entities/coupon.entity';
+import { CouponUser } from './coupon/entities/coupon-user.entity';
 
 @Module({
   imports: [
@@ -18,7 +21,7 @@ import { CouponModule } from './coupon/coupon.module';
       port: Number(process.env.DB_PORT),
       password: process.env.DB_PASSWORD,
       username: process.env.DB_UNAME,
-      entities: [User],
+      entities: [User, Coupon, CouponUser],
       database: process.env.DB,
       synchronize: false,
       logging: false,
@@ -31,6 +34,7 @@ import { CouponModule } from './coupon/coupon.module';
     HaravanModule,
     BlogModule,
     InformationModule,
+    OrderModule,
     CouponModule,
   ],
   providers: [],
