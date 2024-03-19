@@ -2,7 +2,7 @@ import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { Exclude } from 'class-transformer';
 import { ECouponType } from '../enums/gift-type.enum';
 import { IsUrl } from 'class-validator';
-import { CouponUser } from './gift-user.entity';
+import { CouponUser } from './coupon-user.entity';
 
 @Entity('gifts')
 export class Coupon {

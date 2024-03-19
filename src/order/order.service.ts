@@ -1,5 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { HaravanOrderSearchDto } from '../haravan/dto/haravan-order.dto';
+import {
+  HaravanOrderDto,
+  HaravanOrderSearchDto,
+} from '../haravan/dto/haravan-order.dto';
 import { HaravanService } from '../haravan/haravan.service';
 import { EUserRole } from '../user/enums/user-role.enum';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -39,5 +42,11 @@ export class OrderService {
     } catch (error) {
       return error;
     }
+  }
+
+  async haravanHook(payload: HaravanOrderDto) {
+    console.log(payload);
+
+    return;
   }
 }
