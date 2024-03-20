@@ -15,9 +15,10 @@ import {
   HaravanOrderSearchDto,
 } from '../haravan/dto/haravan-order.dto';
 import { RequestPayload } from '../types/controller.type';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('Order')
+@ApiBearerAuth()
 @Controller('order')
 export class OrderController {
   constructor(private readonly orderService: OrderService) {}
