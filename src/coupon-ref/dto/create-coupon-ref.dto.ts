@@ -7,7 +7,12 @@ export class CreateCouponRefDto {
   @ApiPropertyOptional()
   @IsOptional()
   @IsDefined()
-  userId?: string;
+  ownerId?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsDefined()
+  partnerId?: string;
 
   @ApiProperty({
     enum: EPartnerCustomer,
