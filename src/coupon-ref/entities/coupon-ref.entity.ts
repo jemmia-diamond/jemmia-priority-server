@@ -9,9 +9,15 @@ export class CouponRef {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
+  /** Chủ sở hữu coupon */
   @Exclude()
   @ManyToOne(() => User)
   owner: User;
+
+  /** Người tạo coupon, đây sẽ là các user partnerA */
+  @Exclude()
+  @ManyToOne(() => User)
+  partner: User;
 
   @Column('enum', { enum: EPartnerCustomer })
   partnerType: EPartnerCustomer;
@@ -31,6 +37,7 @@ export class CouponRef {
   @Column('varchar')
   couponHaravanCode: string;
 
+  /** Field này dùng để kiểm tra couponRef đã được partnerA / partnerB đi mua hàng lần đầu */
   @Column({ type: 'boolean', default: false })
   used: boolean;
 

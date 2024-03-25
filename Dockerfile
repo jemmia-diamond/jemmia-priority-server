@@ -5,7 +5,7 @@ WORKDIR /app
 FROM base AS install
 RUN mkdir -p /temp
 COPY package.json bun.lockb /temp/
-RUN cd /temp && bun install --frozen-lockfile
+RUN cd /temp && bun install
 
 FROM base AS prerelease
 COPY --from=install /temp/node_modules node_modules
