@@ -2,8 +2,8 @@ import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { User } from '../../user/entities/user.entity';
 import { Coupon } from './coupon.entity';
 
-@Entity('gift_users')
-export class CouponUser {
+@Entity('coupon_redeemeds')
+export class CouponRedeemed {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 

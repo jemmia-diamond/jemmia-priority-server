@@ -1,48 +1,27 @@
-import {
-  IsArray,
-  IsDefined,
-  IsEnum,
-  IsOptional,
-  ValidateNested,
-} from 'class-validator';
+import { IsDefined, IsEnum, IsOptional } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
 import { EPartnerCustomer } from '../enums/partner-customer.enum';
-
-class Variants {
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsDefined()
-  productId: number;
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsDefined()
-  variantId: number;
-}
+import { ECouponRefType } from '../enums/copon-ref.enum';
 
 export class CreateCouponRefDto {
   @ApiPropertyOptional()
   @IsOptional()
   @IsDefined()
-  name: string;
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsDefined()
-  owner: string;
+  userId?: string;
 
   @ApiProperty({
     enum: EPartnerCustomer,
   })
   @IsEnum(EPartnerCustomer)
   @IsDefined()
-  partnerCustomer?: EPartnerCustomer;
+  partnerType: EPartnerCustomer;
 
-  @ApiPropertyOptional()
-  @IsOptional()
+  @ApiProperty({
+    enum: ECouponRefType,
+  })
+  @IsEnum(ECouponRefType)
   @IsDefined()
-  percentReduce: number;
+  type: ECouponRefType;
 
   @ApiPropertyOptional()
   @IsOptional()
@@ -53,42 +32,4 @@ export class CreateCouponRefDto {
   @IsOptional()
   @IsDefined()
   endDate: Date;
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsDefined()
-  receiveRankPoint: number;
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsDefined()
-  product: string;
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsDefined()
-  code: string;
-
-  @ApiPropertyOptional({ type: () => Variants, isArray: true })
-  @IsOptional()
-  @IsDefined()
-  @IsArray()
-  @ValidateNested()
-  @Type(() => Variants)
-  variants?: Variants[];
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsDefined()
-  appliesCustomerGroupId: number;
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsDefined()
-  minimumOrderAmount: number;
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsDefined()
-  locationIds: Array<number>;
 }

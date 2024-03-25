@@ -5,14 +5,15 @@ import { HaravanModule } from '../haravan/haravan.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from '../user/entities/user.entity';
 import { Coupon } from './entities/coupon.entity';
-import { CouponUser } from './entities/coupon-user.entity';
+import { CouponRedeemed } from './entities/coupon-user.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, Coupon, CouponUser]),
+    TypeOrmModule.forFeature([User, Coupon, CouponRedeemed]),
     HaravanModule,
   ],
   controllers: [CouponController],
   providers: [CouponService],
+  exports: [CouponService],
 })
 export class CouponModule {}

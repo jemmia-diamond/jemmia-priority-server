@@ -11,7 +11,9 @@ import { InformationModule } from './information/information.module';
 import { OrderModule } from './order/order.module';
 import { CouponModule } from './coupon/coupon.module';
 import { CouponRefModule } from './coupon-ref/coupon-ref.module';
-import { ConfigModule } from '@nestjs/config';
+import { Coupon } from './coupon/entities/coupon.entity';
+import { CouponRedeemed } from './coupon/entities/coupon-user.entity';
+import { CouponRef } from './coupon-ref/entities/coupon-ref.entity';
 
 @Module({
   imports: [
@@ -21,18 +23,13 @@ import { ConfigModule } from '@nestjs/config';
       port: Number(process.env.DB_PORT),
       password: process.env.DB_PASSWORD,
       username: process.env.DB_UNAME,
-      entities: [User],
+      entities: [User, Coupon, CouponRedeemed, CouponRef],
       database: process.env.DB,
-      synchronize: false,
+      synchronize: true,
       logging: false,
     }),
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'public'),
-    }),
-    ConfigModule.forRoot({
-      isGlobal: true,
-      // Đường dẫn đến tệp cấu hình
-      envFilePath: 'config/customer.config.json',
     }),
     AuthModule,
     UserModule,

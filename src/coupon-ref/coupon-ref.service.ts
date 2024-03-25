@@ -5,10 +5,12 @@ import { User } from '../user/entities/user.entity';
 import { Repository } from 'typeorm';
 import { CouponService } from '../coupon/coupon.service';
 import { CouponRef } from './entities/coupon-ref.entity';
-import { ConfigCustomService } from '../config/config-custom.service';
 import { HaravanCouponDto } from '../haravan/dto/haravan-coupon.dto';
 import { EUserRole } from '../user/enums/user-role.enum';
 import { Pagination } from 'nestjs-typeorm-paginate';
+import { EPartnerInviteCouponConfig } from './enums/partner-customer.enum';
+import { StringUtils } from '../utils/string.utils';
+import { ECouponRefType } from './enums/copon-ref.enum';
 
 @Injectable()
 export class CouponRefService {
@@ -18,52 +20,44 @@ export class CouponRefService {
     @InjectRepository(CouponRef)
     private couponRefRepository: Repository<CouponRef>,
     private couponService: CouponService,
-    private configService: ConfigCustomService,
   ) {}
 
   async create(createCouponRefDto: CreateCouponRefDto) {
     try {
       const owner = await this.userRepository.findOneBy({
-        id: createCouponRefDto.owner,
+        id: createCouponRefDto.userId,
       });
       if (!owner) throw new BadRequestException('User owner not found');
 
-      const dataCustomerConfig =
-        this.configService.getConfig()[createCouponRefDto.partnerCustomer];
+      const couponConfig =
+        EPartnerInviteCouponConfig[createCouponRefDto.partnerType];
 
-      if (!dataCustomerConfig)
+      if (!couponConfig)
         throw new BadRequestException('Partner customer not found');
-
-      const dataCouponConfig = this.configService.getConfig().partnerCoupon;
 
       const couponHaravanDto = new HaravanCouponDto();
       couponHaravanDto.isPromotion = true;
+      couponHaravanDto.code = StringUtils.random(6);
       couponHaravanDto.appliesOnce = false;
-      couponHaravanDto.code = createCouponRefDto.code;
-      couponHaravanDto.endsAt = createCouponRefDto.endDate.toDateString();
-      couponHaravanDto.startsAt = createCouponRefDto.startDate.toDateString();
-      couponHaravanDto.minimumOrderAmount = dataCouponConfig.minimumOrderAmount;
-      couponHaravanDto.usageLimit = dataCouponConfig.usageLimit;
-      couponHaravanDto.value = dataCouponConfig.value;
-      couponHaravanDto.discountType = dataCouponConfig.discountType;
-      couponHaravanDto.variants = createCouponRefDto.variants;
-      couponHaravanDto.setTimeActive = true;
-      couponHaravanDto.appliesCustomerGroupId =
-        createCouponRefDto.appliesCustomerGroupId;
-      couponHaravanDto.locationIds = createCouponRefDto.locationIds;
+
+      if (ECouponRefType.partnerCoupon) {
+        couponHaravanDto.appliesOnce = true;
+        couponHaravanDto.endsAt = createCouponRefDto.endDate.toDateString();
+        couponHaravanDto.startsAt = createCouponRefDto.startDate.toDateString();
+        couponHaravanDto.usageLimit = 1;
+        couponHaravanDto.value = couponConfig.value;
+        couponHaravanDto.discountType = couponConfig.discountType;
+        couponHaravanDto.setTimeActive = true;
+      }
 
       const coupon = await this.couponService.createCoupon(couponHaravanDto);
 
       const couponRef = new CouponRef();
       couponRef.couponHaravanId = coupon.id;
-      couponRef.name = dataCustomerConfig.name;
       couponRef.owner = owner;
-      couponRef.percentReduce = dataCustomerConfig.percent;
-      couponRef.receiveRankPoint = dataCustomerConfig.receiveRankPoint;
+      couponRef.partnerType = createCouponRefDto.partnerType;
       couponRef.startDate = createCouponRefDto.startDate;
       couponRef.endDate = createCouponRefDto.endDate;
-      couponRef.startDateHaravan = createCouponRefDto.startDate;
-      couponRef.endDateHaravan = createCouponRefDto.endDate;
 
       return await this.couponRefRepository.save(couponRef);
     } catch (error) {

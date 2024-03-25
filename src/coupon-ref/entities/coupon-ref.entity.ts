@@ -1,23 +1,23 @@
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { Exclude } from 'class-transformer';
 import { User } from '../../user/entities/user.entity';
+import { EPartnerCustomer } from '../enums/partner-customer.enum';
+import { ECouponRefType } from '../enums/copon-ref.enum';
 
-@Entity('couponRefs')
+@Entity('coupon_refs')
 export class CouponRef {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @Exclude()
-  @Column('varchar', { length: 255 })
-  name: string;
-
-  @Exclude()
   @ManyToOne(() => User)
   owner: User;
 
-  @Exclude()
-  @Column('int')
-  percentReduce: number;
+  @Column('enum', { enum: EPartnerCustomer })
+  partnerType: EPartnerCustomer;
+
+  @Column('enum', { enum: ECouponRefType })
+  type: ECouponRefType;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   startDate: Date;
@@ -25,18 +25,11 @@ export class CouponRef {
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   endDate: Date;
 
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-  startDateHaravan: Date;
-
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-  endDateHaravan: Date;
-
-  @Exclude()
-  @Column('int')
-  receiveRankPoint: number;
-
   @Column('int')
   couponHaravanId: number;
+
+  @Column({ type: 'boolean', default: false })
+  used: boolean;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdDate: Date;
