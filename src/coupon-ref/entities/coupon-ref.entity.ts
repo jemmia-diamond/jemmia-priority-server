@@ -28,6 +28,9 @@ export class CouponRef {
   @Column('int')
   couponHaravanId: number;
 
+  @Column('varchar')
+  couponHaravanCode: string;
+
   @Column({ type: 'boolean', default: false })
   used: boolean;
 
