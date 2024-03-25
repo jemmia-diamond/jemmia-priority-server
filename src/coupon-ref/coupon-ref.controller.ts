@@ -18,7 +18,7 @@ import { EUserRole } from '../user/enums/user-role.enum';
 import { CouponRef } from './entities/coupon-ref.entity';
 import { Pagination } from 'nestjs-typeorm-paginate';
 
-@ApiTags('CouponRef')
+@ApiTags('Coupon Referral')
 @ApiBearerAuth()
 @Controller('coupon-ref')
 export class CouponRefController {

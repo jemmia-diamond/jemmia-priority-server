@@ -2,9 +2,9 @@ import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { Exclude } from 'class-transformer';
 import { ECouponType } from '../enums/gift-type.enum';
 import { IsUrl } from 'class-validator';
-import { CouponUser } from './coupon-user.entity';
+import { CouponRedeemed } from './coupon-user.entity';
 
-@Entity('gifts')
+@Entity('coupons')
 export class Coupon {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -54,6 +54,6 @@ export class Coupon {
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdDate: Date;
 
-  @OneToMany(() => CouponUser, (couponUser) => couponUser.coupon)
-  couponUser: CouponUser[];
+  @OneToMany(() => CouponRedeemed, (couponUser) => couponUser.coupon)
+  couponUser: CouponRedeemed[];
 }

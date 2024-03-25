@@ -7,7 +7,7 @@ import { LessThanOrEqual, MoreThanOrEqual, Repository } from 'typeorm';
 import { Coupon } from './entities/coupon.entity';
 import { ECouponType } from './enums/gift-type.enum';
 import { User } from '../user/entities/user.entity';
-import { CouponUser } from './entities/coupon-user.entity';
+import { CouponRedeemed } from './entities/coupon-user.entity';
 import { validate } from 'class-validator';
 import { ECouponDiscountType } from '../haravan/enums/coupon.enum';
 import { Pagination } from 'nestjs-typeorm-paginate';
@@ -20,8 +20,8 @@ export class CouponService {
     private couponRepository: Repository<Coupon>,
     @InjectRepository(User)
     private userRepository: Repository<User>,
-    @InjectRepository(CouponUser)
-    private couponUserRepository: Repository<CouponUser>,
+    @InjectRepository(CouponRedeemed)
+    private couponUserRepository: Repository<CouponRedeemed>,
     private haravanService: HaravanService,
   ) {}
 
@@ -208,7 +208,7 @@ export class CouponService {
             throw new BadRequestException('User not found.');
           }
 
-          const couponUser = new CouponUser();
+          const couponUser = new CouponRedeemed();
           couponUser.user = user;
           couponUser.coupon = Gift;
 
@@ -296,7 +296,7 @@ export class CouponService {
             throw new BadRequestException('User not found.');
           }
 
-          const couponUser = new CouponUser();
+          const couponUser = new CouponRedeemed();
           couponUser.user = user;
           couponUser.coupon = Gift;
 
