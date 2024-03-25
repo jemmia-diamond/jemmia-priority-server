@@ -8,7 +8,10 @@ import { CouponRef } from './entities/coupon-ref.entity';
 import { HaravanCouponDto } from '../haravan/dto/haravan-coupon.dto';
 import { EUserRole } from '../user/enums/user-role.enum';
 import { Pagination } from 'nestjs-typeorm-paginate';
-import { EPartnerInviteCouponConfig } from './enums/partner-customer.enum';
+import {
+  EPartnerCustomer,
+  EPartnerInviteCouponConfig,
+} from './enums/partner-customer.enum';
 import { StringUtils } from '../utils/string.utils';
 import { ECouponRefType } from './enums/copon-ref.enum';
 import { ECouponDiscountType } from '../haravan/enums/coupon.enum';
@@ -27,11 +30,6 @@ export class CouponRefService {
 
   async create(createCouponRefDto: CreateCouponRefDto) {
     try {
-      const owner = await this.userRepository.findOneBy({
-        id: createCouponRefDto.userId,
-      });
-      if (!owner) throw new BadRequestException('User owner not found');
-
       const couponConfig =
         EPartnerInviteCouponConfig[createCouponRefDto.partnerType];
 
@@ -59,12 +57,26 @@ export class CouponRefService {
 
       const couponRef = new CouponRef();
       couponRef.couponHaravanId = coupon.id;
-      couponRef.owner = owner;
       couponRef.partnerType = createCouponRefDto.partnerType;
       couponRef.type = createCouponRefDto.type;
       couponRef.startDate = new Date(createCouponRefDto.startDate);
       couponRef.endDate = new Date(createCouponRefDto.endDate);
       couponRef.couponHaravanCode = couponHaravanDto.code;
+
+      if (createCouponRefDto.ownerId) {
+        const owner = await this.userRepository.findOneBy({
+          id: createCouponRefDto.ownerId,
+        });
+        couponRef.owner = owner;
+      }
+
+      if (createCouponRefDto.partnerType == EPartnerCustomer.partnerB) {
+        const partner = await this.userRepository.findOneBy({
+          id: createCouponRefDto.partnerId,
+        });
+
+        couponRef.partner = partner;
+      }
 
       return await this.couponRefRepository.save(couponRef);
     } catch (error) {
