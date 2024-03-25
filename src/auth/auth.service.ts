@@ -1,6 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { AuthDto } from './dto/auth.dto';
-import { OAuth2Client } from 'google-auth-library';
 import { Repository } from 'typeorm';
 import { User } from '../user/entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -22,21 +21,7 @@ export class AuthService {
     private haravanService: HaravanService,
   ) {}
 
-  private oauthClient = new OAuth2Client(
-    process.env.GOOGLE_CLIENT_ID,
-    process.env.GOOGLE_CLIENT_SECRET,
-  );
-
   async verifyOAuth(idToken: string) {
-    // const ticket = await this.oauthClient.verifyIdToken({
-    //   idToken: idToken,
-    //   audience: [
-    //     process.env.GOOGLE_CLIENT_ID_WEB,
-    //     process.env.GOOGLE_CLIENT_ID_ADMIN,
-    //   ],
-    // });
-    // return ticket.getPayload();
-
     return firebaseAdmin.auth().verifyIdToken(idToken);
   }
 
