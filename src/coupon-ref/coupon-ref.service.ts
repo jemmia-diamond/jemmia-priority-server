@@ -11,6 +11,8 @@ import { Pagination } from 'nestjs-typeorm-paginate';
 import { EPartnerInviteCouponConfig } from './enums/partner-customer.enum';
 import { StringUtils } from '../utils/string.utils';
 import { ECouponRefType } from './enums/copon-ref.enum';
+import { ECouponDiscountType } from '../haravan/enums/coupon.enum';
+import { HaravanService } from '../haravan/haravan.service';
 
 @Injectable()
 export class CouponRefService {
@@ -20,6 +22,7 @@ export class CouponRefService {
     @InjectRepository(CouponRef)
     private couponRefRepository: Repository<CouponRef>,
     private couponService: CouponService,
+    private haravanService: HaravanService,
   ) {}
 
   async create(createCouponRefDto: CreateCouponRefDto) {
@@ -38,29 +41,36 @@ export class CouponRefService {
       const couponHaravanDto = new HaravanCouponDto();
       couponHaravanDto.isPromotion = true;
       couponHaravanDto.code = StringUtils.random(6);
-      couponHaravanDto.appliesOnce = false;
+      couponHaravanDto.appliesOnce = true;
+      couponHaravanDto.startsAt =
+        createCouponRefDto.startDate || new Date().toISOString();
+      couponHaravanDto.value = 1;
+      couponHaravanDto.discountType = ECouponDiscountType.shipping;
 
-      if (ECouponRefType.partnerCoupon) {
-        couponHaravanDto.appliesOnce = true;
-        couponHaravanDto.endsAt = createCouponRefDto.endDate.toDateString();
-        couponHaravanDto.startsAt = createCouponRefDto.startDate.toDateString();
+      if (createCouponRefDto.type == ECouponRefType.partnerCoupon) {
+        couponHaravanDto.endsAt = createCouponRefDto.endDate;
         couponHaravanDto.usageLimit = 1;
         couponHaravanDto.value = couponConfig.value;
         couponHaravanDto.discountType = couponConfig.discountType;
         couponHaravanDto.setTimeActive = true;
       }
 
-      const coupon = await this.couponService.createCoupon(couponHaravanDto);
+      const coupon = await this.haravanService.createCoupon(couponHaravanDto);
 
       const couponRef = new CouponRef();
       couponRef.couponHaravanId = coupon.id;
       couponRef.owner = owner;
       couponRef.partnerType = createCouponRefDto.partnerType;
-      couponRef.startDate = createCouponRefDto.startDate;
-      couponRef.endDate = createCouponRefDto.endDate;
+      couponRef.type = createCouponRefDto.type;
+      couponRef.startDate = new Date(createCouponRefDto.startDate);
+      couponRef.endDate = new Date(createCouponRefDto.endDate);
+      couponRef.couponHaravanCode = couponHaravanDto.code;
 
       return await this.couponRefRepository.save(couponRef);
     } catch (error) {
+      if (error.response) {
+        return error.response.data;
+      }
       return error;
     }
   }
