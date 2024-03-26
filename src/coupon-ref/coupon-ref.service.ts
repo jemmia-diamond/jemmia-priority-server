@@ -123,7 +123,7 @@ export class CouponRefService {
     });
 
     if (couponRef) {
-      return;
+      return couponRef;
     }
 
     const data = new CreateCouponRefDto();
