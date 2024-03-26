@@ -1,8 +1,8 @@
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { Exclude } from 'class-transformer';
 import { User } from '../../user/entities/user.entity';
-import { EPartnerCustomer } from '../enums/partner-customer.enum';
-import { ECouponRefType } from '../enums/copon-ref.enum';
+import { EUserRole } from '../../user/enums/user-role.enum';
+import { ECouponRefType } from '../enums/coupon-ref.enum';
 
 @Entity('coupon_refs')
 export class CouponRef {
@@ -16,11 +16,11 @@ export class CouponRef {
 
   /** Người tạo coupon, đây sẽ là các user partnerA */
   @Exclude()
-  @ManyToOne(() => User)
-  partner: User;
+  @ManyToOne(() => CouponRef)
+  partnerCoupon: CouponRef;
 
-  @Column('enum', { enum: EPartnerCustomer })
-  partnerType: EPartnerCustomer;
+  @Column('enum', { enum: EUserRole })
+  role: EUserRole;
 
   @Column('enum', { enum: ECouponRefType })
   type: ECouponRefType;
@@ -31,10 +31,10 @@ export class CouponRef {
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   endDate: Date;
 
-  @Column('int')
+  @Column('int', { nullable: true })
   couponHaravanId: number;
 
-  @Column('varchar')
+  @Column('varchar', { nullable: true })
   couponHaravanCode: string;
 
   /** Field này dùng để kiểm tra couponRef đã được partnerA / partnerB đi mua hàng lần đầu */

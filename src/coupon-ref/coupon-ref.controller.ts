@@ -17,6 +17,8 @@ import { Roles } from '../auth/decorators/roles.decorator';
 import { EUserRole } from '../user/enums/user-role.enum';
 import { CouponRef } from './entities/coupon-ref.entity';
 import { Pagination } from 'nestjs-typeorm-paginate';
+import { InviteCouponRefDto } from './dto/invite-coupon-ref.dto';
+import { RequestPayload } from '../types/controller.type';
 
 @ApiTags('Coupon Referral')
 @ApiBearerAuth()
@@ -26,24 +28,52 @@ export class CouponRefController {
 
   @UseGuards(JwtAuthGuard)
   @Roles(EUserRole.admin)
+  @Post('/invite')
+  async createInvite(@Body() payload: InviteCouponRefDto) {
+    return this.couponRefService.createInvite(payload);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Roles(EUserRole.admin)
   @Post()
   async create(@Body() createCouponRefDto: CreateCouponRefDto) {
     return this.couponRefService.create(createCouponRefDto);
   }
 
   @UseGuards(JwtAuthGuard)
-  @Get('/gift')
-  async findAllGift(
-    @Request() req,
+  @Roles(EUserRole.admin)
+  @Get('/invite/:userId/convert-partner/:code')
+  async convertPartnerToInvite(
+    @Param('userId') userId: string,
+    @Param('code') code: string,
+  ) {
+    return this.couponRefService.convertPartnerToInvite(userId, code);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('/invite/partner')
+  async findAllInvitePartner(
+    @Request() req: RequestPayload,
     @Query('page') page = 1,
     @Query('limit') limit = 10,
   ): Promise<Pagination<CouponRef>> {
     limit = Math.min(50, limit); // Giới hạn limit tối đa là 50
-    return this.couponRefService.findAll(
+    return this.couponRefService.findAllInvitePartner(
       req.user.id,
       req.user.role,
       page,
       limit,
+    );
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('/invite/:userId')
+  async findInvite(
+    @Request() req: RequestPayload,
+    @Param('userId') userId: string,
+  ) {
+    return this.couponRefService.findInvite(
+      req.user.role != EUserRole.admin ? req.user.id : userId,
     );
   }
 

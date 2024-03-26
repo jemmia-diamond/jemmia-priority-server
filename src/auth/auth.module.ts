@@ -8,12 +8,15 @@ import { JwtStrategy } from './strategy/jwt.strategy';
 import { APP_GUARD } from '@nestjs/core';
 import { RolesGuard } from './guards/roles.guard';
 import { HaravanModule } from '../haravan/haravan.module';
+import { CouponRefModule } from '../coupon-ref/coupon-ref.module';
+import { CouponRef } from '../coupon-ref/entities/coupon-ref.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User]),
+    TypeOrmModule.forFeature([User, CouponRef]),
     JwtModule.register({}),
     HaravanModule,
+    CouponRefModule,
   ],
   controllers: [AuthController],
   providers: [

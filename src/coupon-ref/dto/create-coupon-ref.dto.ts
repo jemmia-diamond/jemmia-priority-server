@@ -1,7 +1,7 @@
 import { IsDateString, IsDefined, IsEnum, IsOptional } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { EPartnerCustomer } from '../enums/partner-customer.enum';
-import { ECouponRefType } from '../enums/copon-ref.enum';
+import { EUserRole } from '../../user/enums/user-role.enum';
+import { ECouponRefType } from '../enums/coupon-ref.enum';
 
 export class CreateCouponRefDto {
   @ApiPropertyOptional()
@@ -9,24 +9,19 @@ export class CreateCouponRefDto {
   @IsDefined()
   ownerId?: string;
 
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsDefined()
-  partnerId?: string;
-
-  @ApiProperty({
-    enum: EPartnerCustomer,
-  })
-  @IsEnum(EPartnerCustomer)
-  @IsDefined()
-  partnerType: EPartnerCustomer;
-
   @ApiProperty({
     enum: ECouponRefType,
   })
   @IsEnum(ECouponRefType)
   @IsDefined()
   type: ECouponRefType;
+
+  @ApiProperty({
+    enum: EUserRole,
+  })
+  @IsEnum(EUserRole)
+  @IsDefined()
+  role: EUserRole;
 
   @ApiPropertyOptional()
   @IsOptional()

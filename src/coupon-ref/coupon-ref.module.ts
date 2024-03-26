@@ -15,5 +15,6 @@ import { HaravanModule } from '../haravan/haravan.module';
   ],
   controllers: [CouponRefController],
   providers: [CouponRefService],
+  exports: [CouponRefService],
 })
 export class CouponRefModule {}

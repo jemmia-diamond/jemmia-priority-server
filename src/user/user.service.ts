@@ -13,6 +13,7 @@ import { UserQueryDto } from './dto/user-query.dto';
 import { UserInfoDto } from './dto/user-info';
 import { StringUtils } from '../utils/string.utils';
 import { EUserRole } from './enums/user-role.enum';
+import { CouponRefService } from '../coupon-ref/coupon-ref.service';
 
 @Injectable()
 export class UserService {
@@ -20,6 +21,7 @@ export class UserService {
     @InjectRepository(User)
     private userRepository: Repository<User>,
     private readonly haravanService: HaravanService,
+    private couponRefService: CouponRefService,
   ) {}
 
   async findUser(id: string) {
@@ -75,6 +77,12 @@ export class UserService {
         authId: data.phone,
         phoneNumber: data.phone,
         inviteCode: StringUtils.random(6),
+        role: data.role,
+      });
+
+      //create Invite Coupon
+      await this.couponRefService.createInvite({
+        ownerId: user.id,
         role: data.role,
       });
 

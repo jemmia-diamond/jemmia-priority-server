@@ -8,14 +8,13 @@ import { CouponRef } from './entities/coupon-ref.entity';
 import { HaravanCouponDto } from '../haravan/dto/haravan-coupon.dto';
 import { EUserRole } from '../user/enums/user-role.enum';
 import { Pagination } from 'nestjs-typeorm-paginate';
-import {
-  EPartnerCustomer,
-  EPartnerInviteCouponConfig,
-} from './enums/partner-customer.enum';
+import { EPartnerInviteCouponConfig } from './enums/partner-customer.enum';
 import { StringUtils } from '../utils/string.utils';
-import { ECouponRefType } from './enums/copon-ref.enum';
 import { ECouponDiscountType } from '../haravan/enums/coupon.enum';
 import { HaravanService } from '../haravan/haravan.service';
+import { InviteCouponRefDto } from './dto/invite-coupon-ref.dto';
+import { validate } from 'class-validator';
+import { ECouponRefType } from './enums/coupon-ref.enum';
 
 @Injectable()
 export class CouponRefService {
@@ -29,65 +28,114 @@ export class CouponRefService {
   ) {}
 
   async create(createCouponRefDto: CreateCouponRefDto) {
-    try {
-      const couponConfig =
-        EPartnerInviteCouponConfig[createCouponRefDto.partnerType];
+    await validate(createCouponRefDto);
+
+    const owner = await this.userRepository.findOneBy({
+      id: createCouponRefDto.ownerId,
+    });
+
+    if (!owner) throw new BadRequestException('Customer not found');
+
+    const couponRef = new CouponRef();
+
+    const couponHaravanDto = new HaravanCouponDto();
+    couponHaravanDto.isPromotion = true;
+    couponHaravanDto.code = StringUtils.random(6);
+    couponHaravanDto.appliesOnce = true;
+    couponHaravanDto.startsAt =
+      createCouponRefDto.startDate || new Date().toISOString();
+    couponHaravanDto.value = 1;
+    couponHaravanDto.discountType = ECouponDiscountType.shipping;
+
+    //CREATE PARTNER COUPON
+    if (createCouponRefDto.type == ECouponRefType.partner) {
+      const couponConfig = EPartnerInviteCouponConfig[createCouponRefDto.role];
 
       if (!couponConfig)
         throw new BadRequestException('Partner customer not found');
 
-      const couponHaravanDto = new HaravanCouponDto();
-      couponHaravanDto.isPromotion = true;
-      couponHaravanDto.code = StringUtils.random(6);
-      couponHaravanDto.appliesOnce = true;
-      couponHaravanDto.startsAt =
-        createCouponRefDto.startDate || new Date().toISOString();
-      couponHaravanDto.value = 1;
-      couponHaravanDto.discountType = ECouponDiscountType.shipping;
-
-      if (createCouponRefDto.type == ECouponRefType.partnerCoupon) {
-        couponHaravanDto.endsAt = createCouponRefDto.endDate;
-        couponHaravanDto.usageLimit = 1;
-        couponHaravanDto.value = couponConfig.value;
-        couponHaravanDto.discountType = couponConfig.discountType;
-        couponHaravanDto.setTimeActive = true;
-      }
-
-      const coupon = await this.haravanService.createCoupon(couponHaravanDto);
-
-      const couponRef = new CouponRef();
-      couponRef.couponHaravanId = coupon.id;
-      couponRef.partnerType = createCouponRefDto.partnerType;
-      couponRef.type = createCouponRefDto.type;
-      couponRef.startDate = new Date(createCouponRefDto.startDate);
-      couponRef.endDate = new Date(createCouponRefDto.endDate);
-      couponRef.couponHaravanCode = couponHaravanDto.code;
-
-      if (createCouponRefDto.ownerId) {
-        const owner = await this.userRepository.findOneBy({
-          id: createCouponRefDto.ownerId,
-        });
-        couponRef.owner = owner;
-      }
-
-      if (createCouponRefDto.partnerType == EPartnerCustomer.partnerB) {
-        const partner = await this.userRepository.findOneBy({
-          id: createCouponRefDto.partnerId,
-        });
-
-        couponRef.partner = partner;
-      }
-
-      return await this.couponRefRepository.save(couponRef);
-    } catch (error) {
-      if (error.response) {
-        return error.response.data;
-      }
-      return error;
+      couponHaravanDto.endsAt = createCouponRefDto.endDate;
+      couponHaravanDto.usageLimit = 1;
+      couponHaravanDto.value = couponConfig.value;
+      couponHaravanDto.discountType = couponConfig.discountType;
+      couponHaravanDto.setTimeActive = true;
     }
+
+    const coupon = await this.haravanService.createCoupon(couponHaravanDto);
+
+    couponRef.couponHaravanId = coupon.id;
+    couponRef.couponHaravanCode = couponHaravanDto.code;
+    couponRef.role = createCouponRefDto.role;
+    couponRef.startDate = new Date(createCouponRefDto.startDate);
+    couponRef.endDate = new Date(createCouponRefDto.endDate);
+    couponRef.owner = owner;
+    couponRef.type = createCouponRefDto.type;
+
+    return await this.couponRefRepository.save(couponRef);
   }
 
-  async findAll(
+  async convertPartnerToInvite(userId: string, couponHaravanCode: string) {
+    const partnerCoupon = await this.couponRefRepository.findOneBy({
+      couponHaravanCode,
+    });
+
+    if (!partnerCoupon) {
+      throw new BadRequestException('Coupon not exists');
+    }
+
+    partnerCoupon.used = true;
+
+    let inviteCoupon = await this.couponRefRepository.findOneBy({
+      owner: {
+        id: userId,
+      },
+    });
+
+    if (!inviteCoupon) {
+      const owner = await this.userRepository.findOneBy({
+        id: userId,
+      });
+
+      if (!owner) throw new BadRequestException('User not found');
+
+      inviteCoupon = await this.createInvite({
+        ownerId: userId,
+        role: owner.role,
+      });
+    }
+
+    inviteCoupon.partnerCoupon = partnerCoupon;
+    inviteCoupon.role = partnerCoupon.role;
+
+    await this.couponRefRepository.save(partnerCoupon);
+    await this.couponRefRepository.save(inviteCoupon);
+
+    return inviteCoupon;
+  }
+
+  async createInvite(payload: InviteCouponRefDto) {
+    await validate(payload);
+
+    const couponRef = await this.couponRefRepository.findOneBy({
+      owner: {
+        id: payload.ownerId,
+      },
+    });
+
+    if (couponRef) {
+      throw new BadRequestException('Invite coupon exists');
+    }
+
+    const data = new CreateCouponRefDto();
+
+    data.startDate = new Date().toISOString();
+    data.ownerId = payload.ownerId;
+    data.role = payload.role;
+
+    return await this.create(data);
+  }
+
+  async findAllInvitePartner(
     userId: string,
     role: string,
     page: number,
@@ -98,10 +146,11 @@ export class CouponRefService {
       let items: CouponRef[];
       let totalItems: number;
 
-      const owner = await this.userRepository.findOneBy({ id: userId });
-
       if (role === EUserRole.admin) {
         [items, totalItems] = await this.couponRefRepository.findAndCount({
+          where: {
+            type: ECouponRefType.partner,
+          },
           order: { createdDate: 'DESC' },
           skip: offset,
           take: limit,
@@ -109,7 +158,10 @@ export class CouponRefService {
       } else {
         [items, totalItems] = await this.couponRefRepository.findAndCount({
           where: {
-            owner: owner,
+            type: ECouponRefType.partner,
+            owner: {
+              id: userId,
+            },
           },
           order: { createdDate: 'DESC' },
           skip: offset,
@@ -131,6 +183,17 @@ export class CouponRefService {
     } catch (error) {
       throw error;
     }
+  }
+
+  async findInvite(userId: string) {
+    const couponRef = await this.couponRefRepository.findOneBy({
+      owner: {
+        id: userId,
+      },
+      type: ECouponRefType.invite,
+    });
+
+    return couponRef;
   }
 
   async remove(id: string) {
