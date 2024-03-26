@@ -85,6 +85,12 @@ export class CouponRefService {
 
     partnerCoupon.used = true;
 
+    if (partnerCoupon.role == EUserRole.partnerA) {
+      await this.couponRefRepository.save(partnerCoupon);
+
+      return partnerCoupon;
+    }
+
     let inviteCoupon = await this.couponRefRepository.findOneBy({
       owner: {
         id: userId,
