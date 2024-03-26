@@ -11,14 +11,19 @@ import { HaravanService } from '../haravan/haravan.service';
 import { StringUtils } from '../utils/string.utils';
 import { EUserRole } from '../user/enums/user-role.enum';
 import { HaravanCustomerDto } from '../haravan/dto/haravan-customer.dto';
+import { CouponRefService } from '../coupon-ref/coupon-ref.service';
+import { CouponRef } from '../coupon-ref/entities/coupon-ref.entity';
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectRepository(User)
     private userRepository: Repository<User>,
+    @InjectRepository(CouponRef)
+    private couponRefRepository: Repository<CouponRef>,
     private jwtService: JwtService,
     private haravanService: HaravanService,
+    private couponRefService: CouponRefService,
   ) {}
 
   async verifyOAuth(idToken: string) {
@@ -81,6 +86,12 @@ export class AuthService {
         inviteCode: user?.inviteCode || StringUtils.random(6),
         role: user?.role || EUserRole.customer,
         haravanId: haravanUser.id,
+      });
+
+      //Create invite coupon
+      await this.couponRefService.createInvite({
+        ownerId: user.id,
+        role: user?.role || EUserRole.customer,
       });
     }
 

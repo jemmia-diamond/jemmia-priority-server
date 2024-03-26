@@ -25,7 +25,7 @@ import { CouponRef } from './coupon-ref/entities/coupon-ref.entity';
       username: process.env.DB_UNAME,
       entities: [User, Coupon, CouponRedeemed, CouponRef],
       database: process.env.DB,
-      synchronize: false,
+      synchronize: true,
       logging: false,
     }),
     ServeStaticModule.forRoot({

@@ -4,9 +4,10 @@ import { UserController } from './user.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { HaravanModule } from '../haravan/haravan.module';
+import { CouponRefModule } from '../coupon-ref/coupon-ref.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User]), HaravanModule],
+  imports: [TypeOrmModule.forFeature([User]), HaravanModule, CouponRefModule],
   controllers: [UserController],
   providers: [UserService],
 })

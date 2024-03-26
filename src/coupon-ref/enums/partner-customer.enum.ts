@@ -3,18 +3,12 @@ import {
   ECustomerRankConfig,
 } from '../../customer-rank/enums/customer-rank.enum';
 import { ECouponDiscountType } from '../../haravan/enums/coupon.enum';
-
-export enum EPartnerCustomer {
-  partnerA = 'partnerA',
-  partnerB = 'partnerB',
-  customer = 'customer',
-  staff = 'staff',
-}
+import { EUserRole } from '../../user/enums/user-role.enum';
 
 export const EPartnerCashbackConfig = {
   partnerRefferalCashbackPercent: {
-    [EPartnerCustomer.partnerA]: {
-      [EPartnerCustomer.partnerB]: 0.015,
+    [EUserRole.partnerA]: {
+      [EUserRole.partnerB]: 0.015,
     },
   },
   refferalCashbackPercent: {
@@ -82,14 +76,14 @@ export const EPartnerInviteCouponConfig: {
   partnerA: CouponConfig;
   partnerB: CouponConfig;
 } = {
-  [EPartnerCustomer.partnerA]: {
+  [EUserRole.partnerA]: {
     minimumOrderAmount: null,
     usageLimit: null,
     value: 100,
     discountType: ECouponDiscountType.percentage,
     receiveRankPoint: ECustomerRankConfig.platinum.buyPoint,
   },
-  [EPartnerCustomer.partnerB]: {
+  [EUserRole.partnerB]: {
     minimumOrderAmount: null,
     usageLimit: null,
     value: 100,
