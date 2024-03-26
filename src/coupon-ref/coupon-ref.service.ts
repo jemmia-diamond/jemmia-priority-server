@@ -123,7 +123,7 @@ export class CouponRefService {
     });
 
     if (couponRef) {
-      throw new BadRequestException('Invite coupon exists');
+      return;
     }
 
     const data = new CreateCouponRefDto();
