@@ -6,6 +6,14 @@ export enum ECustomerRank {
   none = 'none',
 }
 
+export enum ECustomerRankNum {
+  platinum = 4,
+  gold = 3,
+  silver = 2,
+  staff = 1,
+  none = 0,
+}
+
 export const ECustomerRankConfig = {
   [ECustomerRank.platinum]: {
     buyPoint: 1_000_000_000,
