@@ -49,6 +49,10 @@ export class User {
   @Column('integer', { default: 0 })
   rankPoint: number;
 
+  /** Điểm đặt hàng tích lũy của User */
+  @Column('integer', { default: 0 })
+  accumulatedOrderPoint: number;
+
   @Column('enum', { enum: EUserRole })
   role: EUserRole;
 }
