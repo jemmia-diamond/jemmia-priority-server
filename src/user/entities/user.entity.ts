@@ -7,7 +7,7 @@ import {
 } from 'typeorm';
 import { Exclude } from 'class-transformer';
 import { EUserRole } from '../enums/user-role.enum';
-import { ECustomerRank } from '../../customer-rank/enums/customer-rank.enum';
+import { ECustomerRankNum } from '../../customer-rank/enums/customer-rank.enum';
 
 @Entity('users')
 export class User {
@@ -51,8 +51,8 @@ export class User {
   rankPoint: number;
 
   /** Rank của user */
-  @Column('enum', { enum: ECustomerRank, default: ECustomerRank.none })
-  rank: ECustomerRank;
+  @Column('integer', { default: ECustomerRankNum.none })
+  rank: ECustomerRankNum;
 
   /** Điểm đặt hàng tích lũy của User */
   @Column('integer', { default: 0 })
