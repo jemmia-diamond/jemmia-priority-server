@@ -14,6 +14,8 @@ import { CouponRefModule } from './coupon-ref/coupon-ref.module';
 import { Coupon } from './coupon/entities/coupon.entity';
 import { CouponRedeemed } from './coupon/entities/coupon-user.entity';
 import { CouponRef } from './coupon-ref/entities/coupon-ref.entity';
+import { CronJobRankingModule } from './cron-job-ranking/cron-job-ranking.module';
+import { Order } from './order/entities/order.entity';
 
 @Module({
   imports: [
@@ -23,7 +25,7 @@ import { CouponRef } from './coupon-ref/entities/coupon-ref.entity';
       port: Number(process.env.DB_PORT),
       password: process.env.DB_PASSWORD,
       username: process.env.DB_UNAME,
-      entities: [User, Coupon, CouponRedeemed, CouponRef],
+      entities: [User, Coupon, CouponRedeemed, CouponRef, Order],
       database: process.env.DB,
       synchronize: true,
       logging: false,
@@ -39,7 +41,9 @@ import { CouponRef } from './coupon-ref/entities/coupon-ref.entity';
     OrderModule,
     CouponModule,
     CouponRefModule,
+    CronJobRankingModule,
   ],
   providers: [],
+  controllers: [],
 })
 export class AppModule {}

@@ -2,7 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateCouponRefDto } from './dto/create-coupon-ref.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../user/entities/user.entity';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { CouponService } from '../coupon/coupon.service';
 import { CouponRef } from './entities/coupon-ref.entity';
 import { HaravanCouponDto } from '../haravan/dto/haravan-coupon.dto';
@@ -141,39 +141,35 @@ export class CouponRefService {
     return await this.create(data);
   }
 
-  async findAllInvitePartner(
+  async findAllInvite(
     userId: string,
-    role: string,
+    type: ECouponRefType,
+    used: boolean | null,
     page: number,
     limit: number,
   ): Promise<Pagination<CouponRef>> {
     try {
-      const offset = (page - 1) * limit;
-      let items: CouponRef[];
-      let totalItems: number;
+      let usedQuery;
 
-      if (role === EUserRole.admin) {
-        [items, totalItems] = await this.couponRefRepository.findAndCount({
-          where: {
-            type: ECouponRefType.partner,
-          },
-          order: { createdDate: 'DESC' },
-          skip: offset,
-          take: limit,
-        });
+      if (used == null) {
+        usedQuery = In([true, false]);
       } else {
-        [items, totalItems] = await this.couponRefRepository.findAndCount({
-          where: {
-            type: ECouponRefType.partner,
-            owner: {
-              id: userId,
-            },
-          },
-          order: { createdDate: 'DESC' },
-          skip: offset,
-          take: limit,
-        });
+        usedQuery = In([used]);
       }
+
+      const offset = (page - 1) * limit;
+      const [items, totalItems] = await this.couponRefRepository.findAndCount({
+        where: {
+          type: type,
+          owner: {
+            id: userId,
+          },
+          used: usedQuery,
+        },
+        order: { createdDate: 'DESC' },
+        skip: offset,
+        take: limit,
+      });
 
       const totalPages = Math.ceil(totalItems / limit);
 
@@ -191,15 +187,42 @@ export class CouponRefService {
     }
   }
 
-  async findInvite(userId: string) {
-    const couponRef = await this.couponRefRepository.findOneBy({
-      owner: {
-        id: userId,
-      },
-      type: ECouponRefType.invite,
-    });
+  async findAllInvitePartner(
+    userId: string,
+    type: ECouponRefType,
+    page: number,
+    limit: number,
+    used: boolean,
+  ): Promise<Pagination<CouponRef>> {
+    try {
+      const offset = (page - 1) * limit;
+      const [items, totalItems] = await this.couponRefRepository.findAndCount({
+        where: {
+          type: type,
+          owner: {
+            id: userId,
+          },
+          used,
+        },
+        order: { createdDate: 'DESC' },
+        skip: offset,
+        take: limit,
+      });
 
-    return couponRef;
+      const totalPages = Math.ceil(totalItems / limit);
+
+      const meta = {
+        itemCount: items.length,
+        itemsPerPage: limit,
+        totalPages,
+        totalItems,
+        currentPage: page,
+      };
+
+      return new Pagination<CouponRef>(items, meta);
+    } catch (error) {
+      throw error;
+    }
   }
 
   async remove(id: string) {
