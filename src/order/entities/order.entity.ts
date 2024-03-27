@@ -1,13 +1,16 @@
-import { Column, Entity, ManyToOne, PrimaryColumn } from 'typeorm';
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { paymentStatusEnum } from '../enum/payment-status.dto';
 import { User } from '../../user/entities/user.entity';
 import { CouponRef } from '../../coupon-ref/entities/coupon-ref.entity';
 import { Exclude } from 'class-transformer';
 
-@Entity('coupon_refs')
+@Entity('orders')
 export class Order {
-  @PrimaryColumn('haravanOrderId')
+  @PrimaryGeneratedColumn('uuid')
   id: number;
+
+  @Column('integer')
+  haravanOrderId: number;
 
   @Column('double')
   totalPrice: number;
@@ -30,7 +33,7 @@ export class Order {
 
   @Exclude()
   @ManyToOne(() => CouponRef)
-  counponRef: CouponRef;
+  couponRef: CouponRef;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdDate: Date;
