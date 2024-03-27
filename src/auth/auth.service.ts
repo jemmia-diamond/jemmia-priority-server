@@ -68,7 +68,7 @@ export class AuthService {
         },
         {
           //Customer account query
-          haravanId: haravanUser.id,
+          haravanId: haravanUser?.id,
         },
       ],
     });
