@@ -8,12 +8,15 @@ import { EUserRole } from '../user/enums/user-role.enum';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../user/entities/user.entity';
 import { Repository } from 'typeorm';
+import { Order } from './entities/order.entity';
 
 @Injectable()
 export class OrderService {
   constructor(
     @InjectRepository(User)
     private userRepository: Repository<User>,
+    @InjectRepository(Order)
+    private orderRepository: Repository<Order>,
     private readonly haravanService: HaravanService,
   ) {}
 
@@ -44,9 +47,11 @@ export class OrderService {
     }
   }
 
-  async haravanHook(payload: HaravanOrderDto) {
-    console.log(payload);
+  async createNative(order: Order) {
+    return await this.orderRepository.save(order);
+  }
 
+  async haravanHook(payload: HaravanOrderDto) {
     return;
   }
 }
