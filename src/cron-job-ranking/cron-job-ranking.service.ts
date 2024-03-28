@@ -9,7 +9,7 @@ import {
   ECustomerRankConfig,
   ECustomerRankNum,
 } from '../customer-rank/enums/customer-rank.enum';
-import { paymentStatusEnum } from '../order/enum/payment-status.dto';
+import { EPaymentStatus } from '../order/enum/payment-status.dto';
 
 @Injectable()
 export class CronJobProvider implements OnModuleInit {
@@ -75,7 +75,7 @@ export class CronJobProvider implements OnModuleInit {
     const currentDate = new Date();
     const twelveMonthsAgo = new Date();
     twelveMonthsAgo.setMonth(currentDate.getMonth() - 12);
-    const paymentStatus = paymentStatusEnum.CONFIRM;
+    const paymentStatus = EPaymentStatus.CONFIRM;
 
     const query = this.orderRepository
       .createQueryBuilder('orders')
@@ -96,7 +96,7 @@ export class CronJobProvider implements OnModuleInit {
     const currentDate = new Date();
     const twelveMonthsAgo = new Date();
     twelveMonthsAgo.setMonth(currentDate.getMonth() - 12);
-    const paymentStatus = paymentStatusEnum.CONFIRM;
+    const paymentStatus = EPaymentStatus.CONFIRM;
 
     const query = this.orderRepository
       .createQueryBuilder('orders')
@@ -118,7 +118,7 @@ export class CronJobProvider implements OnModuleInit {
     const currentDate = new Date();
     const twelveMonthsAgo = new Date();
     twelveMonthsAgo.setMonth(currentDate.getMonth() - 12);
-    const paymentStatus = paymentStatusEnum.CONFIRM;
+    const paymentStatus = EPaymentStatus.CONFIRM;
 
     const query = this.orderRepository
       .createQueryBuilder('orders')

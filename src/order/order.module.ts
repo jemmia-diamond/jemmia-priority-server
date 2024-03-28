@@ -7,10 +7,11 @@ import { User } from '../user/entities/user.entity';
 import { CouponRefModule } from '../coupon-ref/coupon-ref.module';
 import { Order } from './entities/order.entity';
 import { UserModule } from '../user/user.module';
+import { CouponRef } from '../coupon-ref/entities/coupon-ref.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, Order]),
+    TypeOrmModule.forFeature([User, Order, CouponRef]),
     HaravanModule,
     CouponRefModule,
     UserModule,
