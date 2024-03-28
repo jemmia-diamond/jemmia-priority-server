@@ -64,7 +64,7 @@ export class AuthService {
         {
           //Admin account query
           authId: tokenPayload.email,
-          role: EUserRole.admin,
+          role: tokenPayload.email ? EUserRole.admin : null,
         },
         {
           //Customer account query
