@@ -65,8 +65,6 @@ export class CouponRefService {
       couponHaravanDto.maxAmountApply = null;
     }
 
-    console.log(couponHaravanDto);
-
     const coupon = await this.haravanService.createCoupon(couponHaravanDto);
 
     couponRef.couponHaravanId = coupon.id;
