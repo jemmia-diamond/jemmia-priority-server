@@ -64,21 +64,14 @@ export class AuthService {
         {
           //Admin account query
           authId: tokenPayload.email,
-          haravanId: null,
+          role: EUserRole.admin,
         },
         {
           //Customer account query
-          haravanId: haravanUser?.id,
+          haravanId: haravanUser.id,
         },
       ],
     });
-
-    if (!user && !haravanUser) {
-      throw new HttpException('USER_NOT_FOUND', HttpStatus.UNAUTHORIZED);
-    }
-
-    console.log(user);
-    console.log(haravanUser);
 
     //Sync dữ liệu khách hàng từ haravan sang
     if (haravanUser) {

@@ -65,6 +65,7 @@ export class UserService {
     };
   }
 
+  //!TODO: CREATE USER & SYNC FROM HARAVAN
   async createUser(data: UserInfoDto) {
     try {
       await validate(data, {
