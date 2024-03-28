@@ -42,11 +42,29 @@ export class OrderService {
     const page = (query.page ?? 0) - 1;
     const offset = page * limit;
     const [items, totalItems] = await this.orderRepository.findAndCount({
-      where: {
-        user: {
-          id: query.userId,
+      where: [
+        {
+          user: {
+            id: query.userId,
+          },
         },
-      },
+        {
+          couponRef: [
+            {
+              owner: {
+                id: query.userId,
+              },
+            },
+            {
+              partnerCoupon: {
+                owner: {
+                  id: query.userId,
+                },
+              },
+            },
+          ],
+        },
+      ],
       order: { createdDate: 'DESC' },
       skip: offset,
       take: limit,
