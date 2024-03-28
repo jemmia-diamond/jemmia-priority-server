@@ -24,6 +24,13 @@ export class UserService {
     private couponRefService: CouponRefService,
   ) {}
 
+  async findUserNative(id: string) {
+    const user = await this.userRepository.findOneBy({
+      id: id,
+    });
+    return user;
+  }
+
   async findUser(id: string) {
     const user = await this.userRepository.findOneBy({
       id: id,
@@ -99,6 +106,10 @@ export class UserService {
     return await this.userRepository.save(user);
   }
 
+  async createNativeUser(user) {
+    return await this.userRepository.save(user);
+  }
+
   async updateUser(userId: string, data: UserInfoDto) {
     try {
       await validate(data, {
@@ -157,9 +168,14 @@ export class UserService {
       haravanId: haravanId,
     });
 
-    const haravanCusData = await this.haravanService.findCustomer(
-      user.haravanId,
-    );
+    const haravanCusData = await this.userRepository.findOneBy({
+      haravanId: haravanId,
+    });
+
+    console.log({
+      ...haravanCusData,
+      ...user,
+    });
 
     return {
       ...haravanCusData,
