@@ -26,6 +26,8 @@ import {
 } from '../coupon-ref/enums/partner-customer.enum';
 import { Order } from './entities/order.entity';
 import { EUserRole } from '../user/enums/user-role.enum';
+import { paymentStatusEnum } from './enum/payment-status.dto';
+import { v4 as uuid } from 'uuid';
 
 @ApiTags('Order')
 @ApiBearerAuth()
@@ -68,42 +70,68 @@ export class OrderController {
       const orderDto = body;
       const customerDto = body.customer;
       const discountCodes = body.discount_codes;
-      let orderCustomer: Order;
 
-      let customerFound: User = null;
+      let couponOwner: User;
+
+      let customerFound: User;
       let partnerCouponOwner: User;
 
+      let orderCustomer: Order = {
+        id: null,
+        haravanOrderId: 123456,
+        cashBack: 0,
+        cashBackRef: 0,
+        cashBackRefA: 0,
+        totalPrice: 0,
+        paymentStatus: paymentStatusEnum.PENDING,
+        user: null,
+        couponRef: null,
+        createdDate: null,
+      };
+
       //customerDto từ webhook trả về, nếu chúng có email hoặc id là guest thì trả về thông báo bắt tạo tài khoản.
+      console.log(customerDto.id === guestId, customerDto.email === guestEmail);
       if (customerDto.id === guestId || customerDto.email === guestEmail) {
+        console.log('Please Register New Account!');
         return 'Please Register New Account!';
       }
-
-      //customerDto có mua hàng lần đầu tiên và có dùng mã giảm giá nào không.
-      if (customerDto.orders_count === 1 && discountCodes.length !== 0) {
+      if (customerDto.orders_count == 1 && discountCodes.length !== 0) {
         let couponRef = await this.couponRefService.findCouponCode(
           discountCodes[0].code,
         );
-
         if (couponRef !== null) {
           // NOTION-TASK:: Đơn đầu tiên của customer và nếu tồn tại CouponRef trong db thì::
           if (couponRef.type !== null) {
+            console.log(customerDto.id);
             customerFound = await this.userService.findHaravanId(
               customerDto.id,
             );
 
+            if (Object.keys(customerFound).length === 0) {
+              customerFound = await this.userService.createNativeUser({
+                haravanId: customerDto.id,
+                authId: customerDto.email,
+                phoneNumber: customerDto.phone,
+              });
+              console.log(customerFound);
+            }
+
             customerFound.rankPoint =
-              EPartnerInviteCouponConfig[couponRef.type].receiveRankPoint;
+              EPartnerInviteCouponConfig[couponRef.role].receiveRankPoint;
+
+            couponOwner = await this.userService.findUserNative(
+              couponRef.ownerId,
+            );
 
             couponRef = await this.couponRefService.convertPartnerToInvite(
-              customerFound.id,
+              couponRef.ownerId,
               couponRef.couponHaravanCode,
             );
           }
           // NOTION-TASK:: Kiểm tra phân hạng và cash back về cho chủ coupon thì::
-          if (
-            couponRef.partnerCoupon.owner != null &&
-            couponRef.owner.id != customerFound.id
-          ) {
+          console.log('couponRef.ownerId::', couponRef.ownerId);
+          console.log('customerFound.id', customerFound.id);
+          if (couponRef.ownerId != customerFound.id) {
             // kiểm tra rằng orderDto từ webhook đã thanh toán chưa.
             if (orderDto.financial_status === financialStatus) {
               const cashBackPercentAandB =
@@ -117,7 +145,10 @@ export class OrderController {
 
               orderCustomer.cashBackRefA += cashBackValue;
 
-              partnerCouponOwner = couponRef.partnerCoupon.owner;
+              partnerCouponOwner = await this.userService.findUserNative(
+                customerFound.id,
+              );
+
               partnerCouponOwner.accumulatedOrderPoint += cashBackValue;
               partnerCouponOwner.rankPoint += cashBackValue;
             } else {
@@ -126,17 +157,21 @@ export class OrderController {
 
             // Kiểm tra cashbackTo tồn tại
             let cashbackTo: null | User;
-            if (couponRef.owner.id == customerFound.id) {
-              if (couponRef.partnerCoupon.owner) {
-                cashbackTo = couponRef.owner;
-              } else {
-                cashbackTo = null;
-              }
+
+            console.log(couponRef);
+
+            if (partnerCouponOwner.id == customerFound.id) {
+              cashbackTo = couponOwner;
             } else {
               cashbackTo = null;
             }
 
+            console.log('cashbackTo:: ', cashbackTo);
+
             if (cashbackTo != null) {
+              console.log(
+                '// JUST A FIXED VALUE, PLEASE TELL ME HOW TO GET THIS RANK ON cashbackto user (NhatsDevil).',
+              );
               // JUST A FIXED VALUE, PLEASE TELL ME HOW TO GET THIS RANK ON cashbackto user (NhatsDevil).
               const exampleRankFixedBecauseIDontKnowHowToGetIt = 'platinum';
 
@@ -179,10 +214,12 @@ export class OrderController {
               cashbackTo.rankPoint += cashbackToValue;
 
               // SET value of PROPs for orderCustomer.
-              orderCustomer.id = orderDto.id;
+              orderCustomer.id = uuid();
               orderCustomer.totalPrice = orderDto.total_price;
               orderCustomer.cashBackRef += cashbackToValue;
               orderCustomer.cashBack += cashBackCustomerOrderValue;
+              orderCustomer.user = partnerCouponOwner;
+              orderCustomer.couponRef = couponRef;
 
               // SET value of PROPs for customer.
               customerFound.accumulatedOrderPoint += cashBackCustomerOrderValue;
@@ -195,10 +232,11 @@ export class OrderController {
               this.userService.updateNativeUser(partnerCouponOwner);
               this.userService.updateNativeUser(cashbackTo);
 
-              this.orderService.createNative(orderCustomer);
+              await this.orderService.createNative(orderCustomer);
             }
           }
         }
+        console.log(body);
         return orderCustomer;
       } else {
         // Retension CASE.
