@@ -14,6 +14,7 @@ import { UserInfoDto } from './dto/user-info';
 import { StringUtils } from '../utils/string.utils';
 import { EUserRole } from './enums/user-role.enum';
 import { CouponRefService } from '../coupon-ref/coupon-ref.service';
+import { HaravanCustomerDto } from '../haravan/dto/haravan-customer.dto';
 
 @Injectable()
 export class UserService {
@@ -101,6 +102,24 @@ export class UserService {
     } catch (e) {
       return e;
     }
+  }
+
+  async createUserFromHaravan(data: HaravanCustomerDto) {
+    const user = await this.userRepository.save({
+      authId: data.phone,
+      phoneNumber: data.phone,
+      inviteCode: StringUtils.random(6),
+      role: EUserRole.customer,
+      haravanId: data.id,
+    });
+
+    //Create invite coupon
+    await this.couponRefService.createInvite({
+      ownerId: user.id,
+      role: user.role,
+    });
+
+    return user;
   }
 
   async updateNativeUser(user: User) {

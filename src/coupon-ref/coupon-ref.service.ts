@@ -237,7 +237,7 @@ export class CouponRefService {
     }
   }
 
-  async findCouponCode(couponHaravanCode: string) {
+  async findByHaravanCode(couponHaravanCode: string) {
     return await this.couponRefRepository.findOneBy({
       couponHaravanCode: couponHaravanCode,
     });

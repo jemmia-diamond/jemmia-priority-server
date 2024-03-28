@@ -42,20 +42,20 @@ export class User {
   @ManyToOne(() => User)
   invitedBy: User;
 
-  /** Điểm thành viên của User */
-  @Column('integer', { default: 0 })
+  /** Điểm doanh thu được CASHBACK của User */
+  @Column('double', { default: 0 })
   point: number;
 
   /** Điểm hạng thành viên của User */
-  @Column('integer', { default: 0 })
+  @Column('double', { default: 0 })
   rankPoint: number;
 
   /** Rank của user */
   @Column('integer', { default: ECustomerRankNum.none })
   rank: ECustomerRankNum;
 
-  /** Điểm đặt hàng tích lũy của User */
-  @Column('integer', { default: 0 })
+  /** Giá trị đơn hàng đã tích luỹ */
+  @Column('double', { default: 0 })
   accumulatedOrderPoint: number;
 
   @Column('enum', { enum: EUserRole })

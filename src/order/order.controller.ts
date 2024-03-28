@@ -50,8 +50,12 @@ export class OrderController {
     @Request() req: RequestPayload,
     @Body() body: HaravanOrderDto,
   ) {
+    console.log('/hook/haravan/create');
+    console.log(JSON.stringify(body));
+    console.log('========== HANDLE HOOK ===========');
     // Xử lý xác thực token từ webhook.
-    return this.orderService.haravanHook(body);
+    const res = await this.orderService.haravanHook(body);
+    return res;
   }
 
   @Put('/hook/haravan')
@@ -59,7 +63,8 @@ export class OrderController {
     @Request() req: RequestPayload,
     @Body() body: HaravanOrderDto,
   ) {
-    console.log('hook update');
+    console.log('/hook/haravan');
+    console.log(body);
     return this.orderService.haravanHook(body);
   }
 }
