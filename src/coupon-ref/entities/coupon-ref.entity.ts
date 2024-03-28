@@ -17,8 +17,9 @@ export class CouponRef {
   /** Người tạo coupon, đây sẽ là các user partnerA */
   @Exclude()
   @ManyToOne(() => CouponRef)
-  partnerCoupon: CouponRef;
+  partnerCoupon?: CouponRef;
 
+  /** Role coupon, khi user sử dụng mã này sẽ được set role tương ứng */
   @Column('enum', { enum: EUserRole })
   role: EUserRole;
 
@@ -36,6 +37,9 @@ export class CouponRef {
 
   @Column('varchar', { nullable: true })
   couponHaravanCode: string;
+
+  @Column('varchar', { nullable: false })
+  ownerId: string;
 
   /** Field này dùng để kiểm tra couponRef đã được partnerA / partnerB đi mua hàng lần đầu */
   @Column({ type: 'boolean', default: false })

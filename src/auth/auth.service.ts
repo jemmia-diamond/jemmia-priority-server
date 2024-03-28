@@ -55,7 +55,7 @@ export class AuthService {
     )[0];
 
     //Trường hợp user k phải admin & cũng không phải khách hàng haravan
-    if (!tokenPayload.email && !haravanUser.id) {
+    if (!tokenPayload.email && !haravanUser) {
       throw new HttpException('USER_NOT_FOUND', HttpStatus.UNAUTHORIZED);
     }
 
@@ -64,7 +64,7 @@ export class AuthService {
         {
           //Admin account query
           authId: tokenPayload.email,
-          haravanId: null,
+          role: tokenPayload.email ? EUserRole.admin : null,
         },
         {
           //Customer account query
@@ -72,10 +72,6 @@ export class AuthService {
         },
       ],
     });
-
-    if (!user && !haravanUser) {
-      throw new HttpException('USER_NOT_FOUND', HttpStatus.UNAUTHORIZED);
-    }
 
     //Sync dữ liệu khách hàng từ haravan sang
     if (haravanUser) {

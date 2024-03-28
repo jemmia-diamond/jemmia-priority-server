@@ -14,6 +14,7 @@ import { UserInfoDto } from './dto/user-info';
 import { StringUtils } from '../utils/string.utils';
 import { EUserRole } from './enums/user-role.enum';
 import { CouponRefService } from '../coupon-ref/coupon-ref.service';
+import { HaravanCustomerDto } from '../haravan/dto/haravan-customer.dto';
 
 @Injectable()
 export class UserService {
@@ -23,6 +24,13 @@ export class UserService {
     private readonly haravanService: HaravanService,
     private couponRefService: CouponRefService,
   ) {}
+
+  async findUserNative(id: string) {
+    const user = await this.userRepository.findOneBy({
+      id: id,
+    });
+    return user;
+  }
 
   async findUser(id: string) {
     const user = await this.userRepository.findOneBy({
@@ -58,6 +66,7 @@ export class UserService {
     };
   }
 
+  //!TODO: CREATE USER & SYNC FROM HARAVAN
   async createUser(data: UserInfoDto) {
     try {
       await validate(data, {
@@ -93,6 +102,32 @@ export class UserService {
     } catch (e) {
       return e;
     }
+  }
+
+  async createUserFromHaravan(data: HaravanCustomerDto) {
+    const user = await this.userRepository.save({
+      authId: data.phone,
+      phoneNumber: data.phone,
+      inviteCode: StringUtils.random(6),
+      role: EUserRole.customer,
+      haravanId: data.id,
+    });
+
+    //Create invite coupon
+    await this.couponRefService.createInvite({
+      ownerId: user.id,
+      role: user.role,
+    });
+
+    return user;
+  }
+
+  async updateNativeUser(user: User) {
+    return await this.userRepository.save(user);
+  }
+
+  async createNativeUser(user) {
+    return await this.userRepository.save(user);
   }
 
   async updateUser(userId: string, data: UserInfoDto) {
@@ -146,5 +181,25 @@ export class UserService {
     }
 
     await this.userRepository.delete(id);
+  }
+
+  async findHaravanId(haravanId: number): Promise<User> {
+    const user = await this.userRepository.findOneBy({
+      haravanId: haravanId,
+    });
+
+    const haravanCusData = await this.userRepository.findOneBy({
+      haravanId: haravanId,
+    });
+
+    console.log({
+      ...haravanCusData,
+      ...user,
+    });
+
+    return {
+      ...haravanCusData,
+      ...user,
+    };
   }
 }
