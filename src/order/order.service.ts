@@ -163,6 +163,8 @@ export class OrderService {
       },
       relations: ['owner', 'partnerCoupon', 'partnerCoupon.owner'],
     });
+    console.log('========== COUPON REF/');
+    console.log(JSON.stringify(couponRef));
 
     //Tạo khách hàng nếu không tồn tại
     if (!customer) {
@@ -172,6 +174,7 @@ export class OrderService {
     }
 
     if (!order) {
+      console.log(JSON.stringify(customer));
       order = await this.orderRepository.save({
         haravanOrderId: orderDto.id,
         totalPrice: orderDto.total_price,
@@ -189,7 +192,7 @@ export class OrderService {
     order.user = customer;
 
     //Xử lý cashback cho lần đầu mua hàng
-    if (orderDto.customer.totalSpent === 0) {
+    if (orderDto.customer.ordersCount === 1) {
       const cashbackVal = await this.calculateCashback(order);
 
       order.cashBack = cashbackVal.cashBack;
@@ -237,5 +240,7 @@ export class OrderService {
       await this.orderRepository.save(order);
       await this.userRepository.save(customer);
     }
+
+    console.log('============ RETURN');
   }
 }
