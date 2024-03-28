@@ -55,7 +55,7 @@ export class AuthService {
     )[0];
 
     //Trường hợp user k phải admin & cũng không phải khách hàng haravan
-    if (!tokenPayload.email && !haravanUser.id) {
+    if (!tokenPayload.email && !haravanUser) {
       throw new HttpException('USER_NOT_FOUND', HttpStatus.UNAUTHORIZED);
     }
 
@@ -76,6 +76,9 @@ export class AuthService {
     if (!user && !haravanUser) {
       throw new HttpException('USER_NOT_FOUND', HttpStatus.UNAUTHORIZED);
     }
+
+    console.log(user);
+    console.log(haravanUser);
 
     //Sync dữ liệu khách hàng từ haravan sang
     if (haravanUser) {
