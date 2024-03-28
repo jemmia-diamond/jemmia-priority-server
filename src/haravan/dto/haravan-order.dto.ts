@@ -72,7 +72,7 @@ export class HaravanOrderSearchDto {
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'since_id' })
-  sinceId?: number;
+  since_id?: number;
 
   @ApiPropertyOptional()
   @IsOptional()
@@ -84,42 +84,42 @@ export class HaravanOrderSearchDto {
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'created_at_min' })
-  createdAtMin?: string;
+  created_at_min?: string;
 
   /** Hiển thị các bài viết được tạo trước ngày (định dạng: 2008-12-31T02:01:27.483Z). */
   @ApiPropertyOptional()
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'created_at_max' })
-  createdAtMax?: string;
+  created_at_max?: string;
 
   /** Hiển thị các bài viết được cập nhật lần cuối sau ngày (định dạng: 2008-12-31T02:01:27.483Z). */
   @ApiPropertyOptional()
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'updated_at_min' })
-  updatedAtMin?: string;
+  updated_at_min?: string;
 
   /** Hiển thị các bài viết được cập nhật lần cuối trước ngày (định dạng: 2008-12-31T02:01:27.483Z). */
   @ApiPropertyOptional()
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'updated_at_max' })
-  updatedAtMax?: string;
+  updated_at_max?: string;
 
   /** Hiển thị các đơn hàng được nhập sau ngày. (định dạng: 2021-10-20T14:07:45.084Z) */
   @ApiPropertyOptional()
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'processed_at_min' })
-  processedAtMin?: string;
+  processed_at_min?: string;
 
   /** Hiển thị các đơn hàng đã nhập trước ngày. (định dạng: 2021-10-20T14:07:45.084Z) */
   @ApiPropertyOptional()
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'processed_at_max' })
-  processedAtMax?: string;
+  processed_at_max?: string;
 
   @ApiPropertyOptional({
     enum: EFinancialStatus,
@@ -128,7 +128,7 @@ export class HaravanOrderSearchDto {
   @IsDefined()
   @IsEnum(EFinancialStatus)
   @Expose({ name: 'financial_status' })
-  financialStatus?: EFinancialStatus;
+  financial_status?: EFinancialStatus;
 
   @ApiPropertyOptional({
     enum: EFulfillmentStatus,
@@ -137,7 +137,7 @@ export class HaravanOrderSearchDto {
   @IsDefined()
   @IsEnum(EFulfillmentStatus)
   @Expose({ name: 'fulfillment_status' })
-  fulfillmentStatus?: EFulfillmentStatus;
+  fulfillment_status?: EFulfillmentStatus;
 
   @ApiPropertyOptional({
     enum: EStatus,
@@ -195,7 +195,7 @@ class BillingAddress {
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'first_name' })
-  firstName?: string;
+  first_name?: string;
 
   @ApiProperty()
   @IsOptional()
@@ -206,7 +206,7 @@ class BillingAddress {
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'last_name' })
-  lastName?: string;
+  last_name?: string;
 
   @ApiProperty()
   @IsOptional()
@@ -233,13 +233,13 @@ class BillingAddress {
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'province_code' })
-  provinceCode?: string;
+  province_code?: string;
 
   @ApiProperty()
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'country_code' })
-  countryCode?: string;
+  country_code?: string;
 
   @ApiProperty()
   @IsOptional()
@@ -255,7 +255,7 @@ class BillingAddress {
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'district_code' })
-  districtCode?: string;
+  district_code?: string;
 
   @ApiProperty()
   @IsOptional()
@@ -266,7 +266,7 @@ class BillingAddress {
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'ward_code' })
-  wardCode?: string;
+  ward_code?: string;
 }
 
 class ClientDetails {
@@ -274,37 +274,37 @@ class ClientDetails {
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'accept_language' })
-  acceptLanguage?: string;
+  accept_language?: string;
 
   @ApiProperty()
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'browser_ip' })
-  browserIp?: string;
+  browser_ip?: string;
 
   @ApiProperty()
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'session_hash' })
-  sessionHash?: string;
+  session_hash?: string;
 
   @ApiProperty()
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'user_agent' })
-  userAgent?: string;
+  user_agent?: string;
 
   @ApiProperty()
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'browser_height' })
-  browserHeight?: string;
+  browser_height?: string;
 
   @ApiProperty()
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'browser_width' })
-  browserWidth?: string;
+  browser_width?: string;
 }
 
 class LineItems {
@@ -312,13 +312,13 @@ class LineItems {
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'fulfillable_quantity' })
-  fulfillableQuantity?: number;
+  fulfillable_quantity?: number;
 
   @ApiProperty()
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'fulfillment_service' })
-  fulfillmentService?: string;
+  fulfillment_service?: string;
 
   @ApiProperty({
     enum: EFulfillmentStatus,
@@ -326,7 +326,7 @@ class LineItems {
   @IsEnum(EFulfillmentStatus)
   @IsDefined()
   @Expose({ name: 'fulfillment_status' })
-  fulfillmentStatus?: EFulfillmentStatus;
+  fulfillment_status?: EFulfillmentStatus;
 
   @ApiProperty()
   @IsOptional()
@@ -347,19 +347,19 @@ class LineItems {
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'price_original' })
-  priceOriginal?: number;
+  price_original?: number;
 
   @ApiProperty()
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'price_promotion' })
-  pricePromotion?: number;
+  price_promotion?: number;
 
   @ApiProperty()
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'product_id' })
-  productId?: number;
+  product_id?: number;
 
   @ApiProperty()
   @IsOptional()
@@ -370,7 +370,7 @@ class LineItems {
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'requires_shipping' })
-  requiresShipping?: boolean;
+  requires_shipping?: boolean;
 
   @ApiProperty()
   @IsOptional()
@@ -386,13 +386,13 @@ class LineItems {
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'variant_id' })
-  variantId?: number;
+  variant_id?: number;
 
   @ApiProperty()
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'variant_title' })
-  variantTitle?: string;
+  variant_title?: string;
 
   @ApiProperty()
   @IsOptional()
@@ -413,7 +413,7 @@ class LineItems {
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'gift_card' })
-  giftCard?: boolean;
+  gift_card?: boolean;
 
   @ApiProperty()
   @IsOptional()
@@ -424,13 +424,13 @@ class LineItems {
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'tax_lines' })
-  taxLines?: string;
+  tax_lines?: string;
 
   @ApiProperty()
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'product_exists' })
-  productExists?: boolean;
+  product_exists?: boolean;
 
   @ApiProperty()
   @IsOptional()
@@ -446,13 +446,13 @@ class LineItems {
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'total_discount' })
-  totalDiscount?: number;
+  total_discount?: number;
 
   @ApiProperty()
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'applied_discounts' })
-  appliedDiscounts?: Array<number>;
+  applied_discounts?: Array<number>;
 
   @ApiPropertyOptional()
   @IsOptional()
@@ -465,13 +465,13 @@ class LineItems {
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'not_allow_promotion' })
-  notAllowPromotion?: boolean;
+  not_allow_promotion?: boolean;
 
   @ApiProperty()
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'ma_cost_amount' })
-  maCostAmount?: number;
+  ma_cost_amount?: number;
 }
 
 class ShippingAddress {
@@ -504,13 +504,13 @@ class ShippingAddress {
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'first_name' })
-  firstName?: string;
+  first_name?: string;
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'last_name' })
-  lastName?: string;
+  last_name?: string;
 
   @ApiPropertyOptional()
   @IsOptional()
@@ -547,19 +547,19 @@ class ShippingAddress {
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'province_code' })
-  provinceCode?: string;
+  province_code?: string;
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'country_code' })
-  countryCode?: string;
+  country_code?: string;
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'district_code' })
-  districtCode?: string;
+  district_code?: string;
 
   @ApiPropertyOptional()
   @IsOptional()
@@ -570,7 +570,7 @@ class ShippingAddress {
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'ward_code' })
-  wardCode?: string;
+  ward_code?: string;
 
   @ApiPropertyOptional()
   @IsOptional()
@@ -578,6 +578,12 @@ class ShippingAddress {
   ward?: string;
 }
 
+export class DiscountCodeItem {
+  amount: number;
+  code: string;
+  type: string;
+  is_coupon_code: boolean;
+}
 class ShippingLines {
   @ApiPropertyOptional()
   @IsOptional()
@@ -714,43 +720,43 @@ export class HaravanOrderDto {
   @Type(() => BillingAddress)
   @ValidateNested()
   @Expose({ name: 'billing_address' })
-  billingAddress: BillingAddress;
+  billing_address: BillingAddress;
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'browser_ip' })
-  browserIp?: string;
+  browser_ip?: string;
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'buyer_accepts_marketing' })
-  buyerAcceptsMarketing?: boolean;
+  buyer_accepts_marketing?: boolean;
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'cancel_reason' })
-  cancelReason?: string;
+  cancel_reason?: string;
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'cancelled_at' })
-  cancelledAt?: Date;
+  cancelled_at?: Date;
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'cart_token' })
-  cartToken?: string;
+  cart_token?: string;
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'checkout_token' })
-  checkoutToken?: string;
+  checkout_token?: string;
 
   @ApiPropertyOptional()
   @IsOptional()
@@ -758,19 +764,19 @@ export class HaravanOrderDto {
   @Type(() => ClientDetails)
   @ValidateNested()
   @Expose({ name: 'client_details' })
-  clientDetails: ClientDetails;
+  client_details: ClientDetails;
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'closed_at' })
-  closedAt?: Date;
+  closed_at?: Date;
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'created_at' })
-  createdAt?: Date;
+  created_at?: Date;
 
   @ApiPropertyOptional()
   @IsOptional()
@@ -788,7 +794,7 @@ export class HaravanOrderDto {
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'discount_codes' })
-  discountCodes?: Array<number>;
+  discount_codes?: Array<DiscountCodeItem>;
 
   @ApiPropertyOptional()
   @IsOptional()
@@ -802,12 +808,12 @@ export class HaravanOrderDto {
   @IsEnum(EFinancialStatus)
   @IsDefined()
   @Expose({ name: 'financial_status' })
-  financialStatus?: EFinancialStatus;
+  financial_status?: EFinancialStatus;
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsDefined()
-  @Expose({ name: 'discount_codes' })
+  @Expose({ name: 'fulfillments' })
   fulfillments?: Array<string>;
 
   @ApiProperty({
@@ -816,7 +822,7 @@ export class HaravanOrderDto {
   @IsEnum(EFulfillmentStatus)
   @IsDefined()
   @Expose({ name: 'fulfillment_status' })
-  fulfillmentStatus?: EFulfillmentStatus;
+  fulfillment_status?: EFulfillmentStatus;
 
   @ApiPropertyOptional()
   @IsOptional()
@@ -832,7 +838,7 @@ export class HaravanOrderDto {
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'gateway_code' })
-  gatewayCode?: string;
+  gateway_code?: string;
 
   @ApiPropertyOptional()
   @IsOptional()
@@ -843,13 +849,13 @@ export class HaravanOrderDto {
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'landing_site' })
-  landingSite?: string;
+  landing_site?: string;
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'landing_site_ref' })
-  landingSiteRef?: string;
+  landing_site_ref?: string;
 
   @ApiPropertyOptional()
   @IsOptional()
@@ -865,7 +871,7 @@ export class HaravanOrderDto {
   @Type(() => LineItems)
   @ValidateNested()
   @Expose({ name: 'line_items' })
-  lineItems: LineItems;
+  line_items: LineItems;
 
   @ApiPropertyOptional()
   @IsOptional()
@@ -886,19 +892,19 @@ export class HaravanOrderDto {
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'order_number' })
-  orderNumber?: string;
+  order_number?: string;
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'processing_method' })
-  processingMethod?: string;
+  processing_method?: string;
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'referring_site' })
-  referringSite?: string;
+  referring_site?: string;
 
   @ApiPropertyOptional()
   @IsOptional()
@@ -911,7 +917,7 @@ export class HaravanOrderDto {
   @Type(() => ShippingAddress)
   @ValidateNested()
   @Expose({ name: 'shipping_address' })
-  shippingAddress: ShippingAddress;
+  shipping_address: ShippingAddress;
 
   @ApiPropertyOptional({
     isArray: true,
@@ -922,31 +928,31 @@ export class HaravanOrderDto {
   @Type(() => ShippingLines)
   @ValidateNested()
   @Expose({ name: 'shipping_lines' })
-  shippingLines: ShippingLines;
+  shipping_lines: ShippingLines;
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'source_name' })
-  sourceName?: string;
+  source_name?: string;
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'subtotal_price' })
-  subtotalPrice?: number;
+  subtotal_price?: number;
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'tax_lines' })
-  taxLines?: number;
+  tax_lines?: number;
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'taxes_included' })
-  taxesIncluded?: boolean;
+  taxes_included?: boolean;
 
   @ApiPropertyOptional()
   @IsOptional()
@@ -957,37 +963,37 @@ export class HaravanOrderDto {
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'total_discounts' })
-  totalDiscounts?: number;
+  total_discounts?: number;
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'total_line_items_price' })
-  totalLineItemsPrice?: number;
+  total_line_items_price?: number;
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'total_price' })
-  totalPrice?: number;
+  total_price?: number;
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'total_tax' })
-  totalTax?: number;
+  total_tax?: number;
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'total_weight' })
-  totalWeight?: number;
+  total_weight?: number;
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'updated_at' })
-  updatedAt?: Date;
+  updated_at?: Date;
 
   @ApiPropertyOptional({
     isArray: true,
@@ -1003,151 +1009,151 @@ export class HaravanOrderDto {
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'note_attributes' })
-  noteAttributes?: Array<string>;
+  note_attributes?: Array<string>;
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'confirmed_at' })
-  confirmedAt?: Date;
+  confirmed_at?: Date;
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'closed_status' })
-  closedStatus?: string;
+  closed_status?: string;
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'cancelled_status' })
-  cancelledStatus?: string;
+  cancelled_status?: string;
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'confirmed_status' })
-  confirmedStatus?: string;
+  confirmed_status?: string;
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'user_id' })
-  userId?: number;
+  user_id?: number;
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'device_id' })
-  deviceId?: number;
+  device_id?: number;
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'location_id' })
-  locationId?: number;
+  location_id?: number;
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'ref_order_id' })
-  refOrderId?: number;
+  ref_order_id?: number;
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'ref_order_number' })
-  refOrderNumber?: number;
+  ref_order_number?: number;
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'utm_source' })
-  utmSource?: string;
+  utm_source?: string;
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'utm_medium' })
-  utmMedium?: string;
+  utm_medium?: string;
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'utm_campaign' })
-  utmCampaign?: string;
+  utm_campaign?: string;
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'utm_term' })
-  utmTerm?: string;
+  utm_term?: string;
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'utm_content' })
-  utmContent?: string;
+  utm_content?: string;
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'redeem_model' })
-  redeemModel?: string;
+  redeem_model?: string;
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'omni_order_status' })
-  omniOrderStatus?: number;
+  omni_order_status?: number;
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'omni_order_status_name' })
-  omniOrderStatusName?: string;
+  omni_order_status_name?: string;
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'location_assigned_at' })
-  locationAssignedAt?: Date;
+  location_assigned_at?: Date;
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'in_stock_at' })
-  inStockAt?: Date;
+  in_stock_at?: Date;
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'out_of_stock_at' })
-  outOfStockAt?: Date;
+  out_of_stock_at?: Date;
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'export_at' })
-  exportAt?: Date;
+  export_at?: Date;
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'complete_at' })
-  completeAt?: Date;
+  complete_at?: Date;
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsDefined()
   @IsUrl()
   @Expose({ name: 'payment_url' })
-  paymentUrl?: string;
+  payment_url?: string;
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsDefined()
   @IsEmail()
   @Expose({ name: 'contact_email' })
-  contactEmail?: string;
+  contact_email?: string;
 }
