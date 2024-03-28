@@ -19,6 +19,8 @@ import { RequestPayload } from '../types/controller.type';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { CouponRefService } from '../coupon-ref/coupon-ref.service';
 import { UserService } from '../user/user.service';
+import { OrderQueryDto } from './dto/order-query.dto';
+import { EUserRole } from '../user/enums/user-role.enum';
 
 @ApiTags('Order')
 @ApiBearerAuth()
@@ -32,11 +34,13 @@ export class OrderController {
 
   @UseGuards(JwtAuthGuard)
   @Get()
-  async findAll(
-    @Request() req: RequestPayload,
-    @Query() query: HaravanOrderSearchDto,
-  ) {
-    return this.orderService.findAll(query, req.user.role, req.user.id);
+  async findAll(@Request() req: RequestPayload, @Query() query: OrderQueryDto) {
+    if (req.user.role != EUserRole.admin) {
+      query.userId = req.user.id;
+    }
+    query.limit = Math.min(50, query.limit);
+
+    return this.orderService.findAll(query);
   }
 
   @UseGuards(JwtAuthGuard)

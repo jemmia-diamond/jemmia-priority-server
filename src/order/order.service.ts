@@ -20,6 +20,8 @@ import { plainToInstance } from 'class-transformer';
 import { CouponRef } from '../coupon-ref/entities/coupon-ref.entity';
 import { ECustomerRankNum } from '../customer-rank/enums/customer-rank.enum';
 import { ECouponRefType } from '../coupon-ref/enums/coupon-ref.enum';
+import { OrderQueryDto } from './dto/order-query.dto';
+import { Pagination } from 'nestjs-typeorm-paginate';
 
 @Injectable()
 export class OrderService {
@@ -35,18 +37,28 @@ export class OrderService {
     private readonly userService: UserService,
   ) {}
 
-  async findAll(query: HaravanOrderSearchDto, role: string, userId: string) {
-    try {
-      if (role != EUserRole.admin) {
-        const user = await this.userRepository.findOneBy({ id: userId });
-        query.customer.id = user.haravanId;
-      }
-      return {
-        orders: await this.haravanService.findAllOrder(query),
-      };
-    } catch (error) {
-      return error;
-    }
+  async findAll(query: OrderQueryDto) {
+    const limit = query.limit || 1;
+    const page = (query.page ?? 0) - 1;
+    const offset = page * limit;
+    const [items, totalItems] = await this.orderRepository.findAndCount({
+      where: {
+        user: {
+          id: query.userId,
+        },
+      },
+      order: { createdDate: 'DESC' },
+      skip: offset,
+      take: limit,
+    });
+
+    return new Pagination<Order>(items, {
+      itemCount: items.length,
+      itemsPerPage: limit,
+      totalPages: Math.ceil(totalItems / limit),
+      totalItems,
+      currentPage: page,
+    });
   }
 
   async findOne(id: number, role: string, userId: string) {
