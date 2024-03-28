@@ -95,6 +95,10 @@ export class UserService {
     }
   }
 
+  async updateNativeUser(user: User) {
+    return await this.userRepository.save(user);
+  }
+
   async updateUser(userId: string, data: UserInfoDto) {
     try {
       await validate(data, {
@@ -146,5 +150,20 @@ export class UserService {
     }
 
     await this.userRepository.delete(id);
+  }
+
+  async findHaravanId(haravanId: number): Promise<User> {
+    const user = await this.userRepository.findOneBy({
+      haravanId: haravanId,
+    });
+
+    const haravanCusData = await this.haravanService.findCustomer(
+      user.haravanId,
+    );
+
+    return {
+      ...haravanCusData,
+      ...user,
+    };
   }
 }

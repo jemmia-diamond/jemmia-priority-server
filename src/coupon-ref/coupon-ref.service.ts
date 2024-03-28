@@ -236,4 +236,14 @@ export class CouponRefService {
       return error;
     }
   }
+
+  async findCouponCode(couponHaravanCode: string) {
+    return await this.couponRefRepository.findOneBy({
+      couponHaravanCode: couponHaravanCode,
+    });
+  }
+
+  async update(couponRef: CouponRef) {
+    return await this.couponRefRepository.save(couponRef);
+  }
 }
