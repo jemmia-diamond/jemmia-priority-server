@@ -127,6 +127,8 @@ export class OrderService {
     cashBack =
       totalPrice * EPartnerCashbackConfig.firstBuyCashbackPercent.none.order;
 
+    console.log(cashBack, cashBackRef, cashBackRefA);
+
     return {
       cashBack: cashBack || 0,
       cashBackRef: cashBackRef || 0,
