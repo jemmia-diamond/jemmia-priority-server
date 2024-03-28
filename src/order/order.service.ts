@@ -76,7 +76,7 @@ export class OrderService {
       let customerFound: User;
       let partnerCouponOwner: User;
 
-      let orderCustomer: Order = {
+      const orderCustomer: Order = {
         id: null,
         haravanOrderId: null,
         cashBack: 0,
@@ -93,7 +93,7 @@ export class OrderService {
       if (customerDto.id === guestId || customerDto.email === guestEmail) {
         return 'Please Register New Account!';
       }
-      if (customerDto.orders_count == 1 && discountCodes.length !== 0) {
+      if (customerDto.ordersCount == 1 && discountCodes.length !== 0) {
         let couponRef = await this.couponRefService.findCouponCode(
           discountCodes[0].code,
         );
