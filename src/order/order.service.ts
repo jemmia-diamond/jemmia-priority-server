@@ -79,6 +79,7 @@ export class OrderService {
   }
 
   async calculateCashback(order: Order) {
+    console.log('========== CALC CASHBACK ==========');
     const couponRef = order.couponRef;
     let cashBack = 0,
       cashBackRef = 0,
@@ -92,7 +93,11 @@ export class OrderService {
       };
     }
 
+    console.log(JSON.stringify(couponRef));
+
     const totalPrice = order.totalPrice;
+
+    console.log(totalPrice);
 
     //Tính cashback: 1.5% dựa trên đơn hàng cho partner A
     if (couponRef.partnerCoupon?.owner && couponRef.owner != order.user) {
@@ -106,6 +111,9 @@ export class OrderService {
       couponRef.owner.id === order.user.id
         ? couponRef.partnerCoupon.owner //Trường hợp khách hàng là đối tác hạng B thì cashback cho partnerA
         : couponRef.owner; // Trường hợp khách hàng thông thường thì cashback cho partnerB
+
+    console.log('========== INVITER');
+    console.log(JSON.stringify(cashBackToInviter));
 
     if (cashBackToInviter) {
       const cashbackPercent =
