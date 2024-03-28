@@ -7,14 +7,10 @@ import {
   Request,
   Post,
   Body,
-  Put,
 } from '@nestjs/common';
 import { OrderService } from './order.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import {
-  HaravanOrderDto,
-  HaravanOrderSearchDto,
-} from '../haravan/dto/haravan-order.dto';
+import { HaravanOrderDto } from '../haravan/dto/haravan-order.dto';
 import { RequestPayload } from '../types/controller.type';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { CouponRefService } from '../coupon-ref/coupon-ref.service';
@@ -49,7 +45,7 @@ export class OrderController {
     return this.orderService.findOne(+id, req.user.role, req.user.id);
   }
 
-  @Post('/hook/haravan/create')
+  @Post('/hook/haravan')
   async haravanHookCreate(
     @Request() req: RequestPayload,
     @Body() body: HaravanOrderDto,
@@ -60,15 +56,5 @@ export class OrderController {
     // Xử lý xác thực token từ webhook.
     const res = await this.orderService.haravanHook(body);
     return res;
-  }
-
-  @Put('/hook/haravan')
-  haravanHookUpdate(
-    @Request() req: RequestPayload,
-    @Body() body: HaravanOrderDto,
-  ) {
-    console.log('/hook/haravan');
-    console.log(body);
-    return this.orderService.haravanHook(body);
   }
 }

@@ -131,6 +131,11 @@ export class OrderService {
   async haravanHook(orderDto: HaravanOrderDto) {
     orderDto = plainToInstance(HaravanOrderDto, orderDto);
 
+    //!Chỉ xử lý các đơn có khách hàng được gán
+    if (!orderDto.customer?.id) {
+      return 'CANT FIND CUSTOMER';
+    }
+
     //Get Order
     let order = await this.orderRepository.findOne({
       where: {
