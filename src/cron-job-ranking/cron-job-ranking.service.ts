@@ -79,7 +79,7 @@ export class CronJobProvider implements OnModuleInit {
 
     const query = this.orderRepository
       .createQueryBuilder('orders')
-      .leftJoin('orders.user', 'user')
+      .innerJoin('orders.user', 'user')
       .select('SUM(orders.totalPrice)', 'total')
       .where('user.id = :userId', { userId })
       .andWhere('orders.paymentStatus = :paymentStatus', { paymentStatus })
@@ -100,8 +100,8 @@ export class CronJobProvider implements OnModuleInit {
 
     const query = this.orderRepository
       .createQueryBuilder('orders')
-      .leftJoin('orders.couponRef', 'couponRef')
-      .leftJoin('couponRef.owner', 'user')
+      .innerJoin('orders.couponRef', 'couponRef')
+      .innerJoin('couponRef.owner', 'user')
       .select('SUM(orders.cashBackRef)', 'total')
       .where('user.id = :userId', { userId })
       .andWhere('orders.paymentStatus = :paymentStatus', { paymentStatus })
@@ -122,9 +122,9 @@ export class CronJobProvider implements OnModuleInit {
 
     const query = this.orderRepository
       .createQueryBuilder('orders')
-      .leftJoin('orders.couponRef', 'couponRef')
-      .leftJoin('couponRef.partnerCoupon', 'partnerCoupon')
-      .leftJoin('partnerCoupon.owner', 'user')
+      .innerJoin('orders.couponRef', 'couponRef')
+      .innerJoin('couponRef.partnerCoupon', 'partnerCoupon')
+      .innerJoin('partnerCoupon.owner', 'user')
       .select('SUM(orders.cashBackRefA)', 'total')
       .where('user.id = :userId', { userId })
       .andWhere('orders.paymentStatus = :paymentStatus', { paymentStatus })
