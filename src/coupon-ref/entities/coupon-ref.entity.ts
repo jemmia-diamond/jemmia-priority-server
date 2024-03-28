@@ -37,6 +37,9 @@ export class CouponRef {
   @Column('varchar', { nullable: true })
   couponHaravanCode: string;
 
+  @Column('varchar', { nullable: false })
+  ownerId: string;
+
   /** Field này dùng để kiểm tra couponRef đã được partnerA / partnerB đi mua hàng lần đầu */
   @Column({ type: 'boolean', default: false })
   used: boolean;
