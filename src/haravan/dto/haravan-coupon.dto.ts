@@ -202,6 +202,10 @@ export class HaravanCouponDto {
 
   channel?: string;
 
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsDefined()
+  @IsNumber()
   @Expose({ name: 'max_amount_apply' })
   maxAmountApply?: number;
 

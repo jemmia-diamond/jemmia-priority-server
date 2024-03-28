@@ -44,8 +44,11 @@ export class CouponRefService {
     couponHaravanDto.appliesOnce = true;
     couponHaravanDto.startsAt =
       createCouponRefDto.startDate || new Date().toISOString();
+
+    //TẠO MÃ INVITE COUPON
     couponHaravanDto.value = 1;
-    couponHaravanDto.discountType = ECouponDiscountType.shipping;
+    couponHaravanDto.maxAmountApply = 1;
+    couponHaravanDto.discountType = ECouponDiscountType.percentage;
 
     //CREATE PARTNER COUPON
     if (createCouponRefDto.type == ECouponRefType.partner) {
@@ -59,6 +62,7 @@ export class CouponRefService {
       couponHaravanDto.value = couponConfig.value;
       couponHaravanDto.discountType = couponConfig.discountType;
       couponHaravanDto.setTimeActive = true;
+      couponHaravanDto.maxAmountApply = null;
     }
 
     const coupon = await this.haravanService.createCoupon(couponHaravanDto);
@@ -235,5 +239,15 @@ export class CouponRefService {
     } catch (error) {
       return error;
     }
+  }
+
+  async findByHaravanCode(couponHaravanCode: string) {
+    return await this.couponRefRepository.findOneBy({
+      couponHaravanCode: couponHaravanCode,
+    });
+  }
+
+  async update(couponRef: CouponRef) {
+    return await this.couponRefRepository.save(couponRef);
   }
 }

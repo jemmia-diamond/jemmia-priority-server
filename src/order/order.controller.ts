@@ -7,30 +7,36 @@ import {
   Request,
   Post,
   Body,
-  Put,
 } from '@nestjs/common';
 import { OrderService } from './order.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import {
-  HaravanOrderDto,
-  HaravanOrderSearchDto,
-} from '../haravan/dto/haravan-order.dto';
+import { HaravanOrderDto } from '../haravan/dto/haravan-order.dto';
 import { RequestPayload } from '../types/controller.type';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { CouponRefService } from '../coupon-ref/coupon-ref.service';
+import { UserService } from '../user/user.service';
+import { OrderQueryDto } from './dto/order-query.dto';
+import { EUserRole } from '../user/enums/user-role.enum';
 
 @ApiTags('Order')
 @ApiBearerAuth()
 @Controller('order')
 export class OrderController {
-  constructor(private readonly orderService: OrderService) {}
+  constructor(
+    private readonly orderService: OrderService,
+    private readonly couponRefService: CouponRefService,
+    private readonly userService: UserService,
+  ) {}
 
   @UseGuards(JwtAuthGuard)
   @Get()
-  async findAll(
-    @Request() req: RequestPayload,
-    @Query() query: HaravanOrderSearchDto,
-  ) {
-    return this.orderService.findAll(query, req.user.role, req.user.id);
+  async findAll(@Request() req: RequestPayload, @Query() query: OrderQueryDto) {
+    if (req.user.role != EUserRole.admin) {
+      query.userId = req.user.id;
+    }
+    query.limit = Math.min(50, query.limit);
+
+    return this.orderService.findAll(query);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -40,31 +46,15 @@ export class OrderController {
   }
 
   @Post('/hook/haravan')
-  haravanHookCreate(
+  async haravanHookCreate(
     @Request() req: RequestPayload,
     @Body() body: HaravanOrderDto,
   ) {
-    const customer = body.customer;
-
-    if (customer.id == null) {
-      // return user, make them register first!
-      return null;
-    }
-
-    // the first time user have made an order.
-    if (customer.ordersCount === 1) {
-    } else {
-    }
-
-    return this.orderService.haravanHook(body);
-  }
-
-  @Put('/hook/haravan')
-  haravanHookUpdate(
-    @Request() req: RequestPayload,
-    @Body() body: HaravanOrderDto,
-  ) {
-    console.log('hook update');
-    return this.orderService.haravanHook(body);
+    console.log('/hook/haravan/create');
+    console.log(JSON.stringify(body));
+    console.log('========== HANDLE HOOK ===========');
+    // Xử lý xác thực token từ webhook.
+    const res = await this.orderService.haravanHook(body);
+    return res;
   }
 }

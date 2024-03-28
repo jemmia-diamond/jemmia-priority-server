@@ -1,6 +1,7 @@
 import {
   ECustomerRank,
   ECustomerRankConfig,
+  ECustomerRankNum,
 } from '../../customer-rank/enums/customer-rank.enum';
 import { ECouponDiscountType } from '../../haravan/enums/coupon.enum';
 import { EUserRole } from '../../user/enums/user-role.enum';
@@ -70,6 +71,7 @@ type CouponConfig = {
   value: number;
   discountType: ECouponDiscountType;
   receiveRankPoint: number;
+  receiveRank: ECustomerRankNum;
 };
 
 export const EPartnerInviteCouponConfig: {
@@ -82,6 +84,7 @@ export const EPartnerInviteCouponConfig: {
     value: 100,
     discountType: ECouponDiscountType.percentage,
     receiveRankPoint: ECustomerRankConfig.platinum.buyPoint,
+    receiveRank: ECustomerRankNum.platinum,
   },
   [EUserRole.partnerB]: {
     minimumOrderAmount: null,
@@ -89,5 +92,6 @@ export const EPartnerInviteCouponConfig: {
     value: 100,
     discountType: ECouponDiscountType.percentage,
     receiveRankPoint: ECustomerRankConfig.gold.buyPoint,
+    receiveRank: ECustomerRankNum.gold,
   },
 };
