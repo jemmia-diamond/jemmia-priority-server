@@ -7,7 +7,7 @@ import { Exclude } from 'class-transformer';
 @Entity('orders')
 export class Order {
   @PrimaryGeneratedColumn('uuid')
-  id: number;
+  id: string;
 
   @Column('integer')
   haravanOrderId: number;
