@@ -6,9 +6,8 @@ import { In, Repository } from 'typeorm';
 import { CouponService } from '../coupon/coupon.service';
 import { CouponRef } from './entities/coupon-ref.entity';
 import { HaravanCouponDto } from '../haravan/dto/haravan-coupon.dto';
-import { EUserRole } from '../user/enums/user-role.enum';
 import { Pagination } from 'nestjs-typeorm-paginate';
-import { EPartnerInviteCouponConfig } from './enums/partner-customer.enum';
+import { EPartnerCashbackConfig } from './enums/partner-customer.enum';
 import { StringUtils } from '../utils/string.utils';
 import { ECouponDiscountType } from '../haravan/enums/coupon.enum';
 import { HaravanService } from '../haravan/haravan.service';
@@ -50,23 +49,11 @@ export class CouponRefService {
     }
 
     //TẠO MÃ INVITE COUPON
-    couponHaravanDto.value = 1;
-    couponHaravanDto.maxAmountApply = 1;
+    couponHaravanDto.value = EPartnerCashbackConfig.firstBuyCashbackPercent;
     couponHaravanDto.discountType = ECouponDiscountType.percentage;
-
-    //CREATE PARTNER COUPON
-    if (createCouponRefDto.type == ECouponRefType.partner) {
-      const couponConfig = EPartnerInviteCouponConfig[createCouponRefDto.role];
-
-      if (!couponConfig)
-        throw new BadRequestException('Partner customer not found');
-
-      couponHaravanDto.usageLimit = 1;
-      couponHaravanDto.value = couponConfig.value;
-      couponHaravanDto.discountType = couponConfig.discountType;
-      couponHaravanDto.setTimeActive = true;
-      couponHaravanDto.maxAmountApply = null;
-    }
+    couponHaravanDto.usageLimit = 1;
+    couponHaravanDto.setTimeActive = true;
+    couponHaravanDto.maxAmountApply = null;
 
     const coupon = await this.haravanService.createCoupon(couponHaravanDto);
 
@@ -81,50 +68,50 @@ export class CouponRefService {
     return await this.couponRefRepository.save(couponRef);
   }
 
-  async convertPartnerToInvite(userId: string, couponHaravanCode: string) {
-    const partnerCoupon = await this.couponRefRepository.findOneBy({
-      couponHaravanCode,
-    });
+  // async convertPartnerToInvite(userId: string, couponHaravanCode: string) {
+  //   const partnerCoupon = await this.couponRefRepository.findOneBy({
+  //     couponHaravanCode,
+  //   });
 
-    if (!partnerCoupon) {
-      throw new BadRequestException('Coupon not exists');
-    }
+  //   if (!partnerCoupon) {
+  //     throw new BadRequestException('Coupon not exists');
+  //   }
 
-    partnerCoupon.used = true;
+  //   partnerCoupon.used = true;
 
-    if (partnerCoupon.role == EUserRole.partnerA) {
-      await this.couponRefRepository.save(partnerCoupon);
+  //   if (partnerCoupon.role == EUserRole.partnerA) {
+  //     await this.couponRefRepository.save(partnerCoupon);
 
-      return partnerCoupon;
-    }
+  //     return partnerCoupon;
+  //   }
 
-    let inviteCoupon = await this.couponRefRepository.findOneBy({
-      owner: {
-        id: userId,
-      },
-    });
+  //   let inviteCoupon = await this.couponRefRepository.findOneBy({
+  //     owner: {
+  //       id: userId,
+  //     },
+  //   });
 
-    if (!inviteCoupon) {
-      const owner = await this.userRepository.findOneBy({
-        id: userId,
-      });
+  //   if (!inviteCoupon) {
+  //     const owner = await this.userRepository.findOneBy({
+  //       id: userId,
+  //     });
 
-      if (!owner) throw new BadRequestException('User not found');
+  //     if (!owner) throw new BadRequestException('User not found');
 
-      inviteCoupon = await this.createInvite({
-        ownerId: userId,
-        role: owner.role,
-      });
-    }
+  //     inviteCoupon = await this.createInvite({
+  //       ownerId: userId,
+  //       role: owner.role,
+  //     });
+  //   }
 
-    inviteCoupon.partnerCoupon = partnerCoupon;
-    inviteCoupon.role = partnerCoupon.role;
+  //   inviteCoupon.partnerCoupon = partnerCoupon;
+  //   inviteCoupon.role = partnerCoupon.role;
 
-    await this.couponRefRepository.save(partnerCoupon);
-    await this.couponRefRepository.save(inviteCoupon);
+  //   await this.couponRefRepository.save(partnerCoupon);
+  //   await this.couponRefRepository.save(inviteCoupon);
 
-    return inviteCoupon;
-  }
+  //   return inviteCoupon;
+  // }
 
   async createInvite(payload: InviteCouponRefDto) {
     await validate(payload);
