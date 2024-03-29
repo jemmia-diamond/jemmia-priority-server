@@ -69,6 +69,21 @@ export class OrderService {
       order: { createdDate: 'DESC' },
       skip: offset,
       take: limit,
+      relations: ['user', 'couponRef.owner.invitedBy'],
+      select: {
+        user: {
+          id: true,
+        },
+        couponRef: {
+          id: true,
+          owner: {
+            id: true,
+            invitedBy: {
+              id: true,
+            },
+          },
+        },
+      },
     });
 
     return new Pagination<Order>(items, {
@@ -180,7 +195,7 @@ export class OrderService {
       where: {
         couponHaravanCode: orderDto.discount_codes[0]?.code,
       },
-      relations: ['owner', 'owner.invitedBy'],
+      relations: ['owner.invitedBy'],
     });
     console.log('========== COUPON REF/');
     console.log(JSON.stringify(couponRef));
@@ -211,7 +226,10 @@ export class OrderService {
     order.user = customer;
 
     //Xử lý cashback cho lần đầu mua hàng
-    if (orderDto.customer.ordersCount === 1) {
+    if (
+      orderDto.customer.ordersCount === 1 ||
+      orderDto.customer.totalSpent === 0
+    ) {
       const cashbackVal = await this.calculateCashback(order);
 
       order.cashBack = cashbackVal.cashBack;
