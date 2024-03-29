@@ -231,6 +231,9 @@ export class OrderService {
 
     if (couponRef) {
       order.couponRef = couponRef;
+
+      //Mặc định sẽ set luôn đã sử dụng khi tạo đơn vì khi huỷ đơn thì coupon cũng k thể sử dụng lại
+      couponRef.used = true;
     }
     order.user = customer;
 
