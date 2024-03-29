@@ -18,6 +18,7 @@ export enum EFinancialStatus {
   refunded = 'refunded',
   voided = 'voided',
   partiallyRefunded = 'partially_refunded',
+  cancelled = 'cancelled',
 }
 
 export enum EFulfillmentStatus {
@@ -1027,7 +1028,7 @@ export class HaravanOrderDto {
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'cancelled_status' })
-  cancelled_status?: string;
+  cancelled_status?: 'cancelled' | 'uncancelled';
 
   @ApiPropertyOptional()
   @IsOptional()
