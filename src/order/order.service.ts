@@ -234,6 +234,11 @@ export class OrderService {
     }
     order.user = customer;
 
+    //Nếu đơn huỷ
+    if (orderDto.cancelled_status == 'cancelled') {
+      order.paymentStatus = EFinancialStatus.cancelled;
+    }
+
     //Xử lý cashback cho lần đầu mua hàng
     if (
       orderDto.customer.ordersCount === 1 ||
