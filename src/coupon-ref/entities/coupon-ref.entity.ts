@@ -14,11 +14,6 @@ export class CouponRef {
   @ManyToOne(() => User)
   owner: User;
 
-  /** Người tạo coupon, đây sẽ là các user partnerA */
-  @Exclude()
-  @ManyToOne(() => CouponRef)
-  partnerCoupon?: CouponRef;
-
   /** Role coupon, khi user sử dụng mã này sẽ được set role tương ứng */
   @Column('enum', { enum: EUserRole })
   role: EUserRole;

@@ -27,7 +27,7 @@ import { Order } from './order/entities/order.entity';
       username: process.env.DB_UNAME,
       entities: [User, Coupon, CouponRedeemed, CouponRef, Order],
       database: process.env.DB,
-      synchronize: false,
+      synchronize: true,
       logging: false,
     }),
     ServeStaticModule.forRoot({
