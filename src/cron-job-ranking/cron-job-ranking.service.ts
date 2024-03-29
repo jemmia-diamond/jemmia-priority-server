@@ -115,28 +115,26 @@ export class CronJobProvider implements OnModuleInit {
   }
 
   async getCashBackRefAForUserLast12Months(userId: string): Promise<number> {
-    // const currentDate = new Date();
-    // const twelveMonthsAgo = new Date();
-    // twelveMonthsAgo.setMonth(currentDate.getMonth() - 12);
-    // const paymentStatus = EPaymentStatus.CONFIRM;
+    const currentDate = new Date();
+    const twelveMonthsAgo = new Date();
+    twelveMonthsAgo.setMonth(currentDate.getMonth() - 12);
+    const paymentStatus = EPaymentStatus.CONFIRM;
 
-    //!TODO Sửa lại không còn partnerCoupon mà sẽ check couponRef.owner.invitedBy thay cho partnerCoupon.owner
-    // const query = this.orderRepository
-    //   .createQueryBuilder('orders')
-    //   .leftJoin('orders.couponRef', 'couponRef')
-    //   .leftJoin('couponRef.partnerCoupon', 'partnerCoupon')
-    //   .leftJoin('partnerCoupon.owner', 'user')
-    //   .select('SUM(orders.cashBackRefA)', 'total')
-    //   .where('user.id = :userId', { userId })
-    //   .andWhere('orders.paymentStatus = :paymentStatus', { paymentStatus })
-    //   .andWhere('orders.createdDate >= :twelveMonthsAgo', { twelveMonthsAgo })
-    //   .andWhere('orders.createdDate <= :currentDate', { currentDate });
+    const query = this.orderRepository
+      .createQueryBuilder('orders')
+      .innerJoin('orders.couponRef', 'couponRef')
+      .innerJoin('couponRef.owner', 'user')
+      .innerJoin('user.invitedBy', 'userInvite')
+      .select('SUM(orders.cashBackRefA)', 'total')
+      .where('userInvite.id = :userId', { userId })
+      .andWhere('orders.paymentStatus = :paymentStatus', { paymentStatus })
+      .andWhere('orders.createdDate >= :twelveMonthsAgo', { twelveMonthsAgo })
+      .andWhere('orders.createdDate <= :currentDate', { currentDate });
 
-    // const result = await query.getRawOne();
-    // const totalPrice = result.total;
+    const result = await query.getRawOne();
+    const totalPrice = result.total;
 
-    // return totalPrice;
-    return 0;
+    return totalPrice;
   }
 
   getCustomerRank(buyPoint: number, refPoint: number): ECustomerRank {
