@@ -42,16 +42,6 @@ export class CouponRefController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Roles(EUserRole.admin)
-  @Get('/invite/:userId/convert-partner/:code')
-  async convertPartnerToInvite(
-    @Param('userId') userId: string,
-    @Param('code') code: string,
-  ) {
-    return this.couponRefService.convertPartnerToInvite(userId, code);
-  }
-
-  @UseGuards(JwtAuthGuard)
   @Get('/invite/:userId')
   @ApiQuery({
     name: 'used',

@@ -5,6 +5,7 @@ import {
   IsBoolean,
   IsDefined,
   IsEnum,
+  IsISO8601,
   IsNumber,
   IsOptional,
   IsString,
@@ -97,6 +98,7 @@ export class HaravanCouponDto {
   @ApiPropertyOptional()
   @IsOptional()
   @IsDefined()
+  @IsISO8601()
   @Expose({ name: 'ends_at' })
   endsAt?: string;
 
@@ -112,6 +114,7 @@ export class HaravanCouponDto {
   @ApiPropertyOptional()
   @IsOptional()
   @IsDefined()
+  @IsISO8601()
   @Expose({ name: 'starts_at' })
   startsAt?: string;
 
