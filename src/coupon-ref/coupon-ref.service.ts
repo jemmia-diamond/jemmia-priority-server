@@ -45,6 +45,10 @@ export class CouponRefService {
     couponHaravanDto.startsAt =
       createCouponRefDto.startDate || new Date().toISOString();
 
+    if (createCouponRefDto.endDate) {
+      couponHaravanDto.endsAt = createCouponRefDto.endDate;
+    }
+
     //TẠO MÃ INVITE COUPON
     couponHaravanDto.value = 1;
     couponHaravanDto.maxAmountApply = 1;
@@ -57,7 +61,6 @@ export class CouponRefService {
       if (!couponConfig)
         throw new BadRequestException('Partner customer not found');
 
-      couponHaravanDto.endsAt = createCouponRefDto.endDate;
       couponHaravanDto.usageLimit = 1;
       couponHaravanDto.value = couponConfig.value;
       couponHaravanDto.discountType = couponConfig.discountType;
@@ -126,21 +129,17 @@ export class CouponRefService {
   async createInvite(payload: InviteCouponRefDto) {
     await validate(payload);
 
-    const couponRef = await this.couponRefRepository.findOneBy({
-      owner: {
-        id: payload.ownerId,
-      },
-    });
-
-    if (couponRef) {
-      return couponRef;
-    }
+    const dateNow = new Date();
 
     const data = new CreateCouponRefDto();
 
-    data.startDate = new Date().toISOString();
     data.ownerId = payload.ownerId;
     data.role = payload.role;
+    data.type = ECouponRefType.invite;
+    data.startDate = dateNow.toISOString();
+    data.endDate = new Date(
+      dateNow.setHours(dateNow.getHours() + 1),
+    ).toISOString();
 
     return await this.create(data);
   }
