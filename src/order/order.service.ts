@@ -209,7 +209,7 @@ export class OrderService {
       },
       relations: ['owner.invitedBy'],
     });
-    console.log('========== COUPON REF/');
+    console.log('\n========== COUPON REF/');
     console.log(JSON.stringify(couponRef));
 
     //Tạo khách hàng nếu không tồn tại
@@ -228,15 +228,17 @@ export class OrderService {
         customer,
       });
     }
+    console.log('\n========== ORDER');
+    console.log(JSON.stringify(order));
 
     order.paymentStatus = orderDto.financial_status;
     order.totalPrice = orderDto.total_price;
 
     if (couponRef) {
-      order.couponRef = couponRef;
-
       //Mặc định sẽ set luôn đã sử dụng khi tạo đơn vì khi huỷ đơn thì coupon cũng k thể sử dụng lại
       couponRef.used = true;
+
+      order.couponRef = couponRef;
     }
     order.user = customer;
 
