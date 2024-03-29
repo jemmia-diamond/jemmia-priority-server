@@ -143,7 +143,10 @@ export class OrderService {
     console.log(totalPrice);
 
     //Tính cashback: 1.5% dựa trên đơn hàng cho partner A
-    if (couponRef.owner.id != order.user.id) {
+    if (
+      couponRef.owner.id != order.user.id &&
+      order.user.role !== EUserRole.partnerB //Chỉ hoàn cho các user là customer | staff
+    ) {
       cashBackRefA +=
         totalPrice *
         EPartnerCashbackConfig.partnerRefferalCashbackPercent.partnerA.partnerB;
