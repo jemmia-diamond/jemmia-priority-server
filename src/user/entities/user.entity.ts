@@ -37,7 +37,7 @@ export class User {
   @Column('varchar', { length: 6, unique: true, nullable: true })
   inviteCode: string;
 
-  /** Nếu user đăng ký nhập invite code được mời thì user mời đưa vào đây */
+  /** Nếu user sử dụng coupon ref cho lần đầu mua hàng thì đưa chủ coupon vào đây */
   @Exclude()
   @ManyToOne(() => User)
   invitedBy: User;

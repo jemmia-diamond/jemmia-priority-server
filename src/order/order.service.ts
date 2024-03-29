@@ -142,8 +142,8 @@ export class OrderService {
       cashBackRef = totalPrice * cashbackPercent;
     }
 
-    cashBack =
-      totalPrice * EPartnerCashbackConfig.firstBuyCashbackPercent.none.order;
+    // cashBack = totalPrice * EPartnerCashbackConfig.firstBuyCashbackPercent;
+    cashBack = 0; //*Set = 0 Vì đã được giảm thẳng khi mua hàng
 
     console.log(cashBack, cashBackRef, cashBackRefA);
 
@@ -228,10 +228,10 @@ export class OrderService {
           customer.role = couponRef.role;
 
           //Convert coupon ref
-          await this.couponRefService.convertPartnerToInvite(
-            customer.id,
-            couponRef.couponHaravanCode,
-          );
+          // await this.couponRefService.convertPartnerToInvite(
+          //   customer.id,
+          //   couponRef.couponHaravanCode,
+          // );
         }
 
         //Cashback cho partner A
