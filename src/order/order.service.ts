@@ -38,6 +38,7 @@ export class OrderService {
   ) {}
 
   async findAll(query: OrderQueryDto) {
+    //!TODO: Sửa lại query sau khi không còn partnerCoupon
     const limit = query.limit || 1;
     const page = (query.page ?? 0) - 1;
     const offset = page * limit;
@@ -51,16 +52,16 @@ export class OrderService {
         {
           couponRef: [
             {
-              owner: {
-                id: query.userId,
-              },
-            },
-            {
-              partnerCoupon: {
-                owner: {
+              owner: [
+                {
                   id: query.userId,
                 },
-              },
+                {
+                  invitedBy: {
+                    id: query.userId,
+                  },
+                },
+              ],
             },
           ],
         },
@@ -118,25 +119,25 @@ export class OrderService {
     console.log(totalPrice);
 
     //Tính cashback: 1.5% dựa trên đơn hàng cho partner A
-    if (couponRef.partnerCoupon?.owner && couponRef.owner != order.user) {
+    if (couponRef.owner.id != order.user.id) {
       cashBackRefA +=
         totalPrice *
         EPartnerCashbackConfig.partnerRefferalCashbackPercent.partnerA.partnerB;
     }
 
-    //Cashback cho người mời khách hàng
-    const cashBackToInviter =
-      couponRef.owner.id === order.user.id
-        ? couponRef.partnerCoupon.owner //Trường hợp khách hàng là đối tác hạng B thì cashback cho partnerA
-        : couponRef.owner; // Trường hợp khách hàng thông thường thì cashback cho partnerB
+    //Lấy ra người đã mời khách hàng
+    const inviter = couponRef.owner;
+    // couponRef.owner.id === order.user.id //Trường hợp chủ couponRef cũng là người mua hàng
+    //   ? couponRef.owner.invitedBy //Trả về cho người đã mời trước đó
+    //   : couponRef.owner;
 
     console.log('========== INVITER');
-    console.log(JSON.stringify(cashBackToInviter));
+    console.log(JSON.stringify(inviter));
 
-    if (cashBackToInviter) {
+    if (inviter) {
       const cashbackPercent =
         EPartnerCashbackConfig.refferalCashbackPercent[
-          ECustomerRankNum[cashBackToInviter.rank]
+          ECustomerRankNum[inviter.rank]
         ] || 0;
 
       cashBackRef = totalPrice * cashbackPercent;
@@ -152,7 +153,7 @@ export class OrderService {
       cashBackRef: cashBackRef || 0,
       cashBackRefA: cashBackRefA || 0,
       /** Người mời được nhận cashbackRef */
-      inviter: cashBackToInviter,
+      inviter: inviter,
     };
   }
 
@@ -179,7 +180,7 @@ export class OrderService {
       where: {
         couponHaravanCode: orderDto.discount_codes[0]?.code,
       },
-      relations: ['owner', 'partnerCoupon', 'partnerCoupon.owner'],
+      relations: ['owner', 'owner.invitedBy'],
     });
     console.log('========== COUPON REF/');
     console.log(JSON.stringify(couponRef));
@@ -219,6 +220,8 @@ export class OrderService {
 
       //Chỉ khi đã thanh toán
       if (order.paymentStatus == EFinancialStatus.paid) {
+        couponRef.used = true;
+
         //Set thăng hạng cho partner khi mua hàng lần đầu nếu sử dụng couponRef Partner
         if (couponRef.type == ECouponRefType.partner) {
           customer.rank =
@@ -235,10 +238,9 @@ export class OrderService {
         }
 
         //Cashback cho partner A
-        if (couponRef.partnerCoupon) {
-          couponRef.partnerCoupon.owner.point += cashbackVal.cashBackRefA;
-
-          await this.userRepository.save(couponRef.partnerCoupon.owner);
+        if (couponRef.owner.invitedBy?.role === EUserRole.partnerA) {
+          couponRef.owner.invitedBy.point += cashbackVal.cashBackRefA;
+          await this.userRepository.save(couponRef.owner.invitedBy);
         }
 
         //Cashback cho inviter
@@ -253,8 +255,12 @@ export class OrderService {
 
         //Cộng giá trị đơn tích luỹ
         customer.accumulatedOrderPoint += order.totalPrice;
+
+        //Set người đã mời khách hàng
+        customer.invitedBy = couponRef.owner;
       }
 
+      await this.couponRefRepository.save(couponRef);
       await this.orderRepository.save(order);
       await this.userRepository.save(customer);
     }

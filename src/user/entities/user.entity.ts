@@ -40,7 +40,7 @@ export class User {
   /** Nếu user sử dụng coupon ref cho lần đầu mua hàng thì đưa chủ coupon vào đây */
   @Exclude()
   @ManyToOne(() => User)
-  invitedBy: User;
+  invitedBy?: User;
 
   /** Điểm doanh thu được CASHBACK của User */
   @Column('double', { default: 0 })
