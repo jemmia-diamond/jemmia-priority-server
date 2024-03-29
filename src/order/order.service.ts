@@ -38,7 +38,6 @@ export class OrderService {
   ) {}
 
   async findAll(query: OrderQueryDto) {
-    //!TODO: Sửa lại query sau khi không còn partnerCoupon
     const limit = query.limit || 1;
     const page = (query.page ?? 0) - 1;
     const offset = page * limit;
@@ -86,7 +85,17 @@ export class OrderService {
       },
     });
 
-    return new Pagination<Order>(items, {
+    const itemsFormmated = items.map((i) => ({
+      ...i,
+      point:
+        query.userId === i.user.id
+          ? i.cashBack
+          : query.userId === i.couponRef.owner.id
+            ? i.cashBackRef
+            : i.cashBackRefA,
+    }));
+
+    return new Pagination<Order>(itemsFormmated, {
       itemCount: items.length,
       itemsPerPage: limit,
       totalPages: Math.ceil(totalItems / limit),
