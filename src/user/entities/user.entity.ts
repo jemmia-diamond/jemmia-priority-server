@@ -42,6 +42,10 @@ export class User {
   @ManyToOne(() => User)
   invitedBy?: User;
 
+  /** Số lượng user đã mời thành công */
+  @Column('integer', { default: 0 })
+  invitesCount: number;
+
   /** Điểm doanh thu được CASHBACK của User */
   @Column('double', { default: 0 })
   point: number;

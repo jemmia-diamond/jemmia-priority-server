@@ -296,6 +296,9 @@ export class OrderService {
 
         //Set người đã mời khách hàng
         customer.invitedBy = couponRef.owner;
+
+        //Cập nhật số lượng user đã mời cho chủ coupon;
+        couponRef.owner.invitesCount++;
       }
 
       await this.couponRefRepository.save(couponRef);
