@@ -39,33 +39,42 @@ export class CronJobProvider implements OnModuleInit {
         promises.push(
           new Promise(async (resolve) => {
             // Process each user here
-            const totalPrice = await this.getTotalPriceForUserLast12Months(
-              user.id,
-            );
-            const cashBackRef = await this.getCashBackRefForUserLast12Months(
-              user.id,
-            );
-            const cashBackRefA = await this.getCashBackRefAForUserLast12Months(
-              user.id,
-            );
+            const currentDate = new Date();
+            currentDate.setFullYear(currentDate.getFullYear() - 1);
+            if (user.rankExpirationTime >= currentDate) {
+              const rankNum = await this.getRankOfUser(user.id);
 
-            const total = totalPrice + cashBackRef + cashBackRefA;
-
-            const customerRank = this.getCustomerRank(totalPrice, total);
-
-            const rankNum = ECustomerRankNum[customerRank];
-
-            if (rankNum > 1) {
-              user.rankPoint =
-                rankNum >= user.rankPoint ? rankNum : user.rankPoint - 1;
-              await this.userRepository.save(user);
+              if (rankNum > 1) {
+                user.rankPoint =
+                  rankNum >= user.rankPoint ? rankNum : user.rankPoint - 1;
+                user.rankExpirationTime = new Date();
+                await this.userRepository.save(user);
+              }
             }
+
             resolve(1);
           }),
         );
       });
 
       await Promise.race(promises);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async getRankOfUser(userId: string) {
+    try {
+      const totalPrice = await this.getTotalPriceForUserLast12Months(userId);
+      const cashBackRef = await this.getCashBackRefForUserLast12Months(userId);
+      const cashBackRefA =
+        await this.getCashBackRefAForUserLast12Months(userId);
+
+      const total = totalPrice + cashBackRef + cashBackRefA;
+
+      const customerRank = this.getCustomerRank(totalPrice, total);
+
+      return ECustomerRankNum[customerRank];
     } catch (error) {
       console.log(error);
     }
