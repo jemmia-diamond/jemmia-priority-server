@@ -64,4 +64,7 @@ export class User {
 
   @Column('enum', { enum: EUserRole })
   role: EUserRole;
+
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  rankExpirationTime: Date;
 }
