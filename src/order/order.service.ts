@@ -300,7 +300,9 @@ export class OrderService {
         customer.invitedBy = couponRef.owner;
 
         //Cập nhật số lượng user đã mời cho chủ coupon;
+        //!FIXME: NOTWORKING
         couponRef.owner.invitesCount++;
+        await this.userRepository.save(couponRef.owner);
       }
 
       await this.couponRefRepository.save(couponRef);
