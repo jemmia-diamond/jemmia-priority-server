@@ -8,7 +8,7 @@ import { AccessTokenPayload, RefreshTokenPayload } from './types/jwt.types';
 import { jwtConstants } from './constants';
 import * as firebaseAdmin from 'firebase-admin';
 import { HaravanService } from '../haravan/haravan.service';
-import { StringUtils } from '../utils/string.utils';
+import { StringUtils } from '../shared/utils/string.utils';
 import { EUserRole } from '../user/enums/user-role.enum';
 import { HaravanCustomerDto } from '../haravan/dto/haravan-customer.dto';
 import { CouponRefService } from '../coupon-ref/coupon-ref.service';

@@ -8,7 +8,7 @@ import { CouponRef } from './entities/coupon-ref.entity';
 import { HaravanCouponDto } from '../haravan/dto/haravan-coupon.dto';
 import { Pagination } from 'nestjs-typeorm-paginate';
 import { EPartnerCashbackConfig } from './enums/partner-customer.enum';
-import { StringUtils } from '../utils/string.utils';
+import { StringUtils } from '../shared/utils/string.utils';
 import { ECouponDiscountType } from '../haravan/enums/coupon.enum';
 import { HaravanService } from '../haravan/haravan.service';
 import { InviteCouponRefDto } from './dto/invite-coupon-ref.dto';
@@ -125,9 +125,9 @@ export class CouponRefService {
     data.role = payload.role;
     data.type = ECouponRefType.invite;
     data.startDate = dateNow.toISOString();
-    data.endDate = new Date(
-      dateNow.setHours(dateNow.getHours() + 1),
-    ).toISOString();
+    // data.endDate = new Date(
+    //   dateNow.setHours(dateNow.getHours() + 1),
+    // ).toISOString();
 
     return await this.create(data);
   }

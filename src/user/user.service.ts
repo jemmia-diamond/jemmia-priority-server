@@ -11,7 +11,7 @@ import { validate } from 'class-validator';
 import { HaravanService } from '../haravan/haravan.service';
 import { UserQueryDto } from './dto/user-query.dto';
 import { UserInfoDto } from './dto/user-info';
-import { StringUtils } from '../utils/string.utils';
+import { StringUtils } from '../shared/utils/string.utils';
 import { EUserRole } from './enums/user-role.enum';
 import { CouponRefService } from '../coupon-ref/coupon-ref.service';
 import { HaravanCustomerDto } from '../haravan/dto/haravan-customer.dto';

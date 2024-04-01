@@ -6,7 +6,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../../user/entities/user.entity';
 import { Repository } from 'typeorm';
 import { RefreshTokenPayload } from '../types/jwt.types';
-import { Config } from '../../constants/config.constants';
+import { Config } from '../../shared/constants/config.constants';
 import { jwtConstants } from '../constants';
 
 @Injectable()
