@@ -8,11 +8,11 @@ import {
   ECustomerRank,
   ECustomerRankConfig,
   ECustomerRankNum,
-} from '../customer-rank/enums/customer-rank.enum';
+} from './enums/customer-rank.enum';
 import { EPaymentStatus } from '../order/enum/payment-status.dto';
 
 @Injectable()
-export class CronJobProvider implements OnModuleInit {
+export class CustomerRankService implements OnModuleInit {
   constructor(
     @InjectRepository(User)
     private userRepository: Repository<User>,

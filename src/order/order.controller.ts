@@ -11,7 +11,7 @@ import {
 import { OrderService } from './order.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { HaravanOrderDto } from '../haravan/dto/haravan-order.dto';
-import { RequestPayload } from '../types/controller.type';
+import { RequestPayload } from '../shared/types/controller.type';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { CouponRefService } from '../coupon-ref/coupon-ref.service';
 import { UserService } from '../user/user.service';

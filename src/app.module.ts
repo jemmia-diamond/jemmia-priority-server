@@ -14,7 +14,7 @@ import { CouponRefModule } from './coupon-ref/coupon-ref.module';
 import { Coupon } from './coupon/entities/coupon.entity';
 import { CouponRedeemed } from './coupon/entities/coupon-user.entity';
 import { CouponRef } from './coupon-ref/entities/coupon-ref.entity';
-import { CronJobRankingModule } from './cron-job-ranking/cron-job-ranking.module';
+import { CustomerRankModule } from './customer-rank/customer-rank.module';
 import { Order } from './order/entities/order.entity';
 
 @Module({
@@ -41,7 +41,7 @@ import { Order } from './order/entities/order.entity';
     OrderModule,
     CouponModule,
     CouponRefModule,
-    CronJobRankingModule,
+    CustomerRankModule,
   ],
   providers: [],
   controllers: [],
