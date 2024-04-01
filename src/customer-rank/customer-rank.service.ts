@@ -1,4 +1,4 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { BadRequestException, Injectable, OnModuleInit } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -45,8 +45,7 @@ export class CustomerRankService implements OnModuleInit {
               const rankNum = await this.getRankOfUser(user.id);
 
               if (rankNum > 1) {
-                user.rankPoint =
-                  rankNum >= user.rankPoint ? rankNum : user.rankPoint - 1;
+                user.rank = rankNum >= user.rankPoint ? rankNum : user.rank - 1;
                 user.rankExpirationTime = new Date();
                 await this.userRepository.save(user);
               }
@@ -65,16 +64,31 @@ export class CustomerRankService implements OnModuleInit {
 
   async getRankOfUser(userId: string) {
     try {
+      const currenPoint = await this.getTotalBuyAndCashBackRef(userId);
+
+      const customerRank = this.getCustomerRank(
+        currenPoint.totalPrice,
+        currenPoint.total,
+      );
+
+      return ECustomerRankNum[customerRank];
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async getTotalBuyAndCashBackRef(userId: string) {
+    try {
       const totalPrice = await this.getTotalPriceForUserLast12Months(userId);
       const cashBackRef = await this.getCashBackRefForUserLast12Months(userId);
       const cashBackRefA =
         await this.getCashBackRefAForUserLast12Months(userId);
 
       const total = totalPrice + cashBackRef + cashBackRefA;
-
-      const customerRank = this.getCustomerRank(totalPrice, total);
-
-      return ECustomerRankNum[customerRank];
+      return {
+        totalPrice,
+        total,
+      };
     } catch (error) {
       console.log(error);
     }
@@ -156,5 +170,55 @@ export class CustomerRankService implements OnModuleInit {
     });
 
     return customerRank;
+  }
+
+  async getRankInfo(userId: string) {
+    try {
+      const user = await this.userRepository.findOneBy({ id: userId });
+      if (!user) throw new BadRequestException('User not found!');
+
+      const currentRank = await this.getRankOfUser(user.id);
+
+      const currenPoint = await this.getTotalBuyAndCashBackRef(userId);
+
+      const nextRank = currentRank + 1;
+      const nextBuyPoint =
+        ECustomerRankConfig[ECustomerRankNum[nextRank]].buyPoint;
+      const nextRefPoint =
+        ECustomerRankConfig[ECustomerRankNum[nextRank]].buyPoint;
+
+      const dataReturn = {
+        currentRank: {
+          name: ECustomerRankNum[currentRank],
+          buyPoint: currenPoint.totalPrice,
+          refPoint: currenPoint.total,
+        },
+        nextRank: {
+          name: ECustomerRankNum[nextRank],
+          buyPoint: nextBuyPoint,
+          refPoint: nextRefPoint,
+        },
+        pointNeed: {
+          buyPoint:
+            nextBuyPoint > currenPoint.totalPrice
+              ? nextBuyPoint - currenPoint.totalPrice
+              : 0,
+          refPoint:
+            nextRefPoint > currenPoint.total
+              ? nextRefPoint - currenPoint.total
+              : 0,
+        },
+        rankExpirationTime:
+          user.rankExpirationTime == null
+            ? null
+            : user.rankExpirationTime.setFullYear(
+                user.rankExpirationTime.getFullYear() + 1,
+              ),
+      };
+
+      return dataReturn;
+    } catch (error) {
+      console.log(error);
+    }
   }
 }
