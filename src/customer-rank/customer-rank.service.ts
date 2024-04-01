@@ -174,6 +174,8 @@ export class CustomerRankService implements OnModuleInit {
 
   async getRankInfo(userId: string) {
     try {
+      const currentDate = new Date();
+
       const user = await this.userRepository.findOneBy({ id: userId });
       if (!user) throw new BadRequestException('User not found!');
 
@@ -188,6 +190,7 @@ export class CustomerRankService implements OnModuleInit {
         ECustomerRankConfig[ECustomerRankNum[nextRank]].buyPoint;
 
       const dataReturn = {
+        setupTime: new Date(currentDate.setDate(currentDate.getDate() + 30)),
         currentRank: {
           name: ECustomerRankNum[currentRank],
           buyPoint: currenPoint.totalPrice,
@@ -211,8 +214,10 @@ export class CustomerRankService implements OnModuleInit {
         rankExpirationTime:
           user.rankExpirationTime == null
             ? null
-            : user.rankExpirationTime.setFullYear(
-                user.rankExpirationTime.getFullYear() + 1,
+            : new Date(
+                user.rankExpirationTime.setFullYear(
+                  user.rankExpirationTime.getFullYear() + 1,
+                ),
               ),
       };
 
