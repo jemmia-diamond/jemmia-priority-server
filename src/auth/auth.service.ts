@@ -8,7 +8,7 @@ import { AccessTokenPayload, RefreshTokenPayload } from './types/jwt.types';
 import { jwtConstants } from './constants';
 import * as firebaseAdmin from 'firebase-admin';
 import { HaravanService } from '../haravan/haravan.service';
-import { StringUtils } from '../utils/string.utils';
+import { StringUtils } from '../shared/utils/string.utils';
 import { EUserRole } from '../user/enums/user-role.enum';
 import { HaravanCustomerDto } from '../haravan/dto/haravan-customer.dto';
 import { CouponRefService } from '../coupon-ref/coupon-ref.service';
@@ -55,7 +55,7 @@ export class AuthService {
     )[0];
 
     //Trường hợp user k phải admin & cũng không phải khách hàng haravan
-    if (!tokenPayload.email && !haravanUser.id) {
+    if (!tokenPayload.email && !haravanUser) {
       throw new HttpException('USER_NOT_FOUND', HttpStatus.UNAUTHORIZED);
     }
 
@@ -64,7 +64,7 @@ export class AuthService {
         {
           //Admin account query
           authId: tokenPayload.email,
-          haravanId: null,
+          role: tokenPayload.email ? EUserRole.admin : null,
         },
         {
           //Customer account query
@@ -72,10 +72,6 @@ export class AuthService {
         },
       ],
     });
-
-    if (!user && !haravanUser) {
-      throw new HttpException('USER_NOT_FOUND', HttpStatus.UNAUTHORIZED);
-    }
 
     //Sync dữ liệu khách hàng từ haravan sang
     if (haravanUser) {

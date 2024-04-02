@@ -6,18 +6,17 @@ import { HaravanModule } from '../haravan/haravan.module';
 import { User } from '../user/entities/user.entity';
 import { CouponRefModule } from '../coupon-ref/coupon-ref.module';
 import { Order } from './entities/order.entity';
-import { CouponRefService } from '../coupon-ref/coupon-ref.service';
 import { UserModule } from '../user/user.module';
-import { UserService } from '../user/user.service';
+import { CouponRef } from '../coupon-ref/entities/coupon-ref.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, Order]),
+    TypeOrmModule.forFeature([User, Order, CouponRef]),
     HaravanModule,
     CouponRefModule,
     UserModule,
   ],
   controllers: [OrderController],
-  providers: [OrderService, CouponRefService, UserService],
+  providers: [OrderService],
 })
 export class OrderModule {}

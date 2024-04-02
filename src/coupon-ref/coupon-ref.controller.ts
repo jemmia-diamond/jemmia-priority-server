@@ -18,7 +18,7 @@ import { EUserRole } from '../user/enums/user-role.enum';
 import { CouponRef } from './entities/coupon-ref.entity';
 import { Pagination } from 'nestjs-typeorm-paginate';
 import { InviteCouponRefDto } from './dto/invite-coupon-ref.dto';
-import { RequestPayload } from '../types/controller.type';
+import { RequestPayload } from '../shared/types/controller.type';
 import { ECouponRefType } from './enums/coupon-ref.enum';
 
 @ApiTags('Coupon Referral')
@@ -28,7 +28,6 @@ export class CouponRefController {
   constructor(private readonly couponRefService: CouponRefService) {}
 
   @UseGuards(JwtAuthGuard)
-  @Roles(EUserRole.admin)
   @Post('/invite')
   async createInvite(@Body() payload: InviteCouponRefDto) {
     return this.couponRefService.createInvite(payload);
@@ -39,16 +38,6 @@ export class CouponRefController {
   @Post()
   async create(@Body() createCouponRefDto: CreateCouponRefDto) {
     return this.couponRefService.create(createCouponRefDto);
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @Roles(EUserRole.admin)
-  @Get('/invite/:userId/convert-partner/:code')
-  async convertPartnerToInvite(
-    @Param('userId') userId: string,
-    @Param('code') code: string,
-  ) {
-    return this.couponRefService.convertPartnerToInvite(userId, code);
   }
 
   @UseGuards(JwtAuthGuard)

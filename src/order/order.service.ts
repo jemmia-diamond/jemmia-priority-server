@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import {
+  EFinancialStatus,
   HaravanOrderDto,
   HaravanOrderSearchDto,
 } from '../haravan/dto/haravan-order.dto';
@@ -9,13 +10,18 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../user/entities/user.entity';
 import { Repository } from 'typeorm';
 import { Order } from './entities/order.entity';
-import { paymentStatusEnum } from './enum/payment-status.dto';
 import { CouponRefService } from '../coupon-ref/coupon-ref.service';
 import { UserService } from '../user/user.service';
 import {
   EPartnerCashbackConfig,
   EPartnerInviteCouponConfig,
 } from '../coupon-ref/enums/partner-customer.enum';
+import { plainToInstance } from 'class-transformer';
+import { CouponRef } from '../coupon-ref/entities/coupon-ref.entity';
+import { ECustomerRankNum } from '../customer-rank/enums/customer-rank.enum';
+import { ECouponRefType } from '../coupon-ref/enums/coupon-ref.enum';
+import { OrderQueryDto } from './dto/order-query.dto';
+import { Pagination } from 'nestjs-typeorm-paginate';
 
 @Injectable()
 export class OrderService {
@@ -24,23 +30,78 @@ export class OrderService {
     private userRepository: Repository<User>,
     @InjectRepository(Order)
     private orderRepository: Repository<Order>,
+    @InjectRepository(CouponRef)
+    private couponRefRepository: Repository<CouponRef>,
     private readonly haravanService: HaravanService,
     private readonly couponRefService: CouponRefService,
     private readonly userService: UserService,
   ) {}
 
-  async findAll(query: HaravanOrderSearchDto, role: string, userId: string) {
-    try {
-      if (role != EUserRole.admin) {
-        const user = await this.userRepository.findOneBy({ id: userId });
-        query.customer.id = user.haravanId;
-      }
-      return {
-        orders: await this.haravanService.findAllOrder(query),
-      };
-    } catch (error) {
-      return error;
-    }
+  async findAll(query: OrderQueryDto) {
+    const limit = query.limit || 1;
+    const page = (query.page ?? 0) - 1;
+    const offset = page * limit;
+    const [items, totalItems] = await this.orderRepository.findAndCount({
+      where: [
+        {
+          user: {
+            id: query.userId,
+          },
+        },
+        {
+          couponRef: [
+            {
+              owner: [
+                {
+                  id: query.userId,
+                },
+                {
+                  invitedBy: {
+                    id: query.userId,
+                  },
+                },
+              ],
+            },
+          ],
+        },
+      ],
+      order: { createdDate: 'DESC' },
+      skip: offset,
+      take: limit,
+      relations: ['user', 'couponRef.owner.invitedBy'],
+      select: {
+        user: {
+          id: true,
+        },
+        couponRef: {
+          id: true,
+          owner: {
+            id: true,
+            invitedBy: {
+              id: true,
+            },
+          },
+        },
+      },
+    });
+
+    const itemsFormmated = items.map((i) => ({
+      ...i,
+      point:
+        query.userId === i.user.id
+          ? i.cashBack
+          : query.userId === i.couponRef.owner.id
+            ? i.cashBackRef
+            : i.cashBackRefA,
+    }));
+
+    return new Pagination<Order>(itemsFormmated, {
+      itemCount: items.length,
+      itemsPerPage: limit,
+      totalPages: Math.ceil(totalItems / limit),
+      totalItems,
+      currentPage: page,
+    });
   }
 
   async findOne(id: number, role: string, userId: string) {
@@ -60,175 +121,195 @@ export class OrderService {
     return await this.orderRepository.save(order);
   }
 
-  async haravanHook(body: HaravanOrderDto) {
-    try {
-      //Khởi tạo biến dùng để dễ theo dõi giá trị biến trong xuyên suốt hàm.
-      const guestId = 1117709100;
-      const guestEmail = 'guest@haravan.com';
-      const financialStatus = 'paid';
+  async calculateCashback(order: Order) {
+    console.log('========== CALC CASHBACK ==========');
+    const couponRef = order.couponRef;
+    let cashBack = 0,
+      cashBackRef = 0,
+      cashBackRefA = 0;
 
-      const orderDto = body;
-      const customerDto = body.customer;
-      const discountCodes = body.discount_codes;
-
-      let couponOwner: User;
-
-      let customerFound: User;
-      let partnerCouponOwner: User;
-
-      let orderCustomer: Order = {
-        id: null,
-        haravanOrderId: null,
-        cashBack: 0,
-        cashBackRef: 0,
-        cashBackRefA: 0,
-        totalPrice: 0,
-        paymentStatus: paymentStatusEnum.PENDING,
-        user: null,
-        couponRef: null,
-        createdDate: null,
+    if (!couponRef) {
+      return {
+        cashBack,
+        cashBackRef,
+        cashBackRefA,
       };
-
-      //customerDto từ webhook trả về, nếu chúng có email hoặc id là guest thì trả về thông báo bắt tạo tài khoản.
-      if (customerDto.id === guestId || customerDto.email === guestEmail) {
-        return 'Please Register New Account!';
-      }
-      if (customerDto.orders_count == 1 && discountCodes.length !== 0) {
-        let couponRef = await this.couponRefService.findCouponCode(
-          discountCodes[0].code,
-        );
-        if (couponRef !== null) {
-          // NOTION-TASK:: Đơn đầu tiên của customer và nếu tồn tại CouponRef trong db thì::
-          if (couponRef.type !== null) {
-            customerFound = await this.userService.findHaravanId(
-              customerDto.id,
-            );
-
-            if (Object.keys(customerFound).length === 0) {
-              customerFound = await this.userService.createNativeUser({
-                rank: 0,
-                haravanId: customerDto.id,
-                authId: customerDto.email,
-                phoneNumber: customerDto.phone,
-              });
-            }
-
-            customerFound.rankPoint =
-              EPartnerInviteCouponConfig[couponRef.role].receiveRankPoint;
-
-            couponOwner = await this.userService.findUserNative(
-              couponRef.ownerId,
-            );
-
-            couponRef = await this.couponRefService.convertPartnerToInvite(
-              couponRef.ownerId,
-              couponRef.couponHaravanCode,
-            );
-          }
-          // NOTION-TASK:: Kiểm tra phân hạng và cash back về cho chủ coupon thì::
-          if (couponRef.ownerId != customerFound.id) {
-            // kiểm tra rằng orderDto từ webhook đã thanh toán chưa.
-            if (orderDto.financial_status === financialStatus) {
-              const cashBackPercentAandB =
-                EPartnerCashbackConfig.partnerRefferalCashbackPercent[
-                  EUserRole.partnerA
-                ][EUserRole.partnerB];
-              const cashBackValue =
-                orderDto.subtotal_price * cashBackPercentAandB;
-
-              orderCustomer.cashBack += cashBackValue;
-
-              orderCustomer.cashBackRefA += cashBackValue;
-
-              partnerCouponOwner = await this.userService.findUserNative(
-                customerFound.id,
-              );
-
-              partnerCouponOwner.accumulatedOrderPoint += cashBackValue;
-              partnerCouponOwner.rankPoint += cashBackValue;
-            } else {
-              return 'Please update financial_status of your order!';
-            }
-
-            // Kiểm tra cashbackTo tồn tại
-            let cashbackTo: null | User;
-
-            if (partnerCouponOwner.id == customerFound.id) {
-              cashbackTo = couponOwner;
-            } else {
-              cashbackTo = null;
-            }
-
-            if (cashbackTo != null) {
-              // JUST A FIXED VALUE, PLEASE TELL ME HOW TO GET THIS RANK ON cashbackto user (NhatsDevil).
-
-              let cashbackToPercent: number;
-              let cashbackToValue: number;
-
-              const cashBackCustomerOrderPercent =
-                EPartnerCashbackConfig.firstBuyCashbackPercent.none.order;
-              const cashBackCustomerOrderValue =
-                orderDto.subtotal_price * cashBackCustomerOrderPercent;
-
-              if (cashbackTo.rank == 4) {
-                cashbackToPercent =
-                  EPartnerCashbackConfig.refferalCashbackPercent.platinum;
-                cashbackToValue = orderDto.subtotal_price * cashbackToPercent;
-              } else if (cashbackTo.rank == 3) {
-                cashbackToPercent =
-                  EPartnerCashbackConfig.refferalCashbackPercent.gold;
-                cashbackToValue = orderDto.subtotal_price * cashbackToPercent;
-              } else if (cashbackTo.rank == 2) {
-                cashbackToPercent =
-                  EPartnerCashbackConfig.refferalCashbackPercent.silver;
-                cashbackToValue = orderDto.subtotal_price * cashbackToPercent;
-              } else if (cashbackTo.rank == 1) {
-                cashbackToPercent =
-                  EPartnerCashbackConfig.refferalCashbackPercent.staff;
-                cashbackToValue = orderDto.subtotal_price * cashbackToPercent;
-              } else {
-                // HANDLE ARISE CASE IN THE FUTURE.
-              }
-
-              // SET value of PROPs for CashBackTo.
-              cashbackTo.accumulatedOrderPoint += cashbackToValue;
-              cashbackTo.rankPoint += cashbackToValue;
-
-              // SET value of PROPs for orderCustomer.
-              orderCustomer.id = uuid();
-              orderCustomer.totalPrice = orderDto.total_price;
-              orderCustomer.cashBackRef += cashbackToValue;
-              orderCustomer.cashBack += cashBackCustomerOrderValue;
-              orderCustomer.user = partnerCouponOwner;
-              orderCustomer.couponRef = couponRef;
-              orderCustomer.haravanOrderId = orderDto.id;
-
-              // SET value of PROPs for customer.
-              customerFound.accumulatedOrderPoint += cashBackCustomerOrderValue;
-              customerFound.rankPoint += cashBackCustomerOrderValue;
-
-              // UPDATE AND SAVE TO DATABASE.
-              this.couponRefService.update(couponRef);
-
-              this.userService.updateNativeUser(customerFound);
-              this.userService.updateNativeUser(partnerCouponOwner);
-              this.userService.updateNativeUser(cashbackTo);
-
-              await this.createNative(orderCustomer);
-            }
-          }
-        }
-        console.log(body);
-        return orderCustomer;
-      } else {
-        // Retension CASE.
-        return 'Retension (Quay lại) NOTE: TẠM THỜI SKIP ĐỢI MEETING SẮP TỚI ';
-      }
-    } catch (e) {
-      console.log(e);
     }
+
+    console.log(JSON.stringify(couponRef));
+
+    const totalPrice = order.totalPrice;
+
+    console.log(totalPrice);
+
+    //Tính cashback: 1.5% dựa trên đơn hàng cho partner A
+    if (
+      couponRef.owner.id != order.user.id &&
+      order.user.role !== EUserRole.partnerB //Chỉ hoàn cho các user là customer | staff
+    ) {
+      cashBackRefA +=
+        totalPrice *
+        EPartnerCashbackConfig.partnerRefferalCashbackPercent.partnerA.partnerB;
+    }
+
+    //Lấy ra người đã mời khách hàng
+    const inviter = couponRef.owner;
+    // couponRef.owner.id === order.user.id //Trường hợp chủ couponRef cũng là người mua hàng
+    //   ? couponRef.owner.invitedBy //Trả về cho người đã mời trước đó
+    //   : couponRef.owner;
+
+    console.log('========== INVITER');
+    console.log(JSON.stringify(inviter));
+
+    if (inviter) {
+      const cashbackPercent =
+        EPartnerCashbackConfig.refferalCashbackPercent[
+          ECustomerRankNum[inviter.rank]
+        ] || 0;
+
+      cashBackRef = totalPrice * cashbackPercent;
+    }
+
+    // cashBack = totalPrice * EPartnerCashbackConfig.firstBuyCashbackPercent;
+    cashBack = 0; //*Set = 0 Vì đã được giảm thẳng khi mua hàng
+
+    console.log(cashBack, cashBackRef, cashBackRefA);
+
+    return {
+      cashBack: cashBack || 0,
+      cashBackRef: cashBackRef || 0,
+      cashBackRefA: cashBackRefA || 0,
+      /** Người mời được nhận cashbackRef */
+      inviter: inviter,
+    };
   }
-}
-function uuid(): string {
-  throw new Error('Function not implemented.');
+
+  async haravanHook(orderDto: HaravanOrderDto) {
+    orderDto = plainToInstance(HaravanOrderDto, orderDto);
+
+    //!Chỉ xử lý các đơn có khách hàng được gán
+    if (!orderDto.customer?.id) {
+      return 'CANT FIND CUSTOMER';
+    }
+
+    //Get Order
+    let order = await this.orderRepository.findOne({
+      where: {
+        haravanOrderId: orderDto.id,
+      },
+      relations: ['user', 'couponRef'],
+    });
+
+    let customer = await this.userRepository.findOneBy({
+      haravanId: orderDto.customer.id,
+    });
+    const couponRef = await this.couponRefRepository.findOne({
+      where: {
+        couponHaravanCode: orderDto.discount_codes[0]?.code,
+      },
+      relations: ['owner.invitedBy'],
+    });
+    console.log('\n========== COUPON REF/');
+    console.log(JSON.stringify(couponRef));
+
+    //Tạo khách hàng nếu không tồn tại
+    if (!customer) {
+      customer = await this.userService.createUserFromHaravan(
+        orderDto.customer,
+      );
+    }
+
+    if (!order) {
+      console.log(JSON.stringify(customer));
+      order = await this.orderRepository.save({
+        haravanOrderId: orderDto.id,
+        totalPrice: orderDto.total_price,
+        paymentStatus: orderDto.financial_status,
+        customer,
+      });
+    }
+    console.log('\n========== ORDER');
+    console.log(JSON.stringify(order));
+
+    order.paymentStatus = orderDto.financial_status;
+    order.totalPrice = orderDto.total_price;
+
+    if (couponRef) {
+      //Mặc định sẽ set luôn đã sử dụng khi tạo đơn vì khi huỷ đơn thì coupon cũng k thể sử dụng lại
+      couponRef.used = true;
+
+      order.couponRef = couponRef;
+    }
+    order.user = customer;
+
+    //Nếu đơn huỷ
+    if (orderDto.cancelled_status == 'cancelled') {
+      order.paymentStatus = EFinancialStatus.cancelled;
+    }
+
+    //Xử lý cashback cho lần đầu mua hàng
+    if (
+      orderDto.customer.ordersCount === 1 ||
+      orderDto.customer.totalSpent === 0
+    ) {
+      const cashbackVal = await this.calculateCashback(order);
+
+      order.cashBack = cashbackVal.cashBack;
+      order.cashBackRef = cashbackVal.cashBackRef;
+      order.cashBackRefA = cashbackVal.cashBackRefA;
+
+      //Chỉ khi đã thanh toán
+      if (order.paymentStatus == EFinancialStatus.paid) {
+        couponRef.used = true;
+
+        //Set thăng hạng cho partner khi mua hàng lần đầu nếu sử dụng couponRef Partner
+        if (couponRef.type == ECouponRefType.partner) {
+          customer.rank =
+            EPartnerInviteCouponConfig[couponRef.role]?.receiveRank ||
+            customer.rank;
+
+          customer.role = couponRef.role;
+
+          //Convert coupon ref
+          // await this.couponRefService.convertPartnerToInvite(
+          //   customer.id,
+          //   couponRef.couponHaravanCode,
+          // );
+        }
+
+        //Cashback cho partner A
+        if (couponRef.owner.invitedBy?.role === EUserRole.partnerA) {
+          couponRef.owner.invitedBy.point += cashbackVal.cashBackRefA;
+          await this.userRepository.save(couponRef.owner.invitedBy);
+        }
+
+        //Cashback cho inviter
+        if (cashbackVal.inviter) {
+          cashbackVal.inviter.point += cashbackVal.cashBackRef;
+
+          await this.userRepository.save(cashbackVal.inviter);
+        }
+
+        //Cashback cho người mua
+        customer.point += cashbackVal.cashBack;
+
+        //Cộng giá trị đơn tích luỹ
+        customer.accumulatedOrderPoint += order.totalPrice;
+
+        //Set người đã mời khách hàng
+        customer.invitedBy = couponRef.owner;
+
+        //Cập nhật số lượng user đã mời cho chủ coupon;
+        //!FIXME: NOTWORKING
+        couponRef.owner.invitesCount++;
+        await this.userRepository.save(couponRef.owner);
+      }
+
+      await this.couponRefRepository.save(couponRef);
+      await this.orderRepository.save(order);
+      await this.userRepository.save(customer);
+    }
+
+    console.log('============ RETURN');
+  }
 }
