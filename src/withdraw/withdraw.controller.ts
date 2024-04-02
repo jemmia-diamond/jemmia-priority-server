@@ -1,4 +1,4 @@
-import { Controller, Body, Request, Post, UseGuards, Get } from '@nestjs/common';
+import { Controller, Body, Request, Post, UseGuards, Get, Put } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { RequestPayload } from '../shared/types/controller.type';
 import { UserService } from '../user/user.service';
@@ -9,6 +9,7 @@ import { BodyReqPaginDto } from './dto/pagin.dto';
 import { EUserRole } from '../user/enums/user-role.enum';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { UpdateWithDrawDto } from './dto/update-withdraw.dto';
 
 @ApiTags('Withdraw')
 @ApiBearerAuth()
@@ -29,19 +30,10 @@ export class WithdrawController {
     @Body() body: WithdrawMoneyDto,
   ) {
     const user = await this.userService.findUser(req.user.id);
-    if (user.point > body.amount) {
-      // cập nhật lại giá trị point của user.
+    if (user.point < body.amount) {
       user.point -= body.amount;
       this.userService.updateNativeUser(user);
-
-      // lưu trữ record withdraw vào database.
-      return this.withdrawService.save({
-        bankNumber: body.bankNumber,
-        bankCode: body.bankCode,
-        amount: body.amount,
-        status: EWithdrawStatus.pending,
-        user: user,
-      });
+      return this.withdrawService.save(body, user);
     }
     return 'You do not have enough points to redeem.';
   }
@@ -56,16 +48,19 @@ export class WithdrawController {
     @Request() req: RequestPayload,
     @Body() body: BodyReqPaginDto,
   ) {
-    return {
-      requestWithdraws: await this.withdrawService.findAll(
-        body.page,
-        body.size,
-      ),
-      page: body.page,
-      size: body.size,
-      totalPage: Math.ceil(
-        (await this.withdrawService.findAllAssetCount()) / body.size,
-      ),
-    };
+    return this.withdrawService.findAll(body.page, body.size);
+  }
+
+  @Roles(EUserRole.admin)
+  @UseGuards(JwtAuthGuard)
+  @Put()
+  @ApiOperation({
+    description: 'Cập nhật trạng thái đơn hàng rút tiền.',
+  })
+  async updateStatusWithdraw(
+    @Request() req: RequestPayload,
+    @Body() body: UpdateWithDrawDto,
+  ) {
+    return this.withdrawService.checkandupdateStatus(body);
   }
 }
