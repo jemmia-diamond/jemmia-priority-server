@@ -37,25 +37,29 @@ export class User {
   @Column('varchar', { length: 6, unique: true, nullable: true })
   inviteCode: string;
 
-  /** Nếu user đăng ký nhập invite code được mời thì user mời đưa vào đây */
+  /** Nếu user sử dụng coupon ref cho lần đầu mua hàng thì đưa chủ coupon vào đây */
   @Exclude()
   @ManyToOne(() => User)
-  invitedBy: User;
+  invitedBy?: User;
 
-  /** Điểm thành viên của User */
+  /** Số lượng user đã mời thành công */
   @Column('integer', { default: 0 })
+  invitesCount: number;
+
+  /** Điểm doanh thu được CASHBACK của User */
+  @Column('double', { default: 0 })
   point: number;
 
   /** Điểm hạng thành viên của User */
-  @Column('integer', { default: 0 })
+  @Column('double', { default: 0 })
   rankPoint: number;
 
   /** Rank của user */
   @Column('integer', { default: ECustomerRankNum.none })
   rank: ECustomerRankNum;
 
-  /** Điểm đặt hàng tích lũy của User */
-  @Column('integer', { default: 0 })
+  /** Giá trị đơn hàng đã tích luỹ */
+  @Column('double', { default: 0 })
   accumulatedOrderPoint: number;
 
   @Column('enum', { enum: EUserRole })

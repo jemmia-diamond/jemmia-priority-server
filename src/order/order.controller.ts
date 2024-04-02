@@ -7,18 +7,16 @@ import {
   Request,
   Post,
   Body,
-  Put,
 } from '@nestjs/common';
 import { OrderService } from './order.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import {
-  HaravanOrderDto,
-  HaravanOrderSearchDto,
-} from '../haravan/dto/haravan-order.dto';
-import { RequestPayload } from '../types/controller.type';
+import { HaravanOrderDto } from '../haravan/dto/haravan-order.dto';
+import { RequestPayload } from '../shared/types/controller.type';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { CouponRefService } from '../coupon-ref/coupon-ref.service';
 import { UserService } from '../user/user.service';
+import { OrderQueryDto } from './dto/order-query.dto';
+import { EUserRole } from '../user/enums/user-role.enum';
 
 @ApiTags('Order')
 @ApiBearerAuth()
@@ -32,11 +30,13 @@ export class OrderController {
 
   @UseGuards(JwtAuthGuard)
   @Get()
-  async findAll(
-    @Request() req: RequestPayload,
-    @Query() query: HaravanOrderSearchDto,
-  ) {
-    return this.orderService.findAll(query, req.user.role, req.user.id);
+  async findAll(@Request() req: RequestPayload, @Query() query: OrderQueryDto) {
+    if (req.user.role != EUserRole.admin) {
+      query.userId = req.user.id;
+    }
+    query.limit = Math.min(50, query.limit);
+
+    return this.orderService.findAll(query);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -45,21 +45,16 @@ export class OrderController {
     return this.orderService.findOne(+id, req.user.role, req.user.id);
   }
 
-  @Post('/hook/haravan/create')
+  @Post('/hook/haravan')
   async haravanHookCreate(
     @Request() req: RequestPayload,
     @Body() body: HaravanOrderDto,
   ) {
+    console.log('/hook/haravan/create');
+    console.log(JSON.stringify(body));
+    console.log('========== HANDLE HOOK ===========');
     // Xử lý xác thực token từ webhook.
-    return this.orderService.haravanHook(body);
-  }
-
-  @Put('/hook/haravan')
-  haravanHookUpdate(
-    @Request() req: RequestPayload,
-    @Body() body: HaravanOrderDto,
-  ) {
-    console.log('hook update');
-    return this.orderService.haravanHook(body);
+    const res = await this.orderService.haravanHook(body);
+    return res;
   }
 }

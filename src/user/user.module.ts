@@ -10,5 +10,6 @@ import { CouponRefModule } from '../coupon-ref/coupon-ref.module';
   imports: [TypeOrmModule.forFeature([User]), HaravanModule, CouponRefModule],
   controllers: [UserController],
   providers: [UserService],
+  exports: [UserService],
 })
 export class UserModule {}

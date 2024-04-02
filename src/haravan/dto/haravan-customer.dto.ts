@@ -247,7 +247,7 @@ export class HaravanCustomerDto {
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'orders_count' })
-  orders_count?: number;
+  ordersCount?: number;
 
   @ApiPropertyOptional()
   @IsString()
