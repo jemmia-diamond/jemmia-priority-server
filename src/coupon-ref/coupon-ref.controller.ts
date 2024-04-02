@@ -29,7 +29,14 @@ export class CouponRefController {
 
   @UseGuards(JwtAuthGuard)
   @Post('/invite')
-  async createInvite(@Body() payload: InviteCouponRefDto) {
+  async createInvite(
+    @Body() payload: InviteCouponRefDto,
+    @Request() req: RequestPayload,
+  ) {
+    if (req.user.role != EUserRole.admin) {
+      payload.ownerId = req.user.id;
+    }
+
     return this.couponRefService.createInvite(payload);
   }
 
