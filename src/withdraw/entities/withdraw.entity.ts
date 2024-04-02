@@ -14,7 +14,7 @@ export class Withdraw {
   bankNumber: string;
 
   @Column('varchar', { default: '' })
-  bankCode: string;
+  bankName: string;
 
   @Column('double', { default: 0 })
   amount: number;

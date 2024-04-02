@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
   IsNumber,
+  IsOptional,
   IsString,
   Max,
   MaxLength,
@@ -17,13 +18,10 @@ export class WithdrawMoneyDto {
 
   @ApiProperty()
   @IsString()
-  @MinLength(3)
-  @MaxLength(4)
-  bankCode: string;
+  bankName: string;
 
   @ApiProperty()
   @IsNumber()
-  @Min(10)
-  @Max(20000000)
+  @Min(500000)
   amount: number;
 }

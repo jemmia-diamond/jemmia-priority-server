@@ -2,6 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Withdraw } from './entities/withdraw.entity';
+import { WithdrawMoneyDto } from '../user/dto/with-draw.dto';
+import { User } from '../user/entities/user.entity';
+import { EWithdrawStatus } from './dto/withdraw-status.dto';
+import { UpdateWithDrawDto } from './dto/update-withdraw.dto';
 
 @Injectable()
 export class WithdrawService {
@@ -17,22 +21,43 @@ export class WithdrawService {
     return user;
   }
 
-  async save(withdraw: Withdraw) {
-    console.log(withdraw);
-    return await this.withdrawRepostitory.save(withdraw);
+  async save(withdraw: WithdrawMoneyDto, user: User) {
+    return await this.withdrawRepostitory.save({
+      bankName: withdraw.bankName,
+      bankNumber: withdraw.bankNumber,
+      amount: withdraw.amount,
+      user: user,
+      status: EWithdrawStatus.pending,
+    });
   }
 
-  findAll(page: number, size: number) {
-    return this.withdrawRepostitory.find({
+  async findAll(page: number, size: number) {
+    const requestWithdraws = await this.withdrawRepostitory.find({
       skip: (page - 1) * size,
       take: size,
       order: {
         createdDate: 'DESC',
       },
     });
+    return {
+      requestWithdraws,
+      page,
+      size,
+      totalPage: (await this.withdrawRepostitory.count()) / size,
+    };
   }
 
-  findAllAssetCount(): Promise<number> {
-    return this.withdrawRepostitory.count();
+  async checkandupdateStatus(withdrawDto: UpdateWithDrawDto) {
+    const withdrawFound = await this.withdrawRepostitory.findOneBy({
+      id: withdrawDto.withdrawRequestId,
+      user: {
+        id: withdrawDto.userId,
+      },
+    });
+    if (withdrawFound) {
+      withdrawFound.status = withdrawDto.status;
+      return await this.withdrawRepostitory.save(withdrawFound);
+    }
+    return `Not found withdraw request with:: userId(${withdrawDto.userId}) and withdrawId(${withdrawDto.withdrawRequestId})`;
   }
 }
