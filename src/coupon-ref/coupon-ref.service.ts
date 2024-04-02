@@ -179,22 +179,42 @@ export class CouponRefService {
   }
 
   async findAllCouponRef(
+    userId: string,
     type: ECouponRefType,
     role: EUserRole,
     page: number,
     limit: number,
   ): Promise<Pagination<CouponRef>> {
     try {
+      const user = await this.userRepository.findOneBy({ id: userId });
+      if (!user) throw new BadRequestException('User not found');
+
       const offset = (page - 1) * limit;
-      const [items, totalItems] = await this.couponRefRepository.findAndCount({
-        where: {
-          type: type,
-          role: role,
-        },
-        order: { createdDate: 'DESC' },
-        skip: offset,
-        take: limit,
-      });
+      let items: CouponRef[];
+      let totalItems: number;
+
+      if (user.role === EUserRole.admin) {
+        [items, totalItems] = await this.couponRefRepository.findAndCount({
+          where: {
+            type: type,
+            role: role,
+          },
+          order: { createdDate: 'DESC' },
+          skip: offset,
+          take: limit,
+        });
+      } else {
+        [items, totalItems] = await this.couponRefRepository.findAndCount({
+          where: {
+            type: type,
+            role: role,
+            owner: user,
+          },
+          order: { createdDate: 'DESC' },
+          skip: offset,
+          take: limit,
+        });
+      }
 
       const totalPages = Math.ceil(totalItems / limit);
 
