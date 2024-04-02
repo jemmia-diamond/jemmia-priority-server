@@ -74,8 +74,7 @@ export class CouponRefController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Roles(EUserRole.admin)
-  @Get('/coupon-ref')
+  @Get('')
   async findAllCouponRef(
     @Request() req: RequestPayload,
     @Query('page') page = 1,
@@ -84,6 +83,12 @@ export class CouponRefController {
     @Query('role') role: EUserRole,
   ): Promise<Pagination<CouponRef>> {
     limit = Math.min(50, limit); // Giới hạn limit tối đa là 50
-    return this.couponRefService.findAllCouponRef(type, role, page, limit);
+    return this.couponRefService.findAllCouponRef(
+      req.user.id,
+      type,
+      role,
+      page,
+      limit,
+    );
   }
 }

@@ -66,7 +66,7 @@ export class CustomerRankService implements OnModuleInit {
     try {
       const currenPoint = await this.getTotalBuyAndCashBackRef(userId);
 
-      const customerRank = this.getCustomerRank(
+      const customerRank = this.calculateCustomerRank(
         currenPoint.totalPrice,
         currenPoint.total,
       );
@@ -160,7 +160,7 @@ export class CustomerRankService implements OnModuleInit {
     return totalPrice;
   }
 
-  getCustomerRank(buyPoint: number, refPoint: number): ECustomerRank {
+  calculateCustomerRank(buyPoint: number, refPoint: number): ECustomerRank {
     let customerRank: ECustomerRank = ECustomerRank.none;
 
     Object.entries(ECustomerRankConfig).forEach(([rank, config]) => {
@@ -183,7 +183,10 @@ export class CustomerRankService implements OnModuleInit {
 
       const currenPoint = await this.getTotalBuyAndCashBackRef(userId);
 
-      const nextRank = currentRank + 1;
+      const nextRank =
+        currentRank == ECustomerRankNum.platinum
+          ? currentRank
+          : currentRank + 1;
       const nextBuyPoint =
         ECustomerRankConfig[ECustomerRankNum[nextRank]].buyPoint;
       const nextRefPoint =
@@ -211,14 +214,13 @@ export class CustomerRankService implements OnModuleInit {
               ? nextRefPoint - currenPoint.total
               : 0,
         },
-        rankExpirationTime:
-          user.rankExpirationTime == null
-            ? null
-            : new Date(
-                user.rankExpirationTime.setFullYear(
-                  user.rankExpirationTime.getFullYear() + 1,
-                ),
+        rankExpirationTime: !user.rankExpirationTime
+          ? null
+          : new Date(
+              user.rankExpirationTime.setFullYear(
+                user.rankExpirationTime.getFullYear() + 1,
               ),
+            ),
       };
 
       return dataReturn;
