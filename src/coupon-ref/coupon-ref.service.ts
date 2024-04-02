@@ -14,6 +14,7 @@ import { HaravanService } from '../haravan/haravan.service';
 import { InviteCouponRefDto } from './dto/invite-coupon-ref.dto';
 import { validate } from 'class-validator';
 import { ECouponRefType } from './enums/coupon-ref.enum';
+import { EUserRole } from '../user/enums/user-role.enum';
 
 @Injectable()
 export class CouponRefService {
@@ -160,6 +161,60 @@ export class CouponRefService {
         skip: offset,
         take: limit,
       });
+
+      const totalPages = Math.ceil(totalItems / limit);
+
+      const meta = {
+        itemCount: items.length,
+        itemsPerPage: limit,
+        totalPages,
+        totalItems,
+        currentPage: page,
+      };
+
+      return new Pagination<CouponRef>(items, meta);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async findAllCouponRef(
+    userId: string,
+    type: ECouponRefType,
+    role: EUserRole,
+    page: number,
+    limit: number,
+  ): Promise<Pagination<CouponRef>> {
+    try {
+      const user = await this.userRepository.findOneBy({ id: userId });
+      if (!user) throw new BadRequestException('User not found');
+
+      const offset = (page - 1) * limit;
+      let items: CouponRef[];
+      let totalItems: number;
+
+      if (user.role === EUserRole.admin) {
+        [items, totalItems] = await this.couponRefRepository.findAndCount({
+          where: {
+            type: type,
+            role: role,
+          },
+          order: { createdDate: 'DESC' },
+          skip: offset,
+          take: limit,
+        });
+      } else {
+        [items, totalItems] = await this.couponRefRepository.findAndCount({
+          where: {
+            type: type,
+            role: role,
+            owner: user,
+          },
+          order: { createdDate: 'DESC' },
+          skip: offset,
+          take: limit,
+        });
+      }
 
       const totalPages = Math.ceil(totalItems / limit);
 

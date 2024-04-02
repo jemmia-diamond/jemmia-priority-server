@@ -72,4 +72,23 @@ export class CouponRefController {
   async remove(@Param('id') id: string) {
     return this.couponRefService.remove(id);
   }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('')
+  async findAllCouponRef(
+    @Request() req: RequestPayload,
+    @Query('page') page = 1,
+    @Query('limit') limit = 10,
+    @Query('type') type: ECouponRefType,
+    @Query('role') role: EUserRole,
+  ): Promise<Pagination<CouponRef>> {
+    limit = Math.min(50, limit); // Giới hạn limit tối đa là 50
+    return this.couponRefService.findAllCouponRef(
+      req.user.id,
+      type,
+      role,
+      page,
+      limit,
+    );
+  }
 }
