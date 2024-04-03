@@ -45,7 +45,9 @@ export class CustomerRankService implements OnModuleInit {
               const rankNum = await this.getRankOfUser(user.id);
 
               if (rankNum > 1) {
-                user.rank = rankNum >= user.rankPoint ? rankNum : user.rank - 1;
+                if (user.rank != ECustomerRankNum.silver)
+                  user.rank =
+                    rankNum >= user.rankPoint ? rankNum : user.rank - 1;
                 user.rankExpirationTime = new Date();
                 await this.userRepository.save(user);
               }
@@ -179,14 +181,23 @@ export class CustomerRankService implements OnModuleInit {
       const user = await this.userRepository.findOneBy({ id: userId });
       if (!user) throw new BadRequestException('User not found!');
 
-      const currentRank = await this.getRankOfUser(user.id);
+      let currentRank = await this.getRankOfUser(user.id);
 
-      const currenPoint = await this.getTotalBuyAndCashBackRef(userId);
+      currentRank =
+        currentRank < user.rank
+          ? user.rank == ECustomerRankNum.silver
+            ? user.rank
+            : user.rank - 1
+          : currentRank;
+
+      const currentPoint = await this.getTotalBuyAndCashBackRef(userId);
 
       const nextRank =
-        currentRank == ECustomerRankNum.platinum
+        currentRank == ECustomerRankNum.platinum ||
+        currentRank == ECustomerRankNum.none
           ? currentRank
           : currentRank + 1;
+
       const nextBuyPoint =
         ECustomerRankConfig[ECustomerRankNum[nextRank]].buyPoint;
       const nextRefPoint =
@@ -196,8 +207,8 @@ export class CustomerRankService implements OnModuleInit {
         setupTime: new Date(currentDate.setDate(currentDate.getDate() + 30)),
         currentRank: {
           name: ECustomerRankNum[currentRank],
-          buyPoint: currenPoint.totalPrice,
-          refPoint: currenPoint.total,
+          buyPoint: currentPoint.totalPrice,
+          refPoint: currentPoint.total,
         },
         nextRank: {
           name: ECustomerRankNum[nextRank],
@@ -206,12 +217,12 @@ export class CustomerRankService implements OnModuleInit {
         },
         pointNeed: {
           buyPoint:
-            nextBuyPoint > currenPoint.totalPrice
-              ? nextBuyPoint - currenPoint.totalPrice
+            nextBuyPoint > currentPoint.totalPrice
+              ? nextBuyPoint - currentPoint.totalPrice
               : 0,
           refPoint:
-            nextRefPoint > currenPoint.total
-              ? nextRefPoint - currenPoint.total
+            nextRefPoint > currentPoint.total
+              ? nextRefPoint - currentPoint.total
               : 0,
         },
         rankExpirationTime: !user.rankExpirationTime
