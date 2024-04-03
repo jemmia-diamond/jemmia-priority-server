@@ -1,4 +1,5 @@
-import { Controller, Body, Request, Post, UseGuards, Get, Put, Param } from '@nestjs/common';
+
+import { Controller, Body, Request, Post, UseGuards, Get, Put, Param, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { RequestPayload } from '../shared/types/controller.type';
 import { UserService } from '../user/user.service';
@@ -46,9 +47,10 @@ export class WithdrawController {
   })
   async getAllWithdrawRequest(
     @Request() req: RequestPayload,
-    @Param() body: BodyReqPaginDto,
+    @Query('page') page: number,
+    @Query('size') size: number,
   ) {
-    return this.withdrawService.findAll(body.page, body.size);
+    return this.withdrawService.findAll(page, size);
   }
 
   @Roles(EUserRole.admin)
