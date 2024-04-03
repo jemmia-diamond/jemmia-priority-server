@@ -30,7 +30,7 @@ export class WithdrawController {
     @Body() body: WithdrawMoneyDto,
   ) {
     const user = await this.userService.findUser(req.user.id);
-    if (user.point < body.amount) {
+    if (user.point > body.amount) {
       user.point -= body.amount;
       this.userService.updateNativeUser(user);
       return this.withdrawService.save(body, user);
