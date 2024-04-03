@@ -12,6 +12,7 @@ import { validate } from 'class-validator';
 import { ECouponDiscountType } from '../haravan/enums/coupon.enum';
 import { Pagination } from 'nestjs-typeorm-paginate';
 import { EUserRole } from '../user/enums/user-role.enum';
+import { Notification } from '../notification/entities/notification.entity';
 
 @Injectable()
 export class CouponService {
@@ -22,6 +23,8 @@ export class CouponService {
     private userRepository: Repository<User>,
     @InjectRepository(CouponRedeemed)
     private couponUserRepository: Repository<CouponRedeemed>,
+    @InjectRepository(Notification)
+    private notificationRepository: Repository<Notification>,
     private haravanService: HaravanService,
   ) {}
 
@@ -385,6 +388,44 @@ export class CouponService {
       await this.userRepository.save(user);
 
       return couponEntity;
+    } catch (error) {
+      return error;
+    }
+  }
+
+  async discountReceive(userId: string, money: number) {
+    try {
+      const currentDate = new Date();
+      const user = await this.userRepository.findOneBy({ id: userId });
+      if (!user) throw new BadRequestException('User not found');
+
+      if (user.point < money)
+        throw new BadRequestException('User point not enough');
+      user.point = user.point - money;
+      await this.userRepository.save(user);
+
+      const couponDto = new CouponDto();
+      couponDto.isPromotion = true;
+      couponDto.appliesOnce = false;
+      // couponDto.code = data.code;
+      couponDto.startsAt = currentDate.toDateString();
+      // couponDto.endsAt = data.endDate.toDateString();
+      couponDto.minimumOrderAmount = 0;
+      couponDto.usageLimit = 1;
+      couponDto.value = money;
+      couponDto.discountType = ECouponDiscountType.fixedAmount;
+      couponDto.setTimeActive = true;
+      // couponDto.appliesCustomerGroupId = data.appliesCustomerGroupId;
+
+      const couponHaravan = await this.createCoupon(couponDto);
+
+      const noti = new Notification();
+      noti.title = 'Đổi mã giảm giá';
+      noti.description = `Đổi mã: <b>${couponHaravan.id}</b> với giá trị: ${money} thành công`;
+
+      await this.notificationRepository.save(noti);
+
+      return couponHaravan.id;
     } catch (error) {
       return error;
     }
