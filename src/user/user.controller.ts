@@ -20,6 +20,7 @@ import { EUserRole } from './enums/user-role.enum';
 import { UserQueryDto } from './dto/user-query.dto';
 import { UserInfoDto } from './dto/user-info';
 import { Roles } from '../auth/decorators/roles.decorator';
+import { WithdrawMoneyDto } from './dto/with-draw.dto';
 
 @ApiTags('User')
 @ApiBearerAuth()
@@ -86,4 +87,6 @@ export class UserController {
   // async deleteById(@Request() req: RequestPayload): Promise<void> {
   //   await this.userService.deleteById(req.user.id);
   // }
+
+  //@UseGuards(JwtAuthGuard)
 }
