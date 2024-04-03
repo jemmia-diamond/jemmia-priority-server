@@ -6,10 +6,11 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from '../user/entities/user.entity';
 import { Coupon } from './entities/coupon.entity';
 import { CouponRedeemed } from './entities/coupon-user.entity';
+import { Notification } from '../notification/entities/notification.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, Coupon, CouponRedeemed]),
+    TypeOrmModule.forFeature([User, Coupon, CouponRedeemed, Notification]),
     HaravanModule,
   ],
   controllers: [CouponController],
