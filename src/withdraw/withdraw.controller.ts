@@ -39,8 +39,8 @@ export class WithdrawController {
     return 'You do not have enough points to redeem.';
   }
 
-  // @Roles(EUserRole.admin)
-  // @UseGuards(JwtAuthGuard)
+  @Roles(EUserRole.admin)
+  @UseGuards(JwtAuthGuard)
   @Get()
   @ApiOperation({
     description: 'Lấy danh sách các yêu cầu rút tiền có phân trang',
