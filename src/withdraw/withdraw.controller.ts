@@ -55,7 +55,7 @@ export class WithdrawController {
   @UseGuards(JwtAuthGuard)
   @Put()
   @ApiOperation({
-    description: 'Cập nhật trạng thái đơn hàng rút tiền.',
+    description: 'Cập nhật trạng thái rút tiền.',
   })
   async updateStatusWithdraw(
     @Request() req: RequestPayload,
