@@ -16,6 +16,8 @@ import { CouponRedeemed } from './coupon/entities/coupon-user.entity';
 import { CouponRef } from './coupon-ref/entities/coupon-ref.entity';
 import { CustomerRankModule } from './customer-rank/customer-rank.module';
 import { Order } from './order/entities/order.entity';
+import { NotificationModule } from './notification/notification.module';
+import { Notification } from './notification/entities/notification.entity';
 
 @Module({
   imports: [
@@ -25,7 +27,7 @@ import { Order } from './order/entities/order.entity';
       port: Number(process.env.DB_PORT),
       password: process.env.DB_PASSWORD,
       username: process.env.DB_UNAME,
-      entities: [User, Coupon, CouponRedeemed, CouponRef, Order],
+      entities: [User, Coupon, CouponRedeemed, CouponRef, Order, Notification],
       database: process.env.DB,
       synchronize: false,
       logging: false,
@@ -42,6 +44,7 @@ import { Order } from './order/entities/order.entity';
     CouponModule,
     CouponRefModule,
     CustomerRankModule,
+    NotificationModule,
   ],
   providers: [],
   controllers: [],
