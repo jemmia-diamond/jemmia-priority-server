@@ -40,6 +40,12 @@ export class CouponController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @Post('/discount-receive')
+  discountReceive(@Request() req, @Query('money') money: number) {
+    return this.couponService.discountReceive(req.user.id, money);
+  }
+
+  @UseGuards(JwtAuthGuard)
   @Post('/gift/:id')
   receiveGift(@Request() req, @Param('id') id: string) {
     return this.couponService.receiveGift(req.user.id, id);
