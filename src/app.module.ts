@@ -16,6 +16,8 @@ import { CouponRedeemed } from './coupon/entities/coupon-user.entity';
 import { CouponRef } from './coupon-ref/entities/coupon-ref.entity';
 import { CustomerRankModule } from './customer-rank/customer-rank.module';
 import { Order } from './order/entities/order.entity';
+import { NotificationModule } from './notification/notification.module';
+import { Notification } from './notification/entities/notification.entity';
 import { WithdrawModule } from './withdraw/withdraw.module';
 import { Withdraw } from './withdraw/entities/withdraw.entity';
 
@@ -27,9 +29,9 @@ import { Withdraw } from './withdraw/entities/withdraw.entity';
       port: Number(process.env.DB_PORT),
       password: process.env.DB_PASSWORD,
       username: process.env.DB_UNAME,
-      entities: [User, Coupon, CouponRedeemed, CouponRef, Order, Withdraw],
+      entities: [User, Coupon, CouponRedeemed, CouponRef, Order, Withdraw, Notification],
       database: process.env.DB,
-      synchronize: false,
+      synchronize: true,
       logging: false,
     }),
     ServeStaticModule.forRoot({
@@ -44,6 +46,7 @@ import { Withdraw } from './withdraw/entities/withdraw.entity';
     CouponModule,
     CouponRefModule,
     CustomerRankModule,
+    NotificationModule,
     WithdrawModule,
   ],
   providers: [],
