@@ -30,11 +30,15 @@ export class CouponRefService {
   async create(createCouponRefDto: CreateCouponRefDto) {
     await validate(createCouponRefDto);
 
-    const owner = await this.userRepository.findOneBy({
-      id: createCouponRefDto.ownerId,
-    });
+    let owner: User;
 
-    if (!owner) throw new BadRequestException('Customer not found');
+    if (createCouponRefDto.ownerId) {
+      owner = await this.userRepository.findOneBy({
+        id: createCouponRefDto.ownerId,
+      });
+    }
+
+    // if (!owner) throw new BadRequestException('Customer not found');
 
     const couponRef = new CouponRef();
 
@@ -47,6 +51,7 @@ export class CouponRefService {
 
     if (createCouponRefDto.endDate) {
       couponHaravanDto.endsAt = createCouponRefDto.endDate;
+      couponRef.endDate = new Date(createCouponRefDto.endDate);
     }
 
     //TẠO MÃ INVITE COUPON
@@ -62,7 +67,6 @@ export class CouponRefService {
     couponRef.couponHaravanCode = couponHaravanDto.code;
     couponRef.role = createCouponRefDto.role;
     couponRef.startDate = new Date(createCouponRefDto.startDate);
-    couponRef.endDate = new Date(createCouponRefDto.endDate);
     couponRef.owner = owner;
     couponRef.type = createCouponRefDto.type;
 
