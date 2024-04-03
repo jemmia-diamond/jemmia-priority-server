@@ -13,6 +13,7 @@ export class UpdateWithDrawDto {
   @Length(36, 36)
   userId: string;
 
+  @ApiProperty()
   @IsEnum(EWithdrawStatus)
   status: EWithdrawStatus;
 }
