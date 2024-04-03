@@ -43,7 +43,7 @@ export class WithdrawService {
       requestWithdraws,
       page,
       size,
-      totalPage: (await this.withdrawRepostitory.count()) / size,
+      totalPage: Math.ceil((await this.withdrawRepostitory.count()) / size),
     };
   }
 
