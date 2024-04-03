@@ -1,4 +1,4 @@
-import { Controller, Body, Request, Post, UseGuards, Get, Put } from '@nestjs/common';
+import { Controller, Body, Request, Post, UseGuards, Get, Put, Param, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { RequestPayload } from '../shared/types/controller.type';
 import { UserService } from '../user/user.service';
@@ -38,17 +38,18 @@ export class WithdrawController {
     return 'You do not have enough points to redeem.';
   }
 
-  @Roles(EUserRole.admin)
-  @UseGuards(JwtAuthGuard)
+  // @Roles(EUserRole.admin)
+  // @UseGuards(JwtAuthGuard)
   @Get()
   @ApiOperation({
     description: 'Lấy danh sách các yêu cầu rút tiền có phân trang',
   })
   async getAllWithdrawRequest(
     @Request() req: RequestPayload,
-    @Body() body: BodyReqPaginDto,
+    @Query('page') page: number,
+    @Query('size') size: number,
   ) {
-    return this.withdrawService.findAll(body.page, body.size);
+    return this.withdrawService.findAll(page, size);
   }
 
   @Roles(EUserRole.admin)
