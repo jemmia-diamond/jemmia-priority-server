@@ -71,6 +71,7 @@ export class CouponRefService {
     couponRef.startDate = new Date(createCouponRefDto.startDate);
     couponRef.owner = owner;
     couponRef.type = createCouponRefDto.type;
+    couponRef.note = createCouponRefDto.note;
 
     return await this.couponRefRepository.save(couponRef);
   }
