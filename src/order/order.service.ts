@@ -367,6 +367,7 @@ export class OrderService {
         }
 
         console.log('====== U CUSTOMER RANK');
+        console.log(JSON.stringify(customer));
         //Cập nhật rank cho customer
         await this.customerRankService.updateUserRank(customer);
       }
