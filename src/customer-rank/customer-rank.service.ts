@@ -10,6 +10,7 @@ import {
   ECustomerRankNum,
 } from './enums/customer-rank.enum';
 import { EPaymentStatus } from '../order/enum/payment-status.dto';
+import { EFinancialStatus } from '../haravan/dto/haravan-order.dto';
 
 @Injectable()
 export class CustomerRankService implements OnModuleInit {
@@ -83,11 +84,12 @@ export class CustomerRankService implements OnModuleInit {
   async getRankOfUser(userId: string) {
     try {
       const currenPoint = await this.getTotalBuyAndCashBackRef(userId);
-
+      console.log(currenPoint);
       const customerRank = this.calculateCustomerRank(
         currenPoint.totalPrice,
         currenPoint.total,
       );
+      console.log(customerRank);
 
       return ECustomerRankNum[customerRank];
     } catch (error) {
@@ -116,7 +118,7 @@ export class CustomerRankService implements OnModuleInit {
     const currentDate = new Date();
     const twelveMonthsAgo = new Date();
     twelveMonthsAgo.setMonth(currentDate.getMonth() - 12);
-    const paymentStatus = EPaymentStatus.CONFIRM;
+    const paymentStatus = EFinancialStatus.paid;
 
     const query = this.orderRepository
       .createQueryBuilder('orders')
@@ -179,15 +181,18 @@ export class CustomerRankService implements OnModuleInit {
   }
 
   calculateCustomerRank(buyPoint: number, refPoint: number): ECustomerRank {
-    let customerRank: ECustomerRank = ECustomerRank.none;
-
-    Object.entries(ECustomerRankConfig).forEach(([rank, config]) => {
-      if (buyPoint >= config.buyPoint && refPoint >= config.refPoint) {
-        customerRank = rank as ECustomerRank;
+    for (const [rank, config] of Object.entries(ECustomerRankConfig)) {
+      console.log(config);
+      if (
+        buyPoint >= config.buyPoint &&
+        refPoint >= config.refPoint &&
+        rank != ECustomerRank.staff
+      ) {
+        return rank as ECustomerRank;
       }
-    });
+    }
 
-    return customerRank;
+    return ECustomerRank.none;
   }
 
   async getRankInfo(userId: string) {

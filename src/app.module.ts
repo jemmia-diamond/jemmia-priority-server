@@ -39,7 +39,7 @@ import { Withdraw } from './withdraw/entities/withdraw.entity';
         Notification,
       ],
       database: process.env.DB,
-      synchronize: true,
+      synchronize: false,
       logging: false,
     }),
     ServeStaticModule.forRoot({
