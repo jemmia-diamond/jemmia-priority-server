@@ -45,7 +45,7 @@ export class CustomerRankService implements OnModuleInit {
             if (user.rankExpirationTime >= currentDate) {
               const rankNum = await this.getRankOfUser(user.id);
 
-              if (rankNum > 1) {
+              if (rankNum > ECustomerRankNum.silver) {
                 if (user.rank != ECustomerRankNum.silver)
                   user.rank = rankNum >= user.rank ? rankNum : user.rank - 1;
                 user.rankExpirationTime = new Date();
@@ -68,7 +68,7 @@ export class CustomerRankService implements OnModuleInit {
     try {
       const rankNum = await this.getRankOfUser(user.id);
 
-      if (rankNum > 1) {
+      if (rankNum > ECustomerRankNum.silver) {
         if (user.rank != ECustomerRankNum.silver)
           user.rank = rankNum >= user.rank ? rankNum : user.rank - 1;
         user.rankExpirationTime = new Date();
