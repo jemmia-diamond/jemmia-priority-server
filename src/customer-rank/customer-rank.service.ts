@@ -45,7 +45,7 @@ export class CustomerRankService implements OnModuleInit {
             if (user.rankExpirationTime >= currentDate) {
               const rankNum = await this.getRankOfUser(user.id);
 
-              if (rankNum > 1) {
+              if (rankNum > ECustomerRankNum.silver) {
                 if (user.rank != ECustomerRankNum.silver)
                   user.rank = rankNum >= user.rank ? rankNum : user.rank - 1;
                 user.rankExpirationTime = new Date();
@@ -67,10 +67,9 @@ export class CustomerRankService implements OnModuleInit {
   async updateUserRank(user: User) {
     try {
       const rankNum = await this.getRankOfUser(user.id);
-
-      if (rankNum > 1) {
-        if (user.rank != ECustomerRankNum.silver)
-          user.rank = rankNum >= user.rank ? rankNum : user.rank - 1;
+      console.log(rankNum);
+      if (rankNum > ECustomerRankNum.silver) {
+        user.rank = rankNum >= user.rank ? rankNum : user.rank - 1;
         user.rankExpirationTime = new Date();
         await this.userRepository.save(user);
       }
@@ -194,6 +193,7 @@ export class CustomerRankService implements OnModuleInit {
       const currentDate = new Date();
 
       const user = await this.userRepository.findOneBy({ id: userId });
+      await this.updateUserRank(user);
       if (!user) throw new BadRequestException('User not found!');
 
       let currentRank = await this.getRankOfUser(user.id);
