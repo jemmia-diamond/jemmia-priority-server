@@ -183,8 +183,7 @@ export class CustomerRankService implements OnModuleInit {
     for (const [rank, config] of Object.entries(ECustomerRankConfig)) {
       console.log(config);
       if (
-        buyPoint >= config.buyPoint &&
-        refPoint >= config.refPoint &&
+        (buyPoint >= config.buyPoint || refPoint >= config.refPoint) &&
         rank != ECustomerRank.staff
       ) {
         return rank as ECustomerRank;
