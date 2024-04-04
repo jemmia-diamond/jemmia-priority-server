@@ -227,13 +227,18 @@ export class OrderService {
 
       //Tạo khách hàng nếu không tồn tại
       if (!customer) {
+        console.log('\n========== CUSTOMER');
+        console.log(JSON.stringify(customer));
+
         customer = await this.userService.createUserFromHaravan(
           orderDto.customer,
         );
       }
 
       if (!order) {
-        console.log(JSON.stringify(customer));
+        console.log('\n========== ORDER');
+        console.log(JSON.stringify(order));
+
         order = await this.orderRepository.save({
           haravanOrderId: orderDto.id,
           totalPrice: orderDto.total_price,
@@ -241,8 +246,6 @@ export class OrderService {
           customer,
         });
       }
-      console.log('\n========== ORDER');
-      console.log(JSON.stringify(order));
 
       order.paymentStatus = orderDto.financial_status;
       order.totalPrice = orderDto.total_price;
@@ -335,31 +338,31 @@ export class OrderService {
           //Cộng giá trị đơn tích luỹ
           customer.accumulatedOrderPoint += order.totalPrice;
         }
+      }
 
-        if (couponRef) {
-          await this.couponRefRepository.save(couponRef);
-        }
+      if (couponRef) {
+        await this.couponRefRepository.save(couponRef);
+      }
 
-        await this.orderRepository.save(order);
-        await this.userRepository.save(customer);
+      await this.orderRepository.save(order);
+      await this.userRepository.save(customer);
 
-        //Cập nhật rank
-        if (order.paymentStatus == EFinancialStatus.paid) {
-          if (couponRef?.owner) {
-            //Cập nhật rank cho inviter
-            await this.customerRankService.updateUserRank(couponRef.owner);
+      //Cập nhật rank
+      if (order.paymentStatus == EFinancialStatus.paid) {
+        if (couponRef?.owner) {
+          //Cập nhật rank cho inviter
+          await this.customerRankService.updateUserRank(couponRef.owner);
 
-            if (couponRef.owner.invitedBy) {
-              //Cập nhật rank cho partnerA
-              await this.customerRankService.updateUserRank(
-                couponRef.owner.invitedBy,
-              );
-            }
+          if (couponRef.owner.invitedBy) {
+            //Cập nhật rank cho partnerA
+            await this.customerRankService.updateUserRank(
+              couponRef.owner.invitedBy,
+            );
           }
-
-          //Cập nhật rank cho customer
-          await this.customerRankService.updateUserRank(customer);
         }
+
+        //Cập nhật rank cho customer
+        await this.customerRankService.updateUserRank(customer);
       }
 
       console.log('============ RETURN');
