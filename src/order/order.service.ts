@@ -161,10 +161,10 @@ export class OrderService {
     console.log('========== INVITER');
     console.log(JSON.stringify(inviter));
 
-    //Tính cashbackRef
+    //Tính cashback theo rank thông thường
     if (
-      inviter?.id !== order.user.id &&
-      order.user.role !== EUserRole.partnerB
+      inviter?.id !== order.user.id && //Không tự mời chính mình
+      couponRef.type === ECouponRefType.invite //Chỉ cashback cho couponRefType === invite
     ) {
       const cashbackPercent =
         EPartnerCashbackConfig.refferalCashbackPercent[
