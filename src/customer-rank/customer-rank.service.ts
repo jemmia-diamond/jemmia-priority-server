@@ -83,7 +83,6 @@ export class CustomerRankService implements OnModuleInit {
   async getRankOfUser(userId: string) {
     try {
       const currenPoint = await this.getTotalBuyAndCashBackRef(userId);
-      console.log(currenPoint);
       const customerRank = this.calculateCustomerRank(
         currenPoint.totalPrice,
         currenPoint.total,
@@ -181,7 +180,6 @@ export class CustomerRankService implements OnModuleInit {
 
   calculateCustomerRank(buyPoint: number, refPoint: number): ECustomerRank {
     for (const [rank, config] of Object.entries(ECustomerRankConfig)) {
-      console.log(config);
       if (
         (buyPoint >= config.buyPoint || refPoint >= config.refPoint) &&
         rank != ECustomerRank.staff
@@ -189,8 +187,6 @@ export class CustomerRankService implements OnModuleInit {
         return rank as ECustomerRank;
       }
     }
-
-    return ECustomerRank.none;
   }
 
   async getRankInfo(userId: string) {
@@ -256,6 +252,7 @@ export class CustomerRankService implements OnModuleInit {
       return dataReturn;
     } catch (error) {
       console.log(error);
+      return error;
     }
   }
 }
