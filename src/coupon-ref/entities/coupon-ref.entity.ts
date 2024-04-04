@@ -1,8 +1,9 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { Exclude } from 'class-transformer';
 import { User } from '../../user/entities/user.entity';
 import { EUserRole } from '../../user/enums/user-role.enum';
 import { ECouponRefType } from '../enums/coupon-ref.enum';
+import { Order } from '../../order/entities/order.entity';
 
 @Entity('coupon_refs')
 export class CouponRef {
@@ -23,6 +24,12 @@ export class CouponRef {
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   startDate: Date;
+
+  @Column('text')
+  note: string;
+
+  // @OneToMany(() => Order, (order) => order.couponRef)
+  // orders: Order[];
 
   @Column({ type: 'timestamp', nullable: true })
   endDate: Date;
