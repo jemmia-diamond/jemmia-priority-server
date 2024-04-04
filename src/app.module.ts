@@ -29,7 +29,7 @@ import { Notification } from './notification/entities/notification.entity';
       username: process.env.DB_UNAME,
       entities: [User, Coupon, CouponRedeemed, CouponRef, Order, Notification],
       database: process.env.DB,
-      synchronize: true,
+      synchronize: false,
       logging: false,
     }),
     ServeStaticModule.forRoot({
