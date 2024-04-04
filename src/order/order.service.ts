@@ -335,8 +335,6 @@ export class OrderService {
 
           //Cashback cho người mua
           customer.point += order.cashBack;
-          //Cộng giá trị đơn tích luỹ
-          customer.accumulatedOrderPoint += order.totalPrice;
         }
 
         if (couponRef) {
@@ -344,33 +342,31 @@ export class OrderService {
         }
       }
 
-      //Cập nhật rank
-      if (order.paymentStatus == EFinancialStatus.paid) {
-        if (couponRef?.owner) {
-          //Cập nhật rank cho inviter
-          couponRef.owner.rank =
-            await this.customerRankService.calculateUserRank(couponRef.owner);
-
-          await this.userRepository.save(couponRef.owner);
-
-          if (couponRef.owner.invitedBy) {
-            //Cập nhật rank cho partnerA
-            couponRef.owner.invitedBy.rank =
-              await this.customerRankService.calculateUserRank(
-                couponRef.owner.invitedBy,
-              );
-
-            await this.userRepository.save(couponRef.owner.invitedBy);
-          }
-        }
-
-        //Cập nhật rank cho customer
-        customer.rank =
-          await this.customerRankService.calculateUserRank(customer);
+      if (order.paymentStatus === EFinancialStatus.paid) {
+        //Cộng giá trị đơn tích luỹ
+        customer.accumulatedOrderPoint += order.totalPrice;
       }
 
       await this.orderRepository.save(order);
       await this.userRepository.save(customer);
+
+      //Cập nhật rank
+      if (order.paymentStatus === EFinancialStatus.paid) {
+        if (couponRef?.owner) {
+          //Cập nhật rank cho inviter
+          await this.customerRankService.updateUserRank(couponRef.owner);
+
+          if (couponRef.owner.invitedBy) {
+            //Cập nhật rank cho partnerA
+            await this.customerRankService.updateUserRank(
+              couponRef.owner.invitedBy,
+            );
+          }
+        }
+
+        //Cập nhật rank cho customer
+        await this.customerRankService.updateUserRank(customer);
+      }
 
       console.log('============ RETURN');
     } catch (e) {

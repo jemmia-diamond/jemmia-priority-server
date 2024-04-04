@@ -65,16 +65,15 @@ export class CustomerRankService implements OnModuleInit {
     }
   }
 
-  async calculateUserRank(user: User) {
+  async updateUserRank(user: User) {
     try {
       const rankNum = await this.getRankOfUser(user.id);
-      let rank: ECustomerRankNum;
 
       if (rankNum > 1) {
         if (user.rank != ECustomerRankNum.silver)
-          rank = rankNum >= user.rankPoint ? rankNum : user.rank - 1;
-
-        return rank;
+          user.rank = rankNum >= user.rankPoint ? rankNum : user.rank - 1;
+        user.rankExpirationTime = new Date();
+        await this.userRepository.save(user);
       }
       return rankNum;
     } catch (error) {
