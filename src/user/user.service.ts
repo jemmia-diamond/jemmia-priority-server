@@ -37,6 +37,10 @@ export class UserService {
       id: id,
     });
 
+    if (!user) {
+      return null;
+    }
+
     const haravanCusData = await this.haravanService.findCustomer(
       user.haravanId,
     );
@@ -48,9 +52,14 @@ export class UserService {
   }
 
   async findAllUser(query: UserQueryDto) {
+    const page = query.page;
+    const size = query.limit;
+
     const haravanCusData = await this.haravanService.findAllCustomer(query);
     const haravanIds = haravanCusData.map((c) => c.id);
     let users = await this.userRepository.find({
+      skip: (page - 1) * size,
+      take: size,
       where: {
         haravanId: In(haravanIds),
       },
@@ -63,6 +72,9 @@ export class UserService {
 
     return {
       users,
+      page,
+      size,
+      totalPage: Math.ceil((await this.userRepository.count()) / size),
     };
   }
 
@@ -89,12 +101,6 @@ export class UserService {
         role: data.role,
       });
 
-      //create Invite Coupon
-      await this.couponRefService.createInvite({
-        ownerId: user.id,
-        role: data.role,
-      });
-
       return {
         ...haravanCusData,
         ...user,
@@ -111,12 +117,6 @@ export class UserService {
       inviteCode: StringUtils.random(6),
       role: EUserRole.customer,
       haravanId: data.id,
-    });
-
-    //Create invite coupon
-    await this.couponRefService.createInvite({
-      ownerId: user.id,
-      role: user.role,
     });
 
     return user;
