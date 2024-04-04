@@ -37,6 +37,10 @@ export class UserService {
       id: id,
     });
 
+    if (!user) {
+      return {};
+    }
+
     const haravanCusData = await this.haravanService.findCustomer(
       user.haravanId,
     );
