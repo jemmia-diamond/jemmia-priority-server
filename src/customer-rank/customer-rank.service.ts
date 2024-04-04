@@ -70,9 +70,11 @@ export class CustomerRankService implements OnModuleInit {
       console.log(rankNum);
       if (rankNum > ECustomerRankNum.silver) {
         user.rank = rankNum >= user.rank ? rankNum : user.rank - 1;
-        user.rankExpirationTime = new Date();
-        await this.userRepository.save(user);
       }
+      user.rankExpirationTime = new Date();
+
+      await this.userRepository.save(user);
+
       return rankNum;
     } catch (error) {
       console.log(error);
@@ -86,7 +88,6 @@ export class CustomerRankService implements OnModuleInit {
         currenPoint.totalPrice,
         currenPoint.total,
       );
-      console.log(customerRank);
 
       return ECustomerRankNum[customerRank];
     } catch (error) {
@@ -113,6 +114,8 @@ export class CustomerRankService implements OnModuleInit {
 
   async getTotalPriceForUserLast12Months(userId: string): Promise<number> {
     const currentDate = new Date();
+    currentDate.setMinutes(currentDate.getMinutes() + 5);
+
     const twelveMonthsAgo = new Date();
     twelveMonthsAgo.setMonth(currentDate.getMonth() - 12);
     const paymentStatus = EFinancialStatus.paid;
@@ -123,8 +126,12 @@ export class CustomerRankService implements OnModuleInit {
       .select('SUM(orders.totalPrice)', 'total')
       .where('user.id = :userId', { userId })
       .andWhere('orders.paymentStatus = :paymentStatus', { paymentStatus })
-      .andWhere('orders.createdDate >= :twelveMonthsAgo', { twelveMonthsAgo })
-      .andWhere('orders.createdDate <= :currentDate', { currentDate });
+      .andWhere('UNIX_TIMESTAMP(orders.createdDate) >= :twelveMonthsAgo', {
+        twelveMonthsAgo: Math.floor(twelveMonthsAgo.getTime() / 1000),
+      })
+      .andWhere('UNIX_TIMESTAMP(orders.createdDate) <= :currentDate', {
+        currentDate: Math.floor(currentDate.getTime() / 1000),
+      });
 
     const result = await query.getRawOne();
     const totalPrice = result.total;
@@ -145,8 +152,12 @@ export class CustomerRankService implements OnModuleInit {
       .select('SUM(orders.cashBackRef)', 'total')
       .where('user.id = :userId', { userId })
       .andWhere('orders.paymentStatus = :paymentStatus', { paymentStatus })
-      .andWhere('orders.createdDate >= :twelveMonthsAgo', { twelveMonthsAgo })
-      .andWhere('orders.createdDate <= :currentDate', { currentDate });
+      .andWhere('UNIX_TIMESTAMP(orders.createdDate) >= :twelveMonthsAgo', {
+        twelveMonthsAgo: Math.floor(twelveMonthsAgo.getTime() / 1000),
+      })
+      .andWhere('UNIX_TIMESTAMP(orders.createdDate) <= :currentDate', {
+        currentDate: Math.floor(currentDate.getTime() / 1000),
+      });
 
     const result = await query.getRawOne();
     const totalPrice = result.total;
@@ -168,8 +179,12 @@ export class CustomerRankService implements OnModuleInit {
       .select('SUM(orders.cashBackRefA)', 'total')
       .where('userInvite.id = :userId', { userId })
       .andWhere('orders.paymentStatus = :paymentStatus', { paymentStatus })
-      .andWhere('orders.createdDate >= :twelveMonthsAgo', { twelveMonthsAgo })
-      .andWhere('orders.createdDate <= :currentDate', { currentDate });
+      .andWhere('UNIX_TIMESTAMP(orders.createdDate) >= :twelveMonthsAgo', {
+        twelveMonthsAgo: Math.floor(twelveMonthsAgo.getTime() / 1000),
+      })
+      .andWhere('UNIX_TIMESTAMP(orders.createdDate) <= :currentDate', {
+        currentDate: Math.floor(currentDate.getTime() / 1000),
+      });
 
     const result = await query.getRawOne();
     const totalPrice = result.total;
