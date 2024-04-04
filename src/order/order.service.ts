@@ -353,10 +353,12 @@ export class OrderService {
       //Cập nhật rank
       if (order.paymentStatus === EFinancialStatus.paid) {
         if (couponRef?.owner) {
+          console.log('====== U COUPON REF OWNER RANK');
           //Cập nhật rank cho inviter
           await this.customerRankService.updateUserRank(couponRef.owner);
 
           if (couponRef.owner.invitedBy) {
+            console.log('====== U COUOPON REF TOKEN RANK');
             //Cập nhật rank cho partnerA
             await this.customerRankService.updateUserRank(
               couponRef.owner.invitedBy,
@@ -364,6 +366,7 @@ export class OrderService {
           }
         }
 
+        console.log('====== U CUSTOMER RANK');
         //Cập nhật rank cho customer
         await this.customerRankService.updateUserRank(customer);
       }
