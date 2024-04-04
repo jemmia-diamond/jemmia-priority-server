@@ -55,7 +55,7 @@ export class User {
   rankPoint: number;
 
   /** Rank của user */
-  @Column('integer', { default: ECustomerRankNum.none })
+  @Column('integer', { default: ECustomerRankNum.silver })
   rank: ECustomerRankNum;
 
   /** Giá trị đơn hàng đã tích luỹ */
