@@ -193,160 +193,172 @@ export class OrderService {
   }
 
   async haravanHook(orderDto: HaravanOrderDto) {
-    orderDto = plainToInstance(HaravanOrderDto, orderDto);
+    try {
+      orderDto = plainToInstance(HaravanOrderDto, orderDto);
 
-    //!Chỉ xử lý các đơn có khách hàng được gán
-    if (!orderDto.customer?.id) {
-      return 'CANT FIND CUSTOMER';
-    }
+      //!Chỉ xử lý các đơn có khách hàng được gán
+      if (!orderDto.customer?.id) {
+        return 'CANT FIND CUSTOMER';
+      }
 
-    //Get Order
-    let order = await this.orderRepository.findOne({
-      where: {
-        haravanOrderId: orderDto.id,
-      },
-      relations: ['user', 'couponRef'],
-    });
-
-    let customer = await this.userRepository.findOneBy({
-      haravanId: orderDto.customer.id,
-    });
-    const couponRef = await this.couponRefRepository.findOne({
-      where: {
-        couponHaravanCode: orderDto.discount_codes[0]?.code,
-      },
-      relations: ['owner.invitedBy'],
-    });
-    console.log('\n========== COUPON REF/');
-    console.log(JSON.stringify(couponRef));
-
-    //Tạo khách hàng nếu không tồn tại
-    if (!customer) {
-      customer = await this.userService.createUserFromHaravan(
-        orderDto.customer,
-      );
-    }
-
-    if (!order) {
-      console.log(JSON.stringify(customer));
-      order = await this.orderRepository.save({
-        haravanOrderId: orderDto.id,
-        totalPrice: orderDto.total_price,
-        paymentStatus: orderDto.financial_status,
-        customer,
+      //Get Order
+      let order = await this.orderRepository.findOne({
+        where: {
+          haravanOrderId: orderDto.id,
+        },
+        relations: ['user', 'couponRef'],
       });
-    }
-    console.log('\n========== ORDER');
-    console.log(JSON.stringify(order));
 
-    order.paymentStatus = orderDto.financial_status;
-    order.totalPrice = orderDto.total_price;
+      let customer = await this.userRepository.findOneBy({
+        haravanId: orderDto.customer.id,
+      });
+      const couponRef = await this.couponRefRepository.findOne({
+        where: {
+          couponHaravanCode: orderDto.discount_codes[0]?.code,
+        },
+        relations: ['owner.invitedBy'],
+      });
+      console.log('\n========== COUPON REF/');
+      console.log(JSON.stringify(couponRef));
 
-    if (couponRef) {
-      //Mặc định sẽ set luôn đã sử dụng khi tạo đơn vì khi huỷ đơn thì coupon cũng k thể sử dụng lại
-      couponRef.used = true;
-
-      //Gắn couponRef owner vào user ở trường hợp A cầm coupon ref đi mua hàng
-      if (!couponRef.owner) {
-        couponRef.owner = customer;
+      //Tạo khách hàng nếu không tồn tại
+      if (!customer) {
+        customer = await this.userService.createUserFromHaravan(
+          orderDto.customer,
+        );
       }
 
-      order.couponRef = couponRef;
-    }
-    order.user = customer;
+      if (!order) {
+        console.log(JSON.stringify(customer));
+        order = await this.orderRepository.save({
+          haravanOrderId: orderDto.id,
+          totalPrice: orderDto.total_price,
+          paymentStatus: orderDto.financial_status,
+          customer,
+        });
+      }
+      console.log('\n========== ORDER');
+      console.log(JSON.stringify(order));
 
-    //Nếu đơn huỷ
-    if (orderDto.cancelled_status == 'cancelled') {
-      order.paymentStatus = EFinancialStatus.cancelled;
-    }
+      order.paymentStatus = orderDto.financial_status;
+      order.totalPrice = orderDto.total_price;
 
-    //Xử lý cho lần đầu mua hàng
-    if (
-      orderDto.customer.ordersCount === 1 ||
-      orderDto.customer.totalSpent === 0
-    ) {
-      //Chỉ tính refferral khi mua hàng có giới thiệu
       if (couponRef) {
-        const cashbackVal = await this.calculateCashback(order);
+        //Mặc định sẽ set luôn đã sử dụng khi tạo đơn vì khi huỷ đơn thì coupon cũng k thể sử dụng lại
+        couponRef.used = true;
 
-        order.cashBack = cashbackVal.cashBack;
-        order.cashBackRef = cashbackVal.cashBackRef;
-        order.cashBackRefA = cashbackVal.cashBackRefA;
+        //Gắn couponRef owner vào user ở trường hợp A cầm coupon ref đi mua hàng
+        if (!couponRef.owner) {
+          couponRef.owner = customer;
+        }
+
+        order.couponRef = couponRef;
+      }
+      order.user = customer;
+
+      //Nếu đơn huỷ
+      if (orderDto.cancelled_status == 'cancelled') {
+        order.paymentStatus = EFinancialStatus.cancelled;
       }
 
-      //Chỉ khi đã thanh toán
-      if (order.paymentStatus == EFinancialStatus.paid) {
-        //*Nếu đơn có sử dụng mã mời
+      //Xử lý cho lần đầu mua hàng
+      if (
+        orderDto.customer.ordersCount === 1 ||
+        orderDto.customer.totalSpent === 0
+      ) {
+        //Chỉ tính refferral khi mua hàng có giới thiệu
         if (couponRef) {
-          couponRef.used = true;
+          const cashbackVal = await this.calculateCashback(order);
 
-          //Set thăng hạng cho partner khi mua hàng lần đầu nếu sử dụng couponRef Partner
-          //Xử lý khi partner đi mua hàng lần đầu
-          if (couponRef.type == ECouponRefType.partner) {
-            customer.rank =
-              EPartnerInviteCouponConfig[couponRef.role]?.receiveRank ||
-              customer.rank;
+          order.cashBack = cashbackVal.cashBack;
+          order.cashBackRef = cashbackVal.cashBackRef;
+          order.cashBackRefA = cashbackVal.cashBackRefA;
+        }
 
-            customer.role = couponRef.role;
+        //Chỉ khi đã thanh toán
+        if (order.paymentStatus == EFinancialStatus.paid) {
+          //*Nếu đơn có sử dụng mã mời
+          if (couponRef) {
+            couponRef.used = true;
 
-            //Convert coupon ref
-            // await this.couponRefService.convertPartnerToInvite(
-            //   customer.id,
-            //   couponRef.couponHaravanCode,
-            // );
-          } else {
-            //*Là couponref khách hàng invite thông thường
+            //Set thăng hạng cho partner khi mua hàng lần đầu nếu sử dụng couponRef Partner
+            //Xử lý khi partner đi mua hàng lần đầu
+            if (couponRef.type == ECouponRefType.partner) {
+              customer.rank =
+                EPartnerInviteCouponConfig[couponRef.role]?.receiveRank ||
+                customer.rank;
 
-            //Cashback cho partner A
-            if (
-              couponRef.owner.invitedBy?.role === EUserRole.partnerA &&
-              couponRef.owner.role === EUserRole.partnerB
-            ) {
-              couponRef.owner.invitedBy.point += order.cashBackRefA;
+              customer.role = couponRef.role;
 
+              //Convert coupon ref
+              // await this.couponRefService.convertPartnerToInvite(
+              //   customer.id,
+              //   couponRef.couponHaravanCode,
+              // );
+            } else {
+              //*Là couponref khách hàng invite thông thường
+
+              //Cashback cho partner A
+              if (
+                couponRef.owner.invitedBy?.role === EUserRole.partnerA &&
+                couponRef.owner.role === EUserRole.partnerB
+              ) {
+                couponRef.owner.invitedBy.point += order.cashBackRefA;
+                await this.userRepository.save(couponRef.owner.invitedBy);
+              }
+
+              //Cashback thông thường theo rank
+              couponRef.owner.point += order.cashBackRef;
+
+              //Set người đã mời khách hàng
+              customer.invitedBy = couponRef.owner;
+
+              await this.userRepository.save(couponRef.owner);
+            }
+
+            //Set người đã mời khách hàng
+            if (customer.id !== couponRef.owner.id) {
+              customer.invitedBy = couponRef.owner;
+
+              //Cập nhật số lượng user đã mời cho chủ coupon;
+              couponRef.owner.invitesCount++;
+              await this.userRepository.save(couponRef.owner);
+            }
+          }
+
+          //Cashback cho người mua
+          customer.point += order.cashBack;
+          //Cộng giá trị đơn tích luỹ
+          customer.accumulatedOrderPoint += order.totalPrice;
+        }
+
+        await this.couponRefRepository.save(couponRef);
+        await this.orderRepository.save(order);
+        await this.userRepository.save(customer);
+
+        //Cập nhật rank
+        if (order.paymentStatus == EFinancialStatus.paid) {
+          if (couponRef.owner) {
+            //Cập nhật rank cho inviter
+            await this.customerRankService.updateUserRank(couponRef.owner);
+
+            if (couponRef.owner.invitedBy) {
               //Cập nhật rank cho partnerA
               await this.customerRankService.updateUserRank(
                 couponRef.owner.invitedBy,
               );
-
-              await this.userRepository.save(couponRef.owner.invitedBy);
             }
-
-            //Cashback thông thường theo rank
-            couponRef.owner.point += order.cashBackRef;
-
-            //Set người đã mời khách hàng
-            customer.invitedBy = couponRef.owner;
-
-            //Cập nhật rank cho inviter
-            await this.customerRankService.updateUserRank(couponRef.owner);
-            await this.userRepository.save(couponRef.owner);
           }
 
-          //Set người đã mời khách hàng
-          if (customer.id !== couponRef.owner.id) {
-            customer.invitedBy = couponRef.owner;
-
-            //Cập nhật số lượng user đã mời cho chủ coupon;
-            couponRef.owner.invitesCount++;
-            await this.userRepository.save(couponRef.owner);
-          }
+          //Cập nhật rank cho customer
+          await this.customerRankService.updateUserRank(customer);
         }
-
-        //Cập nhật rank cho customer
-        await this.customerRankService.updateUserRank(customer);
-
-        //Cashback cho người mua
-        customer.point += order.cashBack;
-        //Cộng giá trị đơn tích luỹ
-        customer.accumulatedOrderPoint += order.totalPrice;
       }
 
-      await this.couponRefRepository.save(couponRef);
-      await this.orderRepository.save(order);
-      await this.userRepository.save(customer);
+      console.log('============ RETURN');
+    } catch (e) {
+      console.log(e);
+      return;
     }
-
-    console.log('============ RETURN');
   }
 }
