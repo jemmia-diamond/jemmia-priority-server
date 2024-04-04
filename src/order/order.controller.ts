@@ -57,4 +57,11 @@ export class OrderController {
     const res = await this.orderService.haravanHook(body);
     return res;
   }
+
+  @Post('/hook')
+  async hook() {
+    console.log('HOOOK');
+
+    return;
+  }
 }
