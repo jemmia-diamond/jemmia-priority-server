@@ -25,9 +25,9 @@ export class CustomerRankService implements OnModuleInit {
     this.handleCron(); // Kích hoạt cron job ngay khi module được khởi tạo
   }
 
-  @Cron('0 0 1 * *')
+  @Cron('0 0 * * *')
   async handleCron() {
-    console.log('Cron job is running on the 1st of every month');
+    console.log('Cron job is running on the 1st of every day');
     await this.ranking();
   }
 
