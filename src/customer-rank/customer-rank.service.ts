@@ -64,6 +64,24 @@ export class CustomerRankService implements OnModuleInit {
     }
   }
 
+  async setRankOfUser(userId: string) {
+    try {
+      const user = await this.userRepository.findOneBy({ id: userId });
+      if (!user) throw new BadRequestException('User not found');
+      const rankNum = await this.getRankOfUser(user.id);
+
+      if (rankNum > 1) {
+        if (user.rank != ECustomerRankNum.silver)
+          user.rank = rankNum >= user.rankPoint ? rankNum : user.rank - 1;
+        user.rankExpirationTime = new Date();
+        await this.userRepository.save(user);
+      }
+      return rankNum;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   async getRankOfUser(userId: string) {
     try {
       const currenPoint = await this.getTotalBuyAndCashBackRef(userId);
