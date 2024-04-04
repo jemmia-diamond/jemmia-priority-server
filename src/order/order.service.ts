@@ -142,10 +142,10 @@ export class OrderService {
 
     console.log(totalPrice);
 
-    //Tính cashback: 1.5% dựa trên đơn hàng cho partner A
+    //Tính cashback cho partner A
     if (
-      couponRef.owner.id != order.user.id &&
-      order.user.role !== EUserRole.partnerB //Chỉ hoàn cho các user là customer | staff
+      order.user.role === EUserRole.customer &&
+      couponRef.owner?.invitedBy?.role === EUserRole.partnerA
     ) {
       cashBackRefA +=
         totalPrice *
@@ -161,6 +161,7 @@ export class OrderService {
     console.log('========== INVITER');
     console.log(JSON.stringify(inviter));
 
+    //Tính cashbackRef
     if (inviter) {
       const cashbackPercent =
         EPartnerCashbackConfig.refferalCashbackPercent[
@@ -238,6 +239,11 @@ export class OrderService {
       //Mặc định sẽ set luôn đã sử dụng khi tạo đơn vì khi huỷ đơn thì coupon cũng k thể sử dụng lại
       couponRef.used = true;
 
+      //Gắn couponRef owner vào user ở trường hợp A cầm coupon ref đi mua hàng
+      if (!couponRef.owner) {
+        couponRef.owner = customer;
+      }
+
       order.couponRef = couponRef;
     }
     order.user = customer;
@@ -247,62 +253,66 @@ export class OrderService {
       order.paymentStatus = EFinancialStatus.cancelled;
     }
 
-    //Xử lý cashback cho lần đầu mua hàng
+    //Xử lý cho lần đầu mua hàng
     if (
       orderDto.customer.ordersCount === 1 ||
       orderDto.customer.totalSpent === 0
     ) {
-      const cashbackVal = await this.calculateCashback(order);
+      //Chỉ tính refferral khi mua hàng có giới thiệu
+      if (couponRef) {
+        const cashbackVal = await this.calculateCashback(order);
 
-      order.cashBack = cashbackVal.cashBack;
-      order.cashBackRef = cashbackVal.cashBackRef;
-      order.cashBackRefA = cashbackVal.cashBackRefA;
+        order.cashBack = cashbackVal.cashBack;
+        order.cashBackRef = cashbackVal.cashBackRef;
+        order.cashBackRefA = cashbackVal.cashBackRefA;
+      }
 
       //Chỉ khi đã thanh toán
       if (order.paymentStatus == EFinancialStatus.paid) {
-        couponRef.used = true;
+        //*Nếu đơn có sử dụng mã mời
+        if (couponRef) {
+          couponRef.used = true;
 
-        //Set thăng hạng cho partner khi mua hàng lần đầu nếu sử dụng couponRef Partner
-        if (couponRef.type == ECouponRefType.partner) {
-          customer.rank =
-            EPartnerInviteCouponConfig[couponRef.role]?.receiveRank ||
-            customer.rank;
+          //Set thăng hạng cho partner khi mua hàng lần đầu nếu sử dụng couponRef Partner
+          if (couponRef.type == ECouponRefType.partner) {
+            customer.rank =
+              EPartnerInviteCouponConfig[couponRef.role]?.receiveRank ||
+              customer.rank;
 
-          customer.role = couponRef.role;
+            customer.role = couponRef.role;
 
-          //Convert coupon ref
-          // await this.couponRefService.convertPartnerToInvite(
-          //   customer.id,
-          //   couponRef.couponHaravanCode,
-          // );
-        }
+            //Convert coupon ref
+            // await this.couponRefService.convertPartnerToInvite(
+            //   customer.id,
+            //   couponRef.couponHaravanCode,
+            // );
+          }
 
-        //Cashback cho partner A
-        if (couponRef.owner.invitedBy?.role === EUserRole.partnerA) {
-          couponRef.owner.invitedBy.point += cashbackVal.cashBackRefA;
-          await this.userRepository.save(couponRef.owner.invitedBy);
-        }
+          //Cashback cho partner A
+          if (couponRef.owner.invitedBy?.role === EUserRole.partnerA) {
+            couponRef.owner.invitedBy.point += order.cashBackRefA;
+            await this.userRepository.save(couponRef.owner.invitedBy);
+          }
 
-        //Cashback cho inviter
-        if (cashbackVal.inviter) {
-          cashbackVal.inviter.point += cashbackVal.cashBackRef;
+          //Cashback cho inviter
+          if (couponRef.owner) {
+            couponRef.owner.point += order.cashBackRef;
 
-          await this.userRepository.save(cashbackVal.inviter);
+            //Cập nhật số lượng user đã mời cho chủ coupon;
+            //!FIXME: NOTWORKING
+            couponRef.owner.invitesCount++;
+
+            //Set người đã mời khách hàng
+            customer.invitedBy = couponRef.owner;
+
+            await this.userRepository.save(couponRef.owner);
+          }
         }
 
         //Cashback cho người mua
-        customer.point += cashbackVal.cashBack;
-
+        customer.point += order.cashBack;
         //Cộng giá trị đơn tích luỹ
         customer.accumulatedOrderPoint += order.totalPrice;
-
-        //Set người đã mời khách hàng
-        customer.invitedBy = couponRef.owner;
-
-        //Cập nhật số lượng user đã mời cho chủ coupon;
-        //!FIXME: NOTWORKING
-        couponRef.owner.invitesCount++;
-        await this.userRepository.save(couponRef.owner);
       }
 
       await this.couponRefRepository.save(couponRef);
