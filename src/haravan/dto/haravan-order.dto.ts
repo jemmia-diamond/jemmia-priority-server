@@ -17,6 +17,7 @@ export enum EFulfillmentStatus {
   unShipped = 'un_shipped',
   shipped = 'shipped',
   partial = 'partial',
+  notfulfilled = 'notfulfilled',
 }
 
 export enum EStatus {

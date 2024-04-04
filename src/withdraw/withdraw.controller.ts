@@ -1,12 +1,19 @@
-
-import { Controller, Body, Request, Post, UseGuards, Get, Put, Param, Query, BadRequestException } from '@nestjs/common';
+import {
+  Controller,
+  Body,
+  Request,
+  Post,
+  UseGuards,
+  Get,
+  Put,
+  Query,
+  BadRequestException,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { RequestPayload } from '../shared/types/controller.type';
 import { UserService } from '../user/user.service';
 import { WithdrawMoneyDto } from '../user/dto/with-draw.dto';
 import { WithdrawService } from './withdraw.service';
-import { EWithdrawStatus } from './dto/withdraw-status.dto';
-import { BodyReqPaginDto } from './dto/pagin.dto';
 import { EUserRole } from '../user/enums/user-role.enum';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';

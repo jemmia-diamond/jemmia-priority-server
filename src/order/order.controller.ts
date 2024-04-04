@@ -55,12 +55,13 @@ export class OrderController {
     console.log('========== HANDLE HOOK ===========');
     // Xử lý xác thực token từ webhook.
     const res = await this.orderService.haravanHook(body);
+    console.log('DONE');
     return res;
   }
 
   @Post('/hook')
-  async hook() {
-    console.log('HOOOK');
+  async hook(@Body() body: any) {
+    console.log(body);
 
     return;
   }
