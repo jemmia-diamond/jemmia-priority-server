@@ -47,8 +47,7 @@ export class CustomerRankService implements OnModuleInit {
 
               if (rankNum > 1) {
                 if (user.rank != ECustomerRankNum.silver)
-                  user.rank =
-                    rankNum >= user.rankPoint ? rankNum : user.rank - 1;
+                  user.rank = rankNum >= user.rank ? rankNum : user.rank - 1;
                 user.rankExpirationTime = new Date();
                 await this.userRepository.save(user);
               }
@@ -71,7 +70,7 @@ export class CustomerRankService implements OnModuleInit {
 
       if (rankNum > 1) {
         if (user.rank != ECustomerRankNum.silver)
-          user.rank = rankNum >= user.rankPoint ? rankNum : user.rank - 1;
+          user.rank = rankNum >= user.rank ? rankNum : user.rank - 1;
         user.rankExpirationTime = new Date();
         await this.userRepository.save(user);
       }
