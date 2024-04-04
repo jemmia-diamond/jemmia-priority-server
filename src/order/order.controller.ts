@@ -45,7 +45,7 @@ export class OrderController {
     return this.orderService.findOne(+id, req.user.role, req.user.id);
   }
 
-  @Post('/hook/haravan')
+  @Post('/haravan/hook')
   async haravanHookCreate(
     @Request() req: RequestPayload,
     @Body() body: HaravanOrderDto,
