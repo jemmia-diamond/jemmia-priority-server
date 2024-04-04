@@ -162,7 +162,7 @@ export class OrderService {
     console.log(JSON.stringify(inviter));
 
     //Tính cashbackRef
-    if (inviter) {
+    if (inviter?.id !== order.user.id) {
       const cashbackPercent =
         EPartnerCashbackConfig.refferalCashbackPercent[
           ECustomerRankNum[inviter.rank]
@@ -310,20 +310,23 @@ export class OrderService {
             }
 
             //Cashback thông thường theo rank
-            if (couponRef.owner) {
-              couponRef.owner.point += order.cashBackRef;
+            couponRef.owner.point += order.cashBackRef;
 
-              //Cập nhật số lượng user đã mời cho chủ coupon;
-              //!FIXME: NOTWORKING
-              couponRef.owner.invitesCount++;
+            //Set người đã mời khách hàng
+            customer.invitedBy = couponRef.owner;
 
-              //Set người đã mời khách hàng
-              customer.invitedBy = couponRef.owner;
+            //Cập nhật rank cho inviter
+            await this.customerRankService.updateUserRank(couponRef.owner);
+            await this.userRepository.save(couponRef.owner);
+          }
 
-              //Cập nhật rank cho inviter
-              await this.customerRankService.updateUserRank(couponRef.owner);
-              await this.userRepository.save(couponRef.owner);
-            }
+          //Set người đã mời khách hàng
+          if (customer.id !== couponRef.owner.id) {
+            customer.invitedBy = couponRef.owner;
+
+            //Cập nhật số lượng user đã mời cho chủ coupon;
+            couponRef.owner.invitesCount++;
+            await this.userRepository.save(couponRef.owner);
           }
         }
 
