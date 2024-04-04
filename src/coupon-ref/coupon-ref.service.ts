@@ -55,7 +55,9 @@ export class CouponRefService {
     }
 
     //TẠO MÃ INVITE COUPON
-    couponHaravanDto.value = EPartnerCashbackConfig.firstBuyCashbackPercent;
+    couponHaravanDto.value =
+      EPartnerCashbackConfig.firstBuyCashbackPercent[createCouponRefDto.role] ||
+      1;
     couponHaravanDto.discountType = ECouponDiscountType.percentage;
     couponHaravanDto.usageLimit = 1;
     couponHaravanDto.setTimeActive = true;
