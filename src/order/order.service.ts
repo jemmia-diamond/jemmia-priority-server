@@ -338,10 +338,10 @@ export class OrderService {
           //Cộng giá trị đơn tích luỹ
           customer.accumulatedOrderPoint += order.totalPrice;
         }
-      }
 
-      if (couponRef) {
-        await this.couponRefRepository.save(couponRef);
+        if (couponRef) {
+          await this.couponRefRepository.save(couponRef);
+        }
       }
 
       await this.orderRepository.save(order);
