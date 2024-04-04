@@ -64,10 +64,8 @@ export class CustomerRankService implements OnModuleInit {
     }
   }
 
-  async setRankOfUser(userId: string) {
+  async updateUserRank(user: User) {
     try {
-      const user = await this.userRepository.findOneBy({ id: userId });
-      if (!user) throw new BadRequestException('User not found');
       const rankNum = await this.getRankOfUser(user.id);
 
       if (rankNum > 1) {

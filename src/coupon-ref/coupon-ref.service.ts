@@ -56,12 +56,16 @@ export class CouponRefService {
 
     //TẠO MÃ INVITE COUPON
     couponHaravanDto.value =
-      EPartnerCashbackConfig.firstBuyCashbackPercent[createCouponRefDto.role] ||
-      1;
+      EPartnerCashbackConfig.firstBuyCashbackPercent.customer;
     couponHaravanDto.discountType = ECouponDiscountType.percentage;
     couponHaravanDto.usageLimit = 1;
     couponHaravanDto.setTimeActive = true;
     couponHaravanDto.maxAmountApply = null;
+
+    if (createCouponRefDto.type == ECouponRefType.partner) {
+      couponHaravanDto.value =
+        EPartnerCashbackConfig.firstBuyCashbackPercent[createCouponRefDto.role];
+    }
 
     const coupon = await this.haravanService.createCoupon(couponHaravanDto);
 
