@@ -101,12 +101,6 @@ export class UserService {
         role: data.role,
       });
 
-      //create Invite Coupon
-      await this.couponRefService.createInvite({
-        ownerId: user.id,
-        role: data.role,
-      });
-
       return {
         ...haravanCusData,
         ...user,
@@ -123,12 +117,6 @@ export class UserService {
       inviteCode: StringUtils.random(6),
       role: EUserRole.customer,
       haravanId: data.id,
-    });
-
-    //Create invite coupon
-    await this.couponRefService.createInvite({
-      ownerId: user.id,
-      role: user.role,
     });
 
     return user;
