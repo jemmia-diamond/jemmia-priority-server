@@ -1,5 +1,5 @@
 
-import { Controller, Body, Request, Post, UseGuards, Get, Put, Param, Query } from '@nestjs/common';
+import { Controller, Body, Request, Post, UseGuards, Get, Put, Param, Query, BadRequestException } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { RequestPayload } from '../shared/types/controller.type';
 import { UserService } from '../user/user.service';
@@ -31,6 +31,11 @@ export class WithdrawController {
     @Body() body: WithdrawMoneyDto,
   ) {
     const user = await this.userService.findUser(req.user.id);
+
+    if (!user) {
+      throw new BadRequestException('Unknown User');
+    }
+
     if (user.point > body.amount) {
       user.point -= body.amount;
       this.userService.updateNativeUser(user);
