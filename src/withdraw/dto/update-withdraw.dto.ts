@@ -6,12 +6,7 @@ export class UpdateWithDrawDto {
   @ApiProperty()
   @IsString()
   @Length(36, 36)
-  withdrawRequestId: string;
-
-  @ApiProperty()
-  @IsString()
-  @Length(36, 36)
-  userId: string;
+  id: string;
 
   @ApiProperty()
   @IsEnum(EWithdrawStatus)

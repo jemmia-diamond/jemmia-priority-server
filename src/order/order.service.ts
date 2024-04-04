@@ -145,10 +145,8 @@ export class OrderService {
     console.log(totalPrice);
 
     //Tính cashback cho partner A
-    if (
-      order.user.role === EUserRole.customer &&
-      couponRef.owner?.invitedBy?.role === EUserRole.partnerA
-    ) {
+    if (couponRef.owner?.invitedBy?.role === EUserRole.partnerA) {
+      console.log('CALC CASHBACK A');
       cashBackRefA +=
         totalPrice *
         EPartnerCashbackConfig.partnerRefferalCashbackPercent.partnerA.partnerB;
@@ -176,7 +174,11 @@ export class OrderService {
     // cashBack = totalPrice * EPartnerCashbackConfig.firstBuyCashbackPercent;
     cashBack = 0; //*Set = 0 Vì đã được giảm thẳng khi mua hàng
 
-    console.log(cashBack, cashBackRef, cashBackRefA);
+    console.log({
+      cashBack: cashBack || 0,
+      cashBackRef: cashBackRef || 0,
+      cashBackRefA: cashBackRefA || 0,
+    });
 
     return {
       cashBack: cashBack || 0,
@@ -276,6 +278,7 @@ export class OrderService {
           couponRef.used = true;
 
           //Set thăng hạng cho partner khi mua hàng lần đầu nếu sử dụng couponRef Partner
+          //Xử lý khi partner đi mua hàng lần đầu
           if (couponRef.type == ECouponRefType.partner) {
             customer.rank =
               EPartnerInviteCouponConfig[couponRef.role]?.receiveRank ||
@@ -288,46 +291,44 @@ export class OrderService {
             //   customer.id,
             //   couponRef.couponHaravanCode,
             // );
-          }
+          } else {
+            //*Là couponref khách hàng invite thông thường
 
-          //Cashback cho partner A
-          if (couponRef.owner.invitedBy?.role === EUserRole.partnerA) {
-            couponRef.owner.invitedBy.point += order.cashBackRefA;
+            //Cashback cho partner A
+            if (
+              couponRef.owner.invitedBy?.role === EUserRole.partnerA &&
+              couponRef.owner.role === EUserRole.partnerB
+            ) {
+              couponRef.owner.invitedBy.point += order.cashBackRefA;
 
-            //Cập nhật rank cho partner
-            couponRef.owner.invitedBy.rank =
-              (await this.customerRankService.getRankOfUser(
-                couponRef.owner.invitedBy.id,
-              )) || couponRef.owner.invitedBy.rank;
+              //Cập nhật rank cho partnerA
+              await this.customerRankService.updateUserRank(
+                couponRef.owner.invitedBy,
+              );
 
-            await this.userRepository.save(couponRef.owner.invitedBy);
-          }
+              await this.userRepository.save(couponRef.owner.invitedBy);
+            }
 
-          //Cashback cho inviter
-          if (couponRef.owner) {
-            couponRef.owner.point += order.cashBackRef;
+            //Cashback thông thường theo rank
+            if (couponRef.owner) {
+              couponRef.owner.point += order.cashBackRef;
 
-            //Cập nhật số lượng user đã mời cho chủ coupon;
-            //!FIXME: NOTWORKING
-            couponRef.owner.invitesCount++;
+              //Cập nhật số lượng user đã mời cho chủ coupon;
+              //!FIXME: NOTWORKING
+              couponRef.owner.invitesCount++;
 
-            //Set người đã mời khách hàng
-            customer.invitedBy = couponRef.owner;
+              //Set người đã mời khách hàng
+              customer.invitedBy = couponRef.owner;
 
-            //Cập nhật rank cho inviter
-            couponRef.owner.rank =
-              (await this.customerRankService.getRankOfUser(
-                couponRef.owner.id,
-              )) || couponRef.owner.rank;
-
-            await this.userRepository.save(couponRef.owner);
+              //Cập nhật rank cho inviter
+              await this.customerRankService.updateUserRank(couponRef.owner);
+              await this.userRepository.save(couponRef.owner);
+            }
           }
         }
 
         //Cập nhật rank cho customer
-        customer.rank =
-          (await this.customerRankService.getRankOfUser(customer.id)) ||
-          customer.rank;
+        await this.customerRankService.updateUserRank(customer);
 
         //Cashback cho người mua
         customer.point += order.cashBack;
