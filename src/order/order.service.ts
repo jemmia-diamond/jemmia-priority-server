@@ -22,6 +22,7 @@ import { ECustomerRankNum } from '../customer-rank/enums/customer-rank.enum';
 import { ECouponRefType } from '../coupon-ref/enums/coupon-ref.enum';
 import { OrderQueryDto } from './dto/order-query.dto';
 import { Pagination } from 'nestjs-typeorm-paginate';
+import { CustomerRankService } from '../customer-rank/customer-rank.service';
 
 @Injectable()
 export class OrderService {
@@ -34,6 +35,7 @@ export class OrderService {
     private couponRefRepository: Repository<CouponRef>,
     private readonly haravanService: HaravanService,
     private readonly couponRefService: CouponRefService,
+    private readonly customerRankService: CustomerRankService,
     private readonly userService: UserService,
   ) {}
 
@@ -291,6 +293,13 @@ export class OrderService {
           //Cashback cho partner A
           if (couponRef.owner.invitedBy?.role === EUserRole.partnerA) {
             couponRef.owner.invitedBy.point += order.cashBackRefA;
+
+            //Cập nhật rank cho partner
+            couponRef.owner.invitedBy.rank =
+              (await this.customerRankService.getRankOfUser(
+                couponRef.owner.invitedBy.id,
+              )) || couponRef.owner.invitedBy.rank;
+
             await this.userRepository.save(couponRef.owner.invitedBy);
           }
 
@@ -305,9 +314,20 @@ export class OrderService {
             //Set người đã mời khách hàng
             customer.invitedBy = couponRef.owner;
 
+            //Cập nhật rank cho inviter
+            couponRef.owner.rank =
+              (await this.customerRankService.getRankOfUser(
+                couponRef.owner.id,
+              )) || couponRef.owner.rank;
+
             await this.userRepository.save(couponRef.owner);
           }
         }
+
+        //Cập nhật rank cho customer
+        customer.rank =
+          (await this.customerRankService.getRankOfUser(customer.id)) ||
+          customer.rank;
 
         //Cashback cho người mua
         customer.point += order.cashBack;
