@@ -2,9 +2,7 @@ import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Expose, Type } from 'class-transformer';
 import {
   IsBoolean,
-  IsDateString,
   IsDefined,
-  IsEmail,
   IsNumber,
   IsOptional,
   IsString,
@@ -60,17 +58,17 @@ class CustomerAddress {
   @IsDefined()
   country?: string;
 
+  @IsDefined()
   @ApiPropertyOptional()
   @IsString()
   @IsOptional()
-  @IsDefined()
   @Expose({ name: 'first_name' })
   firstName?: string;
 
+  @IsDefined()
   @ApiPropertyOptional()
   @IsString()
   @IsOptional()
-  @IsDefined()
   @Expose({ name: 'last_name' })
   lastName?: string;
 
@@ -110,17 +108,17 @@ class CustomerAddress {
   @IsDefined()
   company?: string;
 
+  @IsDefined()
   @ApiPropertyOptional()
   @IsString()
   @IsOptional()
-  @IsDefined()
   @Expose({ name: 'country_code' })
   countryCode?: string;
 
+  @IsDefined()
   @ApiPropertyOptional()
   @IsString()
   @IsOptional()
-  @IsDefined()
   @Expose({ name: 'province_code' })
   provinceCode?: string;
 
@@ -143,21 +141,19 @@ export class HaravanCustomerDto {
   id?: number;
 
   @ApiPropertyOptional()
-  @IsString()
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'first_name' })
   firstName?: string;
 
   @ApiPropertyOptional()
-  @IsString()
   @IsOptional()
   @IsDefined()
   @Expose({ name: 'last_name' })
   lastName?: string;
 
   @ApiPropertyOptional()
-  @IsEmail()
+  // @IsEmail()
   @IsOptional()
   @IsDefined()
   email?: string;
@@ -190,7 +186,7 @@ export class HaravanCustomerDto {
   phone?: string;
 
   @ApiPropertyOptional()
-  @IsDateString()
+  // @IsDateString()
   @IsOptional()
   @IsDefined()
   birthday?: string;

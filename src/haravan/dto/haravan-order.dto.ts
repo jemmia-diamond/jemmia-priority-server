@@ -1,14 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Expose, Type } from 'class-transformer';
-import {
-  IsDefined,
-  IsEmail,
-  IsEnum,
-  IsOptional,
-  IsPhoneNumber,
-  IsUrl,
-  ValidateNested,
-} from 'class-validator';
+import { IsDefined, IsEnum, IsOptional, ValidateNested } from 'class-validator';
 import { HaravanCustomerDto } from './haravan-customer.dto';
 
 export enum EFinancialStatus {
@@ -25,6 +17,7 @@ export enum EFulfillmentStatus {
   unShipped = 'un_shipped',
   shipped = 'shipped',
   partial = 'partial',
+  notfulfilled = 'notfulfilled',
 }
 
 export enum EStatus {
@@ -211,7 +204,7 @@ class BillingAddress {
 
   @ApiProperty()
   @IsOptional()
-  @IsPhoneNumber()
+  // @IsPhoneNumber()
   @IsDefined()
   phone?: number;
 
@@ -526,7 +519,7 @@ class ShippingAddress {
   @ApiPropertyOptional()
   @IsOptional()
   @IsDefined()
-  @IsPhoneNumber()
+  // @IsPhoneNumber()
   phone?: number;
 
   @ApiPropertyOptional()
@@ -800,7 +793,7 @@ export class HaravanOrderDto {
   @ApiPropertyOptional()
   @IsOptional()
   @IsDefined()
-  @IsEmail()
+  // @IsEmail()
   email?: string;
 
   @ApiProperty({
@@ -1147,14 +1140,14 @@ export class HaravanOrderDto {
   @ApiPropertyOptional()
   @IsOptional()
   @IsDefined()
-  @IsUrl()
+  // @IsUrl()
   @Expose({ name: 'payment_url' })
   payment_url?: string;
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsDefined()
-  @IsEmail()
+  // @IsEmail()
   @Expose({ name: 'contact_email' })
   contact_email?: string;
 }

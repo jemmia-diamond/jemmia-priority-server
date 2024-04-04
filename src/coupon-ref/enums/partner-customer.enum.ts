@@ -19,7 +19,12 @@ export const EPartnerCashbackConfig = {
     [ECustomerRank.staff]: 0.02,
     [ECustomerRank.none]: 0,
   },
-  firstBuyCashbackPercent: 1,
+  firstBuyCashbackPercent: {
+    [EUserRole.customer]: 1,
+    [EUserRole.staff]: 1,
+    [EUserRole.partnerA]: 8,
+    [EUserRole.partnerB]: 6,
+  },
   retensionBuyCashbackPercent: {
     [ECustomerRank.platinum]: {
       diamond: 0.02,

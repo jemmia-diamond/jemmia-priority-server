@@ -45,7 +45,7 @@ export class OrderController {
     return this.orderService.findOne(+id, req.user.role, req.user.id);
   }
 
-  @Post('/hook/haravan')
+  @Post('/haravan/hook')
   async haravanHookCreate(
     @Request() req: RequestPayload,
     @Body() body: HaravanOrderDto,
@@ -55,6 +55,14 @@ export class OrderController {
     console.log('========== HANDLE HOOK ===========');
     // Xử lý xác thực token từ webhook.
     const res = await this.orderService.haravanHook(body);
+    console.log('DONE');
     return res;
+  }
+
+  @Post('/hook')
+  async hook(@Body() body: any) {
+    console.log(body);
+
+    return;
   }
 }

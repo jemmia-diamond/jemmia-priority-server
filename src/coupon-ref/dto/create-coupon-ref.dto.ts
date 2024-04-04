@@ -1,4 +1,10 @@
-import { IsDateString, IsDefined, IsEnum, IsOptional } from 'class-validator';
+import {
+  IsDateString,
+  IsDefined,
+  IsEnum,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { EUserRole } from '../../user/enums/user-role.enum';
 import { ECouponRefType } from '../enums/coupon-ref.enum';
@@ -34,4 +40,10 @@ export class CreateCouponRefDto {
   @IsDefined()
   @IsDateString()
   endDate?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsDefined()
+  @IsString()
+  note?: string;
 }

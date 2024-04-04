@@ -83,12 +83,6 @@ export class AuthService {
         role: user?.role || EUserRole.customer,
         haravanId: haravanUser.id,
       });
-
-      //Create invite coupon
-      await this.couponRefService.createInvite({
-        ownerId: user.id,
-        role: user?.role || EUserRole.customer,
-      });
     }
 
     //LOGIN
