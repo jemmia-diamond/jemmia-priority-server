@@ -162,7 +162,10 @@ export class OrderService {
     console.log(JSON.stringify(inviter));
 
     //Tính cashbackRef
-    if (inviter?.id !== order.user.id) {
+    if (
+      inviter?.id !== order.user.id &&
+      order.user.role !== EUserRole.partnerB
+    ) {
       const cashbackPercent =
         EPartnerCashbackConfig.refferalCashbackPercent[
           ECustomerRankNum[inviter.rank]
