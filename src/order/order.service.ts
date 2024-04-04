@@ -212,14 +212,18 @@ export class OrderService {
       let customer = await this.userRepository.findOneBy({
         haravanId: orderDto.customer.id,
       });
-      const couponRef = await this.couponRefRepository.findOne({
-        where: {
-          couponHaravanCode: orderDto.discount_codes[0]?.code,
-        },
-        relations: ['owner.invitedBy'],
-      });
-      console.log('\n========== COUPON REF/');
-      console.log(JSON.stringify(couponRef));
+
+      let couponRef: CouponRef;
+      if (orderDto.discount_codes.length) {
+        couponRef = await this.couponRefRepository.findOne({
+          where: {
+            couponHaravanCode: orderDto.discount_codes[0]?.code,
+          },
+          relations: ['owner.invitedBy'],
+        });
+        console.log('\n========== COUPON REF/');
+        console.log(JSON.stringify(couponRef));
+      }
 
       //Tạo khách hàng nếu không tồn tại
       if (!customer) {
@@ -332,13 +336,16 @@ export class OrderService {
           customer.accumulatedOrderPoint += order.totalPrice;
         }
 
-        await this.couponRefRepository.save(couponRef);
+        if (couponRef) {
+          await this.couponRefRepository.save(couponRef);
+        }
+
         await this.orderRepository.save(order);
         await this.userRepository.save(customer);
 
         //Cập nhật rank
         if (order.paymentStatus == EFinancialStatus.paid) {
-          if (couponRef.owner) {
+          if (couponRef?.owner) {
             //Cập nhật rank cho inviter
             await this.customerRankService.updateUserRank(couponRef.owner);
 
