@@ -344,26 +344,33 @@ export class OrderService {
         }
       }
 
-      await this.orderRepository.save(order);
-      await this.userRepository.save(customer);
-
       //Cập nhật rank
       if (order.paymentStatus == EFinancialStatus.paid) {
         if (couponRef?.owner) {
           //Cập nhật rank cho inviter
-          await this.customerRankService.updateUserRank(couponRef.owner);
+          couponRef.owner.rank =
+            await this.customerRankService.calculateUserRank(couponRef.owner);
+
+          await this.userRepository.save(couponRef.owner);
 
           if (couponRef.owner.invitedBy) {
             //Cập nhật rank cho partnerA
-            await this.customerRankService.updateUserRank(
-              couponRef.owner.invitedBy,
-            );
+            couponRef.owner.invitedBy.rank =
+              await this.customerRankService.calculateUserRank(
+                couponRef.owner.invitedBy,
+              );
+
+            await this.userRepository.save(couponRef.owner.invitedBy);
           }
         }
 
         //Cập nhật rank cho customer
-        await this.customerRankService.updateUserRank(customer);
+        customer.rank =
+          await this.customerRankService.calculateUserRank(customer);
       }
+
+      await this.orderRepository.save(order);
+      await this.userRepository.save(customer);
 
       console.log('============ RETURN');
     } catch (e) {
