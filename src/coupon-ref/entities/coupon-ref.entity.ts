@@ -14,7 +14,7 @@ export class CouponRef {
   @ManyToOne(() => User)
   owner: User;
 
-  @Column('text')
+  @Column('text', { nullable: true })
   note: string;
 
   /** Role coupon, khi user sử dụng mã này sẽ được set role tương ứng */

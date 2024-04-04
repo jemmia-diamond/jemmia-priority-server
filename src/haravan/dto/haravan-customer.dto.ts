@@ -2,9 +2,7 @@ import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Expose, Type } from 'class-transformer';
 import {
   IsBoolean,
-  IsDateString,
   IsDefined,
-  IsEmail,
   IsNumber,
   IsOptional,
   IsString,
@@ -155,7 +153,7 @@ export class HaravanCustomerDto {
   lastName?: string;
 
   @ApiPropertyOptional()
-  @IsEmail()
+  // @IsEmail()
   @IsOptional()
   @IsDefined()
   email?: string;
@@ -188,7 +186,7 @@ export class HaravanCustomerDto {
   phone?: string;
 
   @ApiPropertyOptional()
-  @IsDateString()
+  // @IsDateString()
   @IsOptional()
   @IsDefined()
   birthday?: string;
