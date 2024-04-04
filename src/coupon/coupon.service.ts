@@ -396,13 +396,14 @@ export class CouponService {
 
   async discountReceive(userId: string, money: number) {
     try {
+      money = Number(money);
       const currentDate = new Date();
       const user = await this.userRepository.findOneBy({ id: userId });
       if (!user) throw new BadRequestException('User not found');
 
       if (user.point < money)
         throw new BadRequestException('User point not enough');
-      user.point = user.point - money;
+      user.point -= money;
       await this.userRepository.save(user);
 
       const couponDto = new CouponDto();
