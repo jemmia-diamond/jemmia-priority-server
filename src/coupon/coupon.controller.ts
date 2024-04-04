@@ -11,7 +11,7 @@ import {
   Request,
 } from '@nestjs/common';
 import { CouponService } from './coupon.service';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { CouponDto, CouponSearchDto } from './dto/coupon.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
@@ -21,6 +21,7 @@ import { Coupon } from './entities/coupon.entity';
 import { Pagination } from 'nestjs-typeorm-paginate';
 
 @ApiTags('Coupon')
+@ApiBearerAuth()
 @Controller('coupon')
 export class CouponController {
   constructor(private readonly couponService: CouponService) {}

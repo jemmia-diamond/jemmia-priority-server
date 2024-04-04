@@ -25,9 +25,9 @@ export class CustomerRankService implements OnModuleInit {
     this.handleCron(); // Kích hoạt cron job ngay khi module được khởi tạo
   }
 
-  @Cron('0 0 1 * *')
+  @Cron('0 0 * * *')
   async handleCron() {
-    console.log('Cron job is running on the 1st of every month');
+    console.log('Cron job is running on the 1st of every day');
     await this.ranking();
   }
 
@@ -83,7 +83,6 @@ export class CustomerRankService implements OnModuleInit {
   async getRankOfUser(userId: string) {
     try {
       const currenPoint = await this.getTotalBuyAndCashBackRef(userId);
-      console.log(currenPoint);
       const customerRank = this.calculateCustomerRank(
         currenPoint.totalPrice,
         currenPoint.total,
@@ -181,17 +180,13 @@ export class CustomerRankService implements OnModuleInit {
 
   calculateCustomerRank(buyPoint: number, refPoint: number): ECustomerRank {
     for (const [rank, config] of Object.entries(ECustomerRankConfig)) {
-      console.log(config);
       if (
-        buyPoint >= config.buyPoint &&
-        refPoint >= config.refPoint &&
+        (buyPoint >= config.buyPoint || refPoint >= config.refPoint) &&
         rank != ECustomerRank.staff
       ) {
         return rank as ECustomerRank;
       }
     }
-
-    return ECustomerRank.none;
   }
 
   async getRankInfo(userId: string) {
@@ -257,6 +252,7 @@ export class CustomerRankService implements OnModuleInit {
       return dataReturn;
     } catch (error) {
       console.log(error);
+      return error;
     }
   }
 }

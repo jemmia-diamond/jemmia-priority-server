@@ -12,7 +12,7 @@ export class Notification {
   @Column('varchar', { length: 24 })
   title: string;
 
-  @Column('varchar', { length: 24 })
+  @Column('varchar', { length: 255 })
   description: string;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
