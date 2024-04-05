@@ -193,7 +193,6 @@ export class CustomerRankService implements OnModuleInit {
       const currentDate = new Date();
 
       const user = await this.userRepository.findOneBy({ id: userId });
-      await this.updateUserRank(user);
       if (!user) throw new BadRequestException('User not found!');
 
       let currentRank = await this.getRankOfUser(user.id);
