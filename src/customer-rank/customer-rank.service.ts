@@ -212,12 +212,7 @@ export class CustomerRankService implements OnModuleInit {
 
       let currentRank = await this.getRankOfUser(user.id);
 
-      currentRank =
-        currentRank < user.rank
-          ? user.rank == ECustomerRankNum.silver
-            ? user.rank
-            : user.rank - 1
-          : currentRank;
+      currentRank = currentRank < user.rank ? user.rank : currentRank;
 
       const currentPoint = await this.getTotalBuyAndCashBackRef(userId);
 
