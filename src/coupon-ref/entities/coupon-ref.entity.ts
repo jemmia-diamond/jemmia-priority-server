@@ -14,6 +14,11 @@ export class CouponRef {
   @ManyToOne(() => User)
   owner: User;
 
+  /** Người sử dụng coupon */
+  @Exclude()
+  @ManyToOne(() => User)
+  usedBy: User;
+
   @Column('text', { nullable: true })
   note: string;
 
