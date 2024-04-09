@@ -13,6 +13,7 @@ import { ECouponDiscountType } from '../haravan/enums/coupon.enum';
 import { Pagination } from 'nestjs-typeorm-paginate';
 import { EUserRole } from '../user/enums/user-role.enum';
 import { Notification } from '../notification/entities/notification.entity';
+import { StringUtils } from '../shared/utils/string.utils';
 
 @Injectable()
 export class CouponService {
@@ -395,27 +396,30 @@ export class CouponService {
 
   async discountReceive(userId: string, money: number) {
     try {
+      money = Number(money);
       const currentDate = new Date();
       const user = await this.userRepository.findOneBy({ id: userId });
       if (!user) throw new BadRequestException('User not found');
 
       if (user.point < money)
         throw new BadRequestException('User point not enough');
-      user.point = user.point - money;
+      user.point -= money;
       await this.userRepository.save(user);
 
       const couponDto = new CouponDto();
       couponDto.isPromotion = true;
       couponDto.appliesOnce = false;
-      // couponDto.code = data.code;
+      couponDto.code = StringUtils.random(6);
       couponDto.startsAt = currentDate.toDateString();
       // couponDto.endsAt = data.endDate.toDateString();
       couponDto.minimumOrderAmount = 0;
       couponDto.usageLimit = 1;
       couponDto.value = money;
       couponDto.discountType = ECouponDiscountType.fixedAmount;
+      // couponDto.variants = data.variants;
       couponDto.setTimeActive = true;
       // couponDto.appliesCustomerGroupId = data.appliesCustomerGroupId;
+      // couponDto.locationIds = data.locationIds;
 
       const couponHaravan = await this.createCoupon(couponDto);
 
@@ -425,8 +429,9 @@ export class CouponService {
 
       await this.notificationRepository.save(noti);
 
-      return couponHaravan.id;
+      return couponHaravan;
     } catch (error) {
+      console.log(error);
       return error;
     }
   }
