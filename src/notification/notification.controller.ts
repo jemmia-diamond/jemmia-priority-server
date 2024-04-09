@@ -11,7 +11,7 @@ import {
 } from '@nestjs/common';
 import { NotificationService } from './notification.service';
 import { Pagination } from 'nestjs-typeorm-paginate';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiProperty, ApiTags } from '@nestjs/swagger';
 import { Notification } from './entities/notification.entity';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CreateNotificationDto } from './dto/create-notification.dto';
