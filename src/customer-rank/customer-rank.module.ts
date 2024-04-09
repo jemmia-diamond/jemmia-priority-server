@@ -10,5 +10,6 @@ import { CustomerRankController } from './customer-rank.controller';
   imports: [ScheduleModule.forRoot(), TypeOrmModule.forFeature([User, Order])],
   controllers: [CustomerRankController],
   providers: [CustomerRankService],
+  exports: [CustomerRankService],
 })
 export class CustomerRankModule {}
