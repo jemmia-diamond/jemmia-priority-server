@@ -12,28 +12,22 @@ import { ApiProperty } from '@nestjs/swagger';
 @Entity('notifications')
 export class Notification {
   @PrimaryGeneratedColumn('uuid')
-  @ApiProperty()
   id: string;
 
   @ManyToOne(() => User)
   @JoinColumn()
-  @ApiProperty()
   receiver: User;
 
-  @Column('varchar', { length: 24 })
-  @ApiProperty()
+  @Column('text')
   title: string;
 
-  @Column('varchar', { length: 255, default: '' })
-  @ApiProperty()
+  @Column('text', { default: '' })
   description: string;
 
   @Column('boolean', { default: false })
-  @ApiProperty()
   isSeen: boolean;
 
   @Column('enum', { enum: NotificationType, default: NotificationType.another })
-  @ApiProperty()
   type: NotificationType;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })

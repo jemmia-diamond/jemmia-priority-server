@@ -25,14 +25,14 @@ export class NotificationService {
     try {
       const offset = (page - 1) * limit;
 
-      const user = await this.userRepository.findOneBy({
-        id: userId,
-      });
-
-      if (type == '') {
+      if (!NotificationType[type]) {
         const [items, totalItems] =
           await this.notificationRepository.findAndCount({
-            where: { receiver: user },
+            where: {
+              receiver: {
+                id: userId,
+              },
+            },
             order: { createdDate: 'DESC' },
             skip: offset,
             take: limit,
@@ -50,9 +50,15 @@ export class NotificationService {
         };
         return new Pagination<Notification>(items, meta);
       } else {
+        console.log(NotificationType[type]);
         const [items, totalItems] =
           await this.notificationRepository.findAndCount({
-            where: { receiver: user, type: NotificationType[type] },
+            where: {
+              receiver: {
+                id: userId,
+              },
+              type: NotificationType[type],
+            },
             order: { createdDate: 'DESC' },
             skip: offset,
             take: limit,
