@@ -171,6 +171,7 @@ export class CouponRefService {
         order: { createdDate: 'DESC' },
         skip: offset,
         take: limit,
+        relations: ['owner', 'usedBy'],
       });
 
       const totalPages = Math.ceil(totalItems / limit);
@@ -213,6 +214,7 @@ export class CouponRefService {
           order: { createdDate: 'DESC' },
           skip: offset,
           take: limit,
+          relations: ['owner', 'usedBy'],
         });
       } else {
         [items, totalItems] = await this.couponRefRepository.findAndCount({
@@ -224,6 +226,7 @@ export class CouponRefService {
           order: { createdDate: 'DESC' },
           skip: offset,
           take: limit,
+          relations: ['owner', 'usedBy'],
         });
       }
 
@@ -263,6 +266,7 @@ export class CouponRefService {
         order: { createdDate: 'DESC' },
         skip: offset,
         take: limit,
+        relations: ['owner', 'usedBy'],
       });
 
       const totalPages = Math.ceil(totalItems / limit);
