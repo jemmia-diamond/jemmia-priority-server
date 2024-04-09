@@ -28,9 +28,6 @@ export class CouponRef {
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   startDate: Date;
 
-  @Column('text')
-  note: string;
-
   // @OneToMany(() => Order, (order) => order.couponRef)
   // orders: Order[];
 
