@@ -98,7 +98,8 @@ export class CustomerRankService implements OnModuleInit {
   async getTotalBuyAndCashBackRef(userId: string) {
     try {
       const totalPrice = await this.getTotalPriceForUserLast12Months(userId);
-      const cashBackRef = await this.getCashBackRefForUserLast12Months(userId);
+      const cashBackRef =
+        await this.getCashBackRefFollowPriceForUserLast12Months(userId);
       const cashBackRefA =
         await this.getCashBackRefAForUserLast12Months(userId);
 
@@ -123,6 +124,34 @@ export class CustomerRankService implements OnModuleInit {
     const query = this.orderRepository
       .createQueryBuilder('orders')
       .innerJoin('orders.user', 'user')
+      .select('SUM(orders.totalPrice)', 'total')
+      .where('user.id = :userId', { userId })
+      .andWhere('orders.paymentStatus = :paymentStatus', { paymentStatus })
+      .andWhere('UNIX_TIMESTAMP(orders.createdDate) >= :twelveMonthsAgo', {
+        twelveMonthsAgo: Math.floor(twelveMonthsAgo.getTime() / 1000),
+      })
+      .andWhere('UNIX_TIMESTAMP(orders.createdDate) <= :currentDate', {
+        currentDate: Math.floor(currentDate.getTime() / 1000),
+      });
+
+    const result = await query.getRawOne();
+    const totalPrice = result.total;
+
+    return totalPrice;
+  }
+
+  async getCashBackRefFollowPriceForUserLast12Months(
+    userId: string,
+  ): Promise<number> {
+    const currentDate = new Date();
+    const twelveMonthsAgo = new Date();
+    twelveMonthsAgo.setMonth(currentDate.getMonth() - 12);
+    const paymentStatus = EPaymentStatus.CONFIRM;
+
+    const query = this.orderRepository
+      .createQueryBuilder('orders')
+      .innerJoin('orders.couponRef', 'couponRef')
+      .innerJoin('couponRef.owner', 'user')
       .select('SUM(orders.totalPrice)', 'total')
       .where('user.id = :userId', { userId })
       .andWhere('orders.paymentStatus = :paymentStatus', { paymentStatus })
