@@ -1,5 +1,13 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { User } from '../../user/entities/user.entity';
+import { NotificationType } from '../enums/noti-type.enum';
+import { ApiProperty } from '@nestjs/swagger';
 
 @Entity('notifications')
 export class Notification {
@@ -7,13 +15,20 @@ export class Notification {
   id: string;
 
   @ManyToOne(() => User)
+  @JoinColumn()
   receiver: User;
 
-  @Column('varchar', { length: 24 })
+  @Column('text')
   title: string;
 
-  @Column('varchar', { length: 255 })
+  @Column('text', { default: '' })
   description: string;
+
+  @Column('boolean', { default: false })
+  isSeen: boolean;
+
+  @Column('enum', { enum: NotificationType, default: NotificationType.another })
+  type: NotificationType;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdDate: Date;

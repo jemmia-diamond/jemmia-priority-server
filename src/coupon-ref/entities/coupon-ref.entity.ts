@@ -1,8 +1,15 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { Exclude } from 'class-transformer';
 import { User } from '../../user/entities/user.entity';
 import { EUserRole } from '../../user/enums/user-role.enum';
 import { ECouponRefType } from '../enums/coupon-ref.enum';
+import { Order } from '../../order/entities/order.entity';
 
 @Entity('coupon_refs')
 export class CouponRef {
@@ -13,6 +20,11 @@ export class CouponRef {
   @Exclude()
   @ManyToOne(() => User)
   owner: User;
+
+  /** Người sử dụng coupon */
+  @Exclude()
+  @ManyToOne(() => User)
+  usedBy: User;
 
   @Column('text', { nullable: true })
   note: string;
@@ -26,6 +38,9 @@ export class CouponRef {
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   startDate: Date;
+
+  // @OneToMany(() => Order, (order) => order.couponRef)
+  // orders: Order[];
 
   @Column({ type: 'timestamp', nullable: true })
   endDate: Date;
