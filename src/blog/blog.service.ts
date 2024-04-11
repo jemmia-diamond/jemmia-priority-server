@@ -4,15 +4,30 @@ import { HaravanService } from '../haravan/haravan.service';
 import { validate } from 'class-validator';
 import { BlogDto } from './dto/blog.dto';
 import { HaravanBlogSearchDto } from '../haravan/dto/haravan-blog.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Post } from './entities/post.entity';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class BlogService {
-  constructor(private readonly haravanService: HaravanService) {}
+  constructor(
+    @InjectRepository(Post)
+    private postRepository: Repository<Post>,
+    private readonly haravanService: HaravanService,
+  ) {}
 
   async create(createBlogDto: BlogDto) {
     try {
       await validate(createBlogDto, { whitelist: true });
-      return this.haravanService.createBlog(createBlogDto);
+
+      const createdBlog = await this.haravanService.createBlog(createBlogDto);
+      createBlogDto.post.haravanId = createdBlog.id;
+      const post = await this.postRepository.save(createBlogDto.post);
+
+      return {
+        createdBlog,
+        post: post,
+      };
     } catch (error) {
       return error;
     }
@@ -30,7 +45,15 @@ export class BlogService {
     try {
       updateBlogDto.id = id;
       await validate(updateBlogDto, { whitelist: true });
-      return this.haravanService.updateBlog(updateBlogDto);
+      const post = await this.postRepository.findOneBy({ haravanId: id });
+
+      const updatedBlog = await this.haravanService.updateBlog(updateBlogDto);
+      await this.postRepository.save({ ...post, ...updateBlogDto.post });
+
+      return {
+        updatedBlog,
+        post: post,
+      };
     } catch (error) {
       return error;
     }
@@ -46,7 +69,10 @@ export class BlogService {
 
   async getOne(id: number, blogType: EBlogType) {
     try {
-      return this.haravanService.getBlog(id, blogType);
+      return {
+        ...(await this.haravanService.getBlog(id, blogType)),
+        post: await this.postRepository.findOneBy({ haravanId: id }),
+      };
     } catch (error) {
       return error;
     }
