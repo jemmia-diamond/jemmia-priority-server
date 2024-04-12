@@ -11,6 +11,7 @@ import {
 } from './enums/customer-rank.enum';
 import { EPaymentStatus } from '../order/enum/payment-status.dto';
 import { EFinancialStatus } from '../haravan/dto/haravan-order.dto';
+import { EUserRole } from '../user/enums/user-role.enum';
 
 @Injectable()
 export class CustomerRankService implements OnModuleInit {
@@ -292,5 +293,238 @@ export class CustomerRankService implements OnModuleInit {
       console.log(error);
       return error;
     }
+  }
+
+  async getReport(userId: string) {
+    try {
+      const user = await this.userRepository.findOneBy({ id: userId });
+      if (!user) throw new BadRequestException('User not found!');
+
+      const totalPriceOfPartnerA = await this.getTotalPriceOfRole(
+        EUserRole.partnerA,
+      );
+      const revenueOfPartnerA = await this.getRevenueOfPartnerA();
+      const salesOfPartnerA = await this.getSalesOfPartnerA();
+      const referralCountOfPartnerA = await this.getReferralCountOfPartnerA();
+
+      const totalPriceOfPartnerB = await this.getTotalPriceOfRole(
+        EUserRole.partnerB,
+      );
+      const revenueOfPartnerB = await this.getRevenueOfRoleDifferencePartnerA(
+        EUserRole.partnerB,
+      );
+      const salesOfPartnerB = await this.getSalesOfRoleDifferencePartnerA(
+        EUserRole.partnerB,
+      );
+
+      const totalPriceOfCustomer = await this.getTotalPriceOfRole(
+        EUserRole.customer,
+      );
+      const revenueOfCustomer = await this.getRevenueOfRoleDifferencePartnerA(
+        EUserRole.customer,
+      );
+      const salesOfCustomer = await this.getSalesOfRoleDifferencePartnerA(
+        EUserRole.customer,
+      );
+
+      const totalPriceOfStaff = await this.getTotalPriceOfRole(EUserRole.staff);
+      const revenueOfStaff = await this.getRevenueOfRoleDifferencePartnerA(
+        EUserRole.staff,
+      );
+      const salesOfStaff = await this.getSalesOfRoleDifferencePartnerA(
+        EUserRole.staff,
+      );
+
+      const dataReturn = {
+        partnerA: {
+          totalPrice: totalPriceOfPartnerA,
+          revenue: revenueOfPartnerA,
+          sales: salesOfPartnerA,
+          referralCount: referralCountOfPartnerA,
+        },
+        partnerB: {
+          totalPrice: totalPriceOfPartnerB,
+          revenue: revenueOfPartnerB,
+          sales: salesOfPartnerB,
+        },
+        customer: {
+          totalPrice: totalPriceOfCustomer,
+          revenue: revenueOfCustomer,
+          sales: salesOfCustomer,
+        },
+        staff: {
+          totalPrice: totalPriceOfStaff,
+          revenue: revenueOfStaff,
+          sales: salesOfStaff,
+        },
+      };
+
+      return dataReturn;
+    } catch (error) {
+      console.log(error);
+      return error;
+    }
+  }
+
+  /**
+   * Lấy tổng giá trị đơn hàng theo EUserRole đã thanh toán.
+   * @returns Tổng giá trị đơn hàng.
+   */
+  async getTotalPriceOfRole(role: EUserRole): Promise<number> {
+    const paymentStatus = EFinancialStatus.paid;
+
+    const query = this.orderRepository
+      .createQueryBuilder('orders')
+      .innerJoin('orders.user', 'user')
+      .select('SUM(orders.totalPrice)', 'total') // Tính tổng giá trị đơn hàng bằng cách sử dụng SUM(orders.totalPrice)
+      .where('user.role = :role', { role })
+      .andWhere('orders.paymentStatus = :paymentStatus', { paymentStatus });
+
+    const result = await query.getRawOne();
+    const totalPrice = result.total || 0;
+
+    return totalPrice;
+  }
+
+  /**
+   * Lấy tổng doanh thu từ đơn hàng của đối tác A đã thanh toán và được giới thiệu bởi đối tác B được mời bởi đối tác A.
+   * @returns Tổng doanh thu.
+   */
+  async getRevenueOfPartnerA(): Promise<number> {
+    const paymentStatus = EFinancialStatus.paid;
+
+    const query = this.orderRepository
+      .createQueryBuilder('orders')
+      .innerJoin('orders.user', 'user')
+      .innerJoin('user.invitedBy', 'invited')
+      .leftJoin('invited.invitedBy', 'invitedByA')
+      .select('SUM(orders.totalPrice)', 'total') // Tính tổng doanh thu bằng cách sử dụng SUM(orders.totalPrice)
+      .andWhere(
+        '(invited.role = :roleInvitedByA OR (invited.role = :roleInvited AND invitedByA.role = :roleInvitedByA))',
+        {
+          roleInvitedByA: EUserRole.partnerA,
+          roleInvited: EUserRole.partnerB,
+        },
+      )
+      .andWhere('orders.paymentStatus = :paymentStatus', { paymentStatus });
+
+    const result = await query.getRawOne();
+    const revenue = result.total || 0;
+
+    return revenue;
+  }
+
+  /**
+   * Lấy tổng doanh số từ các đơn hàng của đối tác A đã thanh toán và được giới thiệu bởi đối tác B được mời bởi đối tác A.
+   * @returns Tổng doanh số.
+   */
+  async getSalesOfPartnerA(): Promise<number> {
+    const paymentStatus = EFinancialStatus.paid;
+
+    // Truy vấn tính tổng doanh số từ các đơn hàng được giới thiệu bởi đối tác A
+    const queryA = this.orderRepository
+      .createQueryBuilder('orders')
+      .innerJoin('orders.user', 'user')
+      .innerJoin('user.invitedBy', 'invitedBy')
+      .select('SUM(orders.cashBackRef)', 'total')
+      .where('invitedBy.role = :roleInvitedBy', {
+        roleInvitedBy: EUserRole.partnerA,
+      })
+      .andWhere('orders.paymentStatus = :paymentStatus', { paymentStatus });
+
+    const resultA = await queryA.getRawOne();
+    const totalPriceA = resultA.total || 0;
+
+    // Truy vấn tính tổng doanh số từ các đơn hàng được giới thiệu bởi đối tác B được mời bởi đối tác A
+    const queryB = this.orderRepository
+      .createQueryBuilder('orders')
+      .innerJoin('orders.user', 'user')
+      .innerJoin('user.invitedBy', 'invited')
+      .innerJoin('invited.invitedBy', 'invitedByA')
+      .select('SUM(orders.cashBackRefA)', 'total')
+      .where(
+        'invited.role = :roleInvitedBy AND invitedByA.role = :roleInvitedByA',
+        {
+          roleInvitedBy: EUserRole.partnerB,
+          roleInvitedByA: EUserRole.partnerA,
+        },
+      )
+      .andWhere('orders.paymentStatus = :paymentStatus', { paymentStatus });
+
+    const resultB = await queryB.getRawOne();
+    const totalPriceB = resultB.total || 0;
+
+    return totalPriceA + totalPriceB;
+  }
+
+  /**
+   * Lấy số lượng đơn hàng được giới thiệu bởi đối tác A và đối tác B được mời bởi đối tác A và đã thanh toán.
+   * @returns Số lượng đơn hàng.
+   */
+  async getReferralCountOfPartnerA(): Promise<number> {
+    const paymentStatus = EFinancialStatus.paid;
+
+    // Truy vấn để đếm số lượng đơn hàng được giới thiệu bởi đối tác A và đối tác B được mời bởi đối tác A và đã thanh toán
+    const query = this.orderRepository
+      .createQueryBuilder('orders')
+      .innerJoin('orders.user', 'user')
+      .innerJoin('user.invitedBy', 'invited')
+      .leftJoin('invited.invitedBy', 'invitedByA')
+      .select('COUNT(orders.id)', 'total') // Đếm số lượng đơn hàng bằng cách đếm orders.id
+      .andWhere(
+        '(invited.role = :roleInvitedByA OR (invited.role = :roleInvited AND invitedByA.role = :roleInvitedByA))',
+        {
+          roleInvitedByA: EUserRole.partnerA,
+          roleInvited: EUserRole.partnerB,
+        },
+      )
+      .andWhere('orders.paymentStatus = :paymentStatus', { paymentStatus });
+
+    const result = await query.getRawOne();
+    const orderCount = result.total || 0;
+
+    return orderCount;
+  }
+
+  /**
+   * Lấy tổng doanh thu từ đơn hàng của theo EUserRole != partnerA đã thanh toán.
+   * @returns Tổng doanh thu.
+   */
+  async getRevenueOfRoleDifferencePartnerA(role: EUserRole): Promise<number> {
+    const paymentStatus = EFinancialStatus.paid;
+
+    const query = this.orderRepository
+      .createQueryBuilder('orders')
+      .innerJoin('orders.user', 'user')
+      .innerJoin('user.invitedBy', 'invitedBy')
+      .select('SUM(orders.totalPrice)', 'total') // Tính tổng doanh thu bằng cách sử dụng SUM(orders.totalPrice)
+      .andWhere('invitedBy.role = :role', { role })
+      .andWhere('orders.paymentStatus = :paymentStatus', { paymentStatus });
+
+    const result = await query.getRawOne();
+    const revenue = result.total || 0;
+
+    return revenue;
+  }
+
+  /**
+   * Lấy tổng doanh số từ đơn hàng của theo EUserRole != partnerA đã thanh toán.
+   * @returns Tổng doanh thu.
+   */
+  async getSalesOfRoleDifferencePartnerA(role: EUserRole): Promise<number> {
+    const paymentStatus = EFinancialStatus.paid;
+
+    const query = this.orderRepository
+      .createQueryBuilder('orders')
+      .innerJoin('orders.user', 'user')
+      .innerJoin('user.invitedBy', 'invitedBy')
+      .select('SUM(orders.cashBackRef)', 'total') // Tính tổng doanh số bằng cách sử dụng SUM(orders.cashBackRef)
+      .andWhere('invitedBy.role = :role', { role })
+      .andWhere('orders.paymentStatus = :paymentStatus', { paymentStatus });
+
+    const result = await query.getRawOne();
+    const revenue = result.total || 0;
+
+    return revenue;
   }
 }
