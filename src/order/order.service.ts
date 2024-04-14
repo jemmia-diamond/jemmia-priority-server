@@ -23,6 +23,8 @@ import { ECouponRefType } from '../coupon-ref/enums/coupon-ref.enum';
 import { OrderQueryDto } from './dto/order-query.dto';
 import { Pagination } from 'nestjs-typeorm-paginate';
 import { CustomerRankService } from '../customer-rank/customer-rank.service';
+import { Notification } from '../notification/entities/notification.entity';
+import { NotificationType } from '../notification/enums/noti-type.enum';
 
 @Injectable()
 export class OrderService {
@@ -33,6 +35,8 @@ export class OrderService {
     private orderRepository: Repository<Order>,
     @InjectRepository(CouponRef)
     private couponRefRepository: Repository<CouponRef>,
+    @InjectRepository(Notification)
+    private notificationRepository: Repository<Notification>,
     private readonly haravanService: HaravanService,
     private readonly couponRefService: CouponRefService,
     private readonly customerRankService: CustomerRankService,
@@ -305,6 +309,14 @@ export class OrderService {
               //   customer.id,
               //   couponRef.couponHaravanCode,
               // );
+
+              const noti = new Notification();
+              noti.title = 'Đã mời Đối tác khách hàng hạng B';
+              noti.receiver = couponRef.owner;
+              noti.type = NotificationType.ref;
+              noti.description = `${orderDto.customer.firstName || ''} ${orderDto.customer.lastName || ''} đã sử dụng mã mời đối tác của bạn.`;
+
+              await this.notificationRepository.save(noti);
             } else {
               //*Là couponref khách hàng invite thông thường
 
@@ -315,6 +327,14 @@ export class OrderService {
               ) {
                 couponRef.owner.invitedBy.point += order.cashBackRefA;
                 await this.userRepository.save(couponRef.owner.invitedBy);
+
+                const noti = new Notification();
+                noti.title = 'Đã mời khách hàng B1 thành công';
+                noti.receiver = couponRef.owner;
+                noti.type = NotificationType.ref;
+                noti.description = `${orderDto.customer.firstName || ''} ${orderDto.customer.lastName || ''} đã mua hàng thành công, bạn đã được nhận ${order.cashBackRef} điểm.`;
+
+                await this.notificationRepository.save(noti);
               }
 
               //Cashback thông thường theo rank
@@ -324,6 +344,14 @@ export class OrderService {
               customer.invitedBy = couponRef.owner;
 
               await this.userRepository.save(couponRef.owner);
+
+              const noti = new Notification();
+              noti.title = 'Đã mời khách hàng thành công';
+              noti.receiver = couponRef.owner;
+              noti.type = NotificationType.ref;
+              noti.description = `${orderDto.customer.firstName || ''} ${orderDto.customer.lastName || ''} đã mua hàng thành công, bạn đã được nhận ${order.cashBackRef} điểm.`;
+
+              await this.notificationRepository.save(noti);
             }
 
             //Set người đã mời khách hàng

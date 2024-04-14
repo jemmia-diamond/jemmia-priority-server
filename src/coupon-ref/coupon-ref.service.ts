@@ -15,6 +15,8 @@ import { InviteCouponRefDto } from './dto/invite-coupon-ref.dto';
 import { validate } from 'class-validator';
 import { ECouponRefType } from './enums/coupon-ref.enum';
 import { EUserRole } from '../user/enums/user-role.enum';
+import { Notification } from '../notification/entities/notification.entity';
+import { NotificationType } from '../notification/enums/noti-type.enum';
 
 @Injectable()
 export class CouponRefService {
@@ -25,6 +27,8 @@ export class CouponRefService {
     private couponRefRepository: Repository<CouponRef>,
     private couponService: CouponService,
     private haravanService: HaravanService,
+    @InjectRepository(Notification)
+    private notificationRepository: Repository<Notification>,
   ) {}
 
   async create(createCouponRefDto: CreateCouponRefDto) {
@@ -77,6 +81,13 @@ export class CouponRefService {
     couponRef.type = createCouponRefDto.type;
     couponRef.note = createCouponRefDto.note;
 
+    const noti = new Notification();
+    noti.title = 'Tạo mã mời';
+    noti.receiver = owner;
+    noti.type = NotificationType.ref;
+    noti.description = `Đã tạo mã: <b>${couponHaravanDto.code}</b>`;
+
+    await this.notificationRepository.save(noti);
     return await this.couponRefRepository.save(couponRef);
   }
 
