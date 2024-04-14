@@ -316,6 +316,8 @@ export class CustomerRankService implements OnModuleInit {
       const salesOfPartnerB = await this.getSalesOfRoleDifferencePartnerA(
         EUserRole.partnerB,
       );
+      const referralCountOfPartnerB =
+        await this.getReferralOfRoleDifferencePartnerA(EUserRole.partnerB);
 
       const totalPriceOfCustomer = await this.getTotalPriceOfRole(
         EUserRole.customer,
@@ -326,6 +328,8 @@ export class CustomerRankService implements OnModuleInit {
       const salesOfCustomer = await this.getSalesOfRoleDifferencePartnerA(
         EUserRole.customer,
       );
+      const referralCountOfCustomer =
+        await this.getReferralOfRoleDifferencePartnerA(EUserRole.customer);
 
       const totalPriceOfStaff = await this.getTotalPriceOfRole(EUserRole.staff);
       const revenueOfStaff = await this.getRevenueOfRoleDifferencePartnerA(
@@ -334,6 +338,8 @@ export class CustomerRankService implements OnModuleInit {
       const salesOfStaff = await this.getSalesOfRoleDifferencePartnerA(
         EUserRole.staff,
       );
+      const referralCountOfStaff =
+        await this.getReferralOfRoleDifferencePartnerA(EUserRole.staff);
 
       const dataReturn = {
         partnerA: {
@@ -346,16 +352,19 @@ export class CustomerRankService implements OnModuleInit {
           totalPrice: totalPriceOfPartnerB,
           revenue: revenueOfPartnerB,
           sales: salesOfPartnerB,
+          referralCount: referralCountOfPartnerB,
         },
         customer: {
           totalPrice: totalPriceOfCustomer,
           revenue: revenueOfCustomer,
           sales: salesOfCustomer,
+          referralCount: referralCountOfCustomer,
         },
         staff: {
           totalPrice: totalPriceOfStaff,
           revenue: revenueOfStaff,
           sales: salesOfStaff,
+          referralCount: referralCountOfStaff,
         },
       };
 
@@ -526,5 +535,27 @@ export class CustomerRankService implements OnModuleInit {
     const revenue = result.total || 0;
 
     return revenue;
+  }
+
+  /**
+   * Lấy số lượng đơn hàng được giới thiệu theo EUserRole != partnerA đã thanh toán.
+   * @returns Số lượng đơn hàng.
+   */
+  async getReferralOfRoleDifferencePartnerA(role: EUserRole): Promise<number> {
+    const paymentStatus = EFinancialStatus.paid;
+
+    const query = this.orderRepository
+      .createQueryBuilder('orders')
+      .innerJoin('orders.user', 'user')
+      .innerJoin('user.invitedBy', 'invited')
+      .leftJoin('invited.invitedBy', 'invitedByA')
+      .select('COUNT(orders.id)', 'total') // Đếm số lượng đơn hàng bằng cách đếm orders.id
+      .andWhere('invitedBy.role = :role', { role })
+      .andWhere('orders.paymentStatus = :paymentStatus', { paymentStatus });
+
+    const result = await query.getRawOne();
+    const orderCount = result.total || 0;
+
+    return orderCount;
   }
 }
