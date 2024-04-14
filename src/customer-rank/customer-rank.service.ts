@@ -547,8 +547,7 @@ export class CustomerRankService implements OnModuleInit {
     const query = this.orderRepository
       .createQueryBuilder('orders')
       .innerJoin('orders.user', 'user')
-      .innerJoin('user.invitedBy', 'invited')
-      .leftJoin('invited.invitedBy', 'invitedByA')
+      .innerJoin('user.invitedBy', 'invitedBy')
       .select('COUNT(orders.id)', 'total') // Đếm số lượng đơn hàng bằng cách đếm orders.id
       .andWhere('invitedBy.role = :role', { role })
       .andWhere('orders.paymentStatus = :paymentStatus', { paymentStatus });
