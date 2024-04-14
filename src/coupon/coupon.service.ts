@@ -385,7 +385,7 @@ export class CouponService {
         throw new BadRequestException('Coupon not found.');
       }
 
-      user.point = user.point - couponEntity.point;
+      user.point -= Math.abs(couponEntity.point);
       await this.userRepository.save(user);
 
       return couponEntity;
@@ -396,7 +396,7 @@ export class CouponService {
 
   async discountReceive(userId: string, money: number) {
     try {
-      money = Number(money);
+      money = Math.abs(Number(money));
       const currentDate = new Date();
       const user = await this.userRepository.findOneBy({ id: userId });
       if (!user) throw new BadRequestException('User not found');
