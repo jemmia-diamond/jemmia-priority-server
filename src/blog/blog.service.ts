@@ -6,7 +6,7 @@ import { BlogDto } from './dto/blog.dto';
 import { HaravanBlogSearchDto } from '../haravan/dto/haravan-blog.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Post } from './entities/post.entity';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 
 @Injectable()
 export class BlogService {
@@ -35,7 +35,19 @@ export class BlogService {
 
   async findAll(query: HaravanBlogSearchDto) {
     try {
-      return this.haravanService.findAllBlog(query);
+      let data = await this.haravanService.findAllBlog(query);
+      const posts = await this.postRepository.find({
+        where: {
+          haravanId: In(data.map((d) => d.id)),
+        },
+      });
+
+      data = data.map((d) => ({
+        ...d,
+        post: posts.find((p) => (p.haravanId = d.id)),
+      }));
+
+      return data;
     } catch (error) {
       return error;
     }
