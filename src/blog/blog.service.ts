@@ -44,7 +44,7 @@ export class BlogService {
 
       data = data.map((d) => ({
         ...d,
-        post: posts.find((p) => (p.haravanId = d.id)),
+        post: posts.find((p) => (p.haravanId = d.id)) || null,
       }));
 
       return data;
