@@ -19,6 +19,10 @@ export class CouponRef {
   @ManyToOne(() => User)
   usedBy: User;
 
+  /** Tên người sử dụng coupon */
+  @Column('varchar', { length: 200, nullable: true })
+  usedByName: string;
+
   @Column('text', { nullable: true })
   note: string;
 
