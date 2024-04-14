@@ -41,7 +41,7 @@ import { Post } from './blog/entities/post.entity';
         Post,
       ],
       database: process.env.DB,
-      synchronize: false,
+      synchronize: true,
       logging: false,
     }),
     ServeStaticModule.forRoot({
