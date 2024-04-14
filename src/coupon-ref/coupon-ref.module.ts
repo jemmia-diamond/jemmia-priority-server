@@ -6,10 +6,11 @@ import { User } from '../user/entities/user.entity';
 import { CouponRef } from './entities/coupon-ref.entity';
 import { CouponModule } from '../coupon/coupon.module';
 import { HaravanModule } from '../haravan/haravan.module';
+import { Notification } from '../notification/entities/notification.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, CouponRef]),
+    TypeOrmModule.forFeature([User, CouponRef, Notification]),
     CouponModule,
     HaravanModule,
   ],

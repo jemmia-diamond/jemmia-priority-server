@@ -14,6 +14,7 @@ import { Pagination } from 'nestjs-typeorm-paginate';
 import { EUserRole } from '../user/enums/user-role.enum';
 import { Notification } from '../notification/entities/notification.entity';
 import { StringUtils } from '../shared/utils/string.utils';
+import { NotificationType } from '../notification/enums/noti-type.enum';
 
 @Injectable()
 export class CouponService {
@@ -425,7 +426,9 @@ export class CouponService {
 
       const noti = new Notification();
       noti.title = 'Đổi mã giảm giá';
-      noti.description = `Đổi mã: <b>${couponHaravan.id}</b> với giá trị: ${money} thành công`;
+      noti.receiver = user;
+      noti.type = NotificationType.coupon;
+      noti.description = `Đổi mã: <b>${couponHaravan.code}</b> với giá trị: ${money} thành công`;
 
       await this.notificationRepository.save(noti);
 

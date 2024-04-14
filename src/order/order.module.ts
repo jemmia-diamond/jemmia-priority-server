@@ -9,10 +9,11 @@ import { Order } from './entities/order.entity';
 import { UserModule } from '../user/user.module';
 import { CouponRef } from '../coupon-ref/entities/coupon-ref.entity';
 import { CustomerRankModule } from '../customer-rank/customer-rank.module';
+import { Notification } from '../notification/entities/notification.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, Order, CouponRef]),
+    TypeOrmModule.forFeature([User, Order, CouponRef, Notification]),
     HaravanModule,
     CouponRefModule,
     UserModule,
