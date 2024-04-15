@@ -13,6 +13,7 @@ import { EUserRole } from '../user/enums/user-role.enum';
 import { HaravanCustomerDto } from '../haravan/dto/haravan-customer.dto';
 import { CouponRefService } from '../coupon-ref/coupon-ref.service';
 import { CouponRef } from '../coupon-ref/entities/coupon-ref.entity';
+import { ECustomerRankNum } from '../customer-rank/enums/customer-rank.enum';
 
 @Injectable()
 export class AuthService {
@@ -111,6 +112,7 @@ export class AuthService {
       user: {
         ...user,
         haravan: haravanUser || {},
+        rank: user.rank || ECustomerRankNum.silver,
       },
     };
   }
