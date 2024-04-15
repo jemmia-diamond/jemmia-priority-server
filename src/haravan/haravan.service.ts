@@ -177,6 +177,13 @@ export class HaravanService {
     return plainToInstance(HaravanCustomerDto, <any[]>res.data.customers);
   }
 
+  /** Đếm số lượng toàn bộ khách hàng đang có trên haravan */
+  async countAllCustomer(): Promise<number> {
+    const res = await ax.get(`/com/customers/count.json`);
+
+    return res.data?.count || 0;
+  }
+
   /** Tìm kiếm khách hàng dựa trên ID */
   async findCustomer(customerId: number) {
     const res = await ax.get(`/com/customers/${customerId}.json`);

@@ -51,6 +51,8 @@ export class AuthService {
     const haravanUser: HaravanCustomerDto = (
       await this.haravanService.findAllCustomer({
         query: fPhoneNum,
+        limit: 1,
+        page: 0,
       })
     )[0];
 
