@@ -15,6 +15,7 @@ import { StringUtils } from '../shared/utils/string.utils';
 import { EUserRole } from './enums/user-role.enum';
 import { CouponRefService } from '../coupon-ref/coupon-ref.service';
 import { HaravanCustomerDto } from '../haravan/dto/haravan-customer.dto';
+import { ECustomerRankNum } from '../customer-rank/enums/customer-rank.enum';
 
 @Injectable()
 export class UserService {
@@ -48,6 +49,7 @@ export class UserService {
     return {
       ...haravanCusData,
       ...user,
+      rank: user.rank || ECustomerRankNum.silver,
     };
   }
 
@@ -64,10 +66,14 @@ export class UserService {
       },
     });
 
-    const usersList = haravanCusData.map((c) => ({
-      ...c,
-      ...users.find((u) => c.id == u.haravanId),
-    }));
+    const usersList = haravanCusData.map((c) => {
+      const user = users.find((u) => c.id == u.haravanId);
+      return {
+        ...c,
+        ...user,
+        rank: user.rank || ECustomerRankNum.silver,
+      };
+    });
 
     return {
       users: usersList,
