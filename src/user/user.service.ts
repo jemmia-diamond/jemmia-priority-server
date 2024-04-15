@@ -49,7 +49,7 @@ export class UserService {
     return {
       ...haravanCusData,
       ...user,
-      rank: user.rank || ECustomerRankNum.silver,
+      rank: user?.rank || ECustomerRankNum.silver,
     };
   }
 
@@ -71,7 +71,7 @@ export class UserService {
       return {
         ...c,
         ...user,
-        rank: user.rank || ECustomerRankNum.silver,
+        rank: user?.rank || ECustomerRankNum.silver,
       };
     });
 
