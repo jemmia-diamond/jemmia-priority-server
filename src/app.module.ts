@@ -21,6 +21,7 @@ import { Notification } from './notification/entities/notification.entity';
 import { WithdrawModule } from './withdraw/withdraw.module';
 import { Withdraw } from './withdraw/entities/withdraw.entity';
 import { Post } from './blog/entities/post.entity';
+import { Blog } from './blog/entities/blog.entity';
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { Post } from './blog/entities/post.entity';
         Withdraw,
         Notification,
         Post,
+        Blog,
       ],
       database: process.env.DB,
       synchronize: true,
