@@ -1,19 +1,19 @@
-import { Column, Entity, PrimaryColumn } from 'typeorm';
+import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 import { EUserRole } from '../../user/enums/user-role.enum';
 
 @Entity('posts')
 export class Post {
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
+
   @Column('double', { default: 0 })
   discountAmount: number;
 
   @Column('varchar', { nullable: true })
   pdfUrl: string;
 
-  @Column('enum', { enum: EUserRole })
+  @Column('enum', { enum: EUserRole, nullable: true })
   userRole: EUserRole;
-
-  @PrimaryColumn('int', { unique: true })
-  haravanId: number;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdDate: Date;
