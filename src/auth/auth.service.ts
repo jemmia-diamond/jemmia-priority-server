@@ -113,6 +113,7 @@ export class AuthService {
         ...user,
         haravan: haravanUser || {},
         rank: user?.rank || ECustomerRankNum.silver,
+        role: user?.role || EUserRole.customer,
       },
     };
   }

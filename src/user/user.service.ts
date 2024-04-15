@@ -50,6 +50,7 @@ export class UserService {
       ...haravanCusData,
       ...user,
       rank: user?.rank || ECustomerRankNum.silver,
+      role: user?.role || EUserRole.customer,
     };
   }
 
@@ -72,6 +73,7 @@ export class UserService {
         ...c,
         ...user,
         rank: user?.rank || ECustomerRankNum.silver,
+        role: user?.role || EUserRole.customer,
       };
     });
 
