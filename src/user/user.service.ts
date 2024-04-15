@@ -52,29 +52,28 @@ export class UserService {
   }
 
   async findAllUser(query: UserQueryDto) {
-    const page = query.page;
-    const size = query.limit;
+    query.page = Number(query.page);
+    query.limit = Number(query.limit);
 
     const haravanCusData = await this.haravanService.findAllCustomer(query);
+    const haravanCusCount = await this.haravanService.countAllCustomer();
     const haravanIds = haravanCusData.map((c) => c.id);
-    let users = await this.userRepository.find({
-      skip: (page - 1) * size,
-      take: size,
+    const users = await this.userRepository.find({
       where: {
         haravanId: In(haravanIds),
       },
     });
 
-    users = haravanCusData.map((c) => ({
+    const usersList = haravanCusData.map((c) => ({
       ...c,
       ...users.find((u) => c.id == u.haravanId),
     }));
 
     return {
-      users,
-      page,
-      size,
-      totalPage: Math.ceil((await this.userRepository.count()) / size),
+      users: usersList,
+      page: query.page,
+      size: query.limit,
+      totalPage: Math.ceil(haravanCusCount / query.limit),
     };
   }
 
