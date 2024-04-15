@@ -42,10 +42,14 @@ export class BlogService {
         },
       });
 
-      data = data.map((d) => ({
-        ...d,
-        post: posts.find((p) => (p.haravanId = d.id)) || null,
-      }));
+      data = data.map((d) => {
+        const p = posts.find((p) => (p.haravanId = d.id));
+
+        return {
+          ...d,
+          post: p ? { ...p } : null,
+        };
+      });
 
       return data;
     } catch (error) {
