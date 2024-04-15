@@ -15,7 +15,6 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { EUserRole } from '../user/enums/user-role.enum';
 import { HaravanBlogSearchDto } from '../haravan/dto/haravan-blog.dto';
-import { EBlogType } from './enums/blog-type.enum';
 import { BlogDto } from './dto/blog.dto';
 
 @ApiTags('Blog')
@@ -39,11 +38,8 @@ export class BlogController {
 
   @UseGuards(JwtAuthGuard)
   @Get(':id')
-  async findOne(
-    @Param('id') id: string,
-    @Query('blogType') blogType: EBlogType,
-  ) {
-    return this.blogService.getOne(+id, blogType);
+  async findOne(@Param('id') id: string) {
+    return this.blogService.getOne(+id);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -56,7 +52,7 @@ export class BlogController {
   @UseGuards(JwtAuthGuard)
   @Roles(EUserRole.admin)
   @Delete(':id')
-  remove(@Param('id') id: string, @Query('blogType') blogType: EBlogType) {
-    return this.blogService.remove(+id, blogType);
+  remove(@Param('id') id: string) {
+    return this.blogService.remove(+id);
   }
 }
