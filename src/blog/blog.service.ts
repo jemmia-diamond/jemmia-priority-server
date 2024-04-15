@@ -6,28 +6,30 @@ import { BlogDto } from './dto/blog.dto';
 import { HaravanBlogSearchDto } from '../haravan/dto/haravan-blog.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Post } from './entities/post.entity';
-import { In, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
+import { Blog } from './entities/blog.entity';
 
 @Injectable()
 export class BlogService {
   constructor(
     @InjectRepository(Post)
     private postRepository: Repository<Post>,
+    @InjectRepository(Blog)
+    private blogRepository: Repository<Blog>,
     private readonly haravanService: HaravanService,
   ) {}
 
   async create(createBlogDto: BlogDto) {
     try {
       await validate(createBlogDto, { whitelist: true });
-
-      const createdBlog = await this.haravanService.createBlog(createBlogDto);
-      createBlogDto.post.haravanId = createdBlog.id;
       const post = await this.postRepository.save(createBlogDto.post);
+      delete createBlogDto.post;
+      const createdBlog = await this.blogRepository.save({
+        ...createBlogDto,
+        post,
+      });
 
-      return {
-        createdBlog,
-        post: post,
-      };
+      return createdBlog;
     } catch (error) {
       return error;
     }
@@ -35,21 +37,19 @@ export class BlogService {
 
   async findAll(query: HaravanBlogSearchDto) {
     try {
-      let data = await this.haravanService.findAllBlog(query);
-      const posts = await this.postRepository.find({
+      const limit = query.limit || 1;
+      const offset = ((query.page || 1) - 1) * limit;
+      const data = await this.blogRepository.find({
         where: {
-          haravanId: In(data.map((d) => d.id)),
+          blogId: query.blogId,
         },
+        relations: ['post'],
+        take: limit,
+        skip: offset,
+        order: { createdAt: 'DESC' },
       });
 
-      data = data.map((d) => {
-        const p = posts.find((p) => (p.haravanId = d.id));
-
-        return {
-          ...d,
-          post: p ? { ...p } : null,
-        };
-      });
+      console.log(data);
 
       return data;
     } catch (error) {
@@ -61,35 +61,42 @@ export class BlogService {
     try {
       updateBlogDto.id = id;
       await validate(updateBlogDto, { whitelist: true });
-      const post = await this.postRepository.findOneBy({ haravanId: id });
 
-      const updatedBlog = await this.haravanService.updateBlog(updateBlogDto);
-      await this.postRepository.save({ ...post, ...updateBlogDto.post });
+      // const updatedBlog = await this.haravanService.updateBlog(updateBlogDto);
 
-      return {
-        updatedBlog,
-        post: post,
-      };
+      const blog = await this.blogRepository.findOne({
+        where: { id: id },
+        relations: ['post'],
+      });
+      await this.blogRepository.save({ ...blog, ...updateBlogDto });
+
+      return blog;
     } catch (error) {
       return error;
     }
   }
 
-  async remove(id: number, blogType: EBlogType) {
+  async remove(id: number) {
     try {
-      return this.haravanService.deleteBlog(id, blogType);
+      return this.blogRepository.delete(id);
     } catch (error) {
       return error;
     }
   }
 
-  async getOne(id: number, blogType: EBlogType) {
+  async getOne(id: number) {
     try {
-      return {
-        ...(await this.haravanService.getBlog(id, blogType)),
-        post: await this.postRepository.findOneBy({ haravanId: id }),
-      };
+      // return {
+      //   // ...(await this.haravanService.getBlog(id, blogType)),
+      //   // post: await this.postRepository.findOneBy({ haravanId: id }),
+      // };
+
+      return await this.blogRepository.findOne({
+        where: { id },
+        relations: ['post'],
+      });
     } catch (error) {
+      console.log(error);
       return error;
     }
   }
