@@ -37,7 +37,7 @@ export class BlogService {
 
   async findAll(query: HaravanBlogSearchDto) {
     try {
-      const limit = query.limit || 1;
+      const limit = query.limit || 999999999;
       const offset = ((query.page || 1) - 1) * limit;
       const data = await this.blogRepository.find({
         where: {
