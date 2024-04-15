@@ -68,6 +68,8 @@ export class BlogService {
         where: { id: id },
         relations: ['post'],
       });
+      await this.postRepository.save(blog.post);
+      delete updateBlogDto.post;
       await this.blogRepository.save({ ...blog, ...updateBlogDto });
 
       return blog;
