@@ -148,15 +148,17 @@ export class CouponRefService {
     await validate(payload);
 
     const dateNow = new Date();
+    const haravanDateNow = dateNow;
+    haravanDateNow.setHours(dateNow.getHours() + 7);
 
     const data = new CreateCouponRefDto();
 
     data.ownerId = payload.ownerId;
     data.role = payload.role;
     data.type = ECouponRefType.invite;
-    data.startDate = dateNow.toISOString();
+    data.startDate = haravanDateNow.toISOString();
     data.endDate = new Date(
-      dateNow.setHours(dateNow.getHours() + 3),
+      haravanDateNow.setHours(haravanDateNow.getHours() + 3),
     ).toISOString();
 
     return await this.create(data);
