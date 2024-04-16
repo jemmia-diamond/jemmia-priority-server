@@ -44,9 +44,10 @@ export class BlogService {
           blogId: query.blogId,
           post: [
             {
-              userRole: Like(`%${query.userRole}%`) as unknown as EUserRole,
+              userRole: query.userRole
+                ? (Like(`%${query.userRole}%`) as unknown as EUserRole)
+                : null,
             },
-            {},
           ],
         },
         relations: ['post'],
