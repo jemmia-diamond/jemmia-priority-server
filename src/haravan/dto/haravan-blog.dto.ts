@@ -1,6 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Expose, Type } from 'class-transformer';
 import {
+  IsArray,
   IsDefined,
   IsEnum,
   IsNumber,
@@ -14,6 +15,17 @@ import { EBlogType } from '../../blog/enums/blog-type.enum';
 import { EUserRole } from '../../user/enums/user-role.enum';
 
 export class HaravanBlogSearchDto {
+  /** Filter ID bài viết ra khỏi kết quả */
+  @ApiPropertyOptional({
+    isArray: true,
+    type: () => String,
+  })
+  @IsOptional()
+  @IsDefined()
+  @IsArray()
+  @Type(() => String)
+  excludeIds?: string[];
+
   /** Giới hạn kết quả trả về */
   @ApiPropertyOptional()
   @IsOptional()
