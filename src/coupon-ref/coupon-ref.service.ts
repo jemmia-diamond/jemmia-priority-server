@@ -54,11 +54,25 @@ export class CouponRefService {
     couponHaravanDto.isPromotion = true;
     couponHaravanDto.code = StringUtils.random(6);
     couponHaravanDto.appliesOnce = true;
-    couponHaravanDto.startsAt =
-      createCouponRefDto.startDate || new Date().toISOString();
+    couponHaravanDto.startsAt = new Date().toISOString();
+
+    if (createCouponRefDto.startDate) {
+      const haravanDateStart = new Date(createCouponRefDto.startDate);
+      haravanDateStart.setHours(
+        new Date(createCouponRefDto.startDate).getHours() + 7,
+      );
+
+      couponHaravanDto.startsAt = haravanDateStart.toISOString();
+      couponRef.startDate = new Date(createCouponRefDto.startDate);
+    }
 
     if (createCouponRefDto.endDate) {
-      couponHaravanDto.endsAt = createCouponRefDto.endDate;
+      const haravanDateEnd = new Date(createCouponRefDto.endDate);
+      haravanDateEnd.setHours(
+        new Date(createCouponRefDto.endDate).getHours() + 7,
+      );
+
+      couponHaravanDto.endsAt = haravanDateEnd.toISOString();
       couponRef.endDate = new Date(createCouponRefDto.endDate);
     }
 
@@ -81,9 +95,6 @@ export class CouponRefService {
     couponRef.couponHaravanId = coupon.id;
     couponRef.couponHaravanCode = couponHaravanDto.code;
     couponRef.role = createCouponRefDto.role;
-    couponRef.startDate = createCouponRefDto.startDate
-      ? new Date(createCouponRefDto.startDate)
-      : new Date();
     couponRef.owner = owner;
     couponRef.ownerName = `${haravanOwner?.lastName || ''} ${haravanOwner?.firstName || ''}`;
     couponRef.type = createCouponRefDto.type;
@@ -152,7 +163,7 @@ export class CouponRefService {
 
     const dateNow = new Date();
     const haravanDateNow = dateNow;
-    haravanDateNow.setHours(dateNow.getHours() + 7);
+    haravanDateNow.setHours(dateNow.getHours());
 
     const data = new CreateCouponRefDto();
 
