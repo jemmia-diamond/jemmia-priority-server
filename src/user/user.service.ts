@@ -16,6 +16,7 @@ import { EUserRole } from './enums/user-role.enum';
 import { CouponRefService } from '../coupon-ref/coupon-ref.service';
 import { HaravanCustomerDto } from '../haravan/dto/haravan-customer.dto';
 import { ECustomerRankNum } from '../customer-rank/enums/customer-rank.enum';
+import { UserRedis } from './user.redis';
 
 @Injectable()
 export class UserService {
@@ -24,6 +25,7 @@ export class UserService {
     private userRepository: Repository<User>,
     private readonly haravanService: HaravanService,
     private couponRefService: CouponRefService,
+    private userRedis: UserRedis,
   ) {}
 
   async findUserNative(id: string) {
@@ -34,16 +36,35 @@ export class UserService {
   }
 
   async findUser(id: string) {
-    const user = await this.userRepository.findOneBy({
-      id: id,
-    });
+    let user = await this.userRedis.get(id);
+    let haravanCusData: any = {};
+    const notCached = user == null;
 
-    if (!user) {
-      return null;
+    if (notCached) {
+      user = await this.userRepository.findOneBy({
+        id: id,
+      });
+
+      console.log(user);
+
+      if (!user) return null;
+
+      haravanCusData = await this.haravanService.findCustomer(user.haravanId);
+    } else {
+      setImmediate(async () => {
+        user = await this.userRepository.findOneBy({
+          id: id,
+        });
+
+        haravanCusData = await this.haravanService.findCustomer(user.haravanId);
+      });
     }
 
-    const haravanCusData = await this.haravanService.findCustomer(
-      user.haravanId,
+    setImmediate(() =>
+      this.userRedis.set(id, {
+        ...haravanCusData,
+        ...user,
+      }),
     );
 
     return {
@@ -188,25 +209,5 @@ export class UserService {
     }
 
     await this.userRepository.delete(id);
-  }
-
-  async findHaravanId(haravanId: number): Promise<User> {
-    const user = await this.userRepository.findOneBy({
-      haravanId: haravanId,
-    });
-
-    const haravanCusData = await this.userRepository.findOneBy({
-      haravanId: haravanId,
-    });
-
-    console.log({
-      ...haravanCusData,
-      ...user,
-    });
-
-    return {
-      ...haravanCusData,
-      ...user,
-    };
   }
 }

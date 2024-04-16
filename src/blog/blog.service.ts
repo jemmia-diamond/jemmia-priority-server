@@ -5,7 +5,7 @@ import { BlogDto } from './dto/blog.dto';
 import { HaravanBlogSearchDto } from '../haravan/dto/haravan-blog.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Post } from './entities/post.entity';
-import { ArrayContains, Like, Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import { Blog } from './entities/blog.entity';
 import { EUserRole } from '../user/enums/user-role.enum';
 
