@@ -47,7 +47,7 @@ export class CouponRefService {
     }
 
     // if (!owner) throw new BadRequestException('Customer not found');
-
+    console.log(createCouponRefDto);
     const couponRef = new CouponRef();
 
     const couponHaravanDto = new HaravanCouponDto();
@@ -55,7 +55,7 @@ export class CouponRefService {
     couponHaravanDto.code = StringUtils.random(6);
     couponHaravanDto.appliesOnce = true;
     couponHaravanDto.startsAt =
-      createCouponRefDto.startDate.toUTCString() || new Date().toUTCString();
+      createCouponRefDto.startDate?.toUTCString() || new Date().toUTCString();
 
     if (createCouponRefDto.endDate) {
       couponHaravanDto.endsAt = createCouponRefDto.endDate.toUTCString();
