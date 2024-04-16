@@ -58,6 +58,7 @@ export class UserService {
 
         console.log(user);
 
+        //!FIXME: FIX IT DUPLICATE
         haravanCusData = await this.haravanService.findCustomer(user.haravanId);
         await this.userRedis.set(id, {
           ...haravanCusData,
