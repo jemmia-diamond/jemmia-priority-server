@@ -187,6 +187,7 @@ export class UserService {
       );
 
       user = await this.userRepository.save({
+        ...user,
         authId: data.phone ?? user.phoneNumber,
         phoneNumber: data.phone ?? user.phoneNumber,
         role: data.role ?? user.role,
