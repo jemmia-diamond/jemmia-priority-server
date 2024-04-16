@@ -22,9 +22,28 @@ import { WithdrawModule } from './withdraw/withdraw.module';
 import { Withdraw } from './withdraw/entities/withdraw.entity';
 import { Post } from './blog/entities/post.entity';
 import { Blog } from './blog/entities/blog.entity';
+import { CacheModule } from '@nestjs/cache-manager';
+import { redisStore } from 'cache-manager-redis-store';
 
 @Module({
   imports: [
+    CacheModule.registerAsync({
+      isGlobal: true,
+      useFactory: async (): Promise<any> => {
+        const store = await redisStore({
+          socket: {
+            host: process.env.REDIS_HOST,
+            port: Number(process.env.REDIS_PORT),
+            tls: true,
+          },
+          username: process.env.REDIS_USER,
+          password: process.env.REDIS_PASSWORD,
+        });
+        return {
+          store: () => store,
+        };
+      },
+    }),
     TypeOrmModule.forRoot({
       type: 'mariadb',
       host: process.env.DB_HOST,
