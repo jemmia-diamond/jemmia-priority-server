@@ -47,7 +47,7 @@ export class CouponRefService {
     }
 
     // if (!owner) throw new BadRequestException('Customer not found');
-    console.log(createCouponRefDto);
+
     const couponRef = new CouponRef();
 
     const couponHaravanDto = new HaravanCouponDto();
@@ -55,17 +55,18 @@ export class CouponRefService {
     couponHaravanDto.code = StringUtils.random(6);
     couponHaravanDto.appliesOnce = true;
     couponHaravanDto.startsAt =
-      createCouponRefDto.startDate?.toUTCString() || new Date().toUTCString();
+      createCouponRefDto.startDate || new Date().toISOString();
 
     if (createCouponRefDto.endDate) {
-      couponHaravanDto.endsAt = createCouponRefDto.endDate.toUTCString();
-      couponRef.endDate = createCouponRefDto.endDate;
+      couponHaravanDto.endsAt = createCouponRefDto.endDate;
+      couponRef.endDate = new Date(createCouponRefDto.endDate);
     }
 
     //TẠO MÃ INVITE COUPON
     couponHaravanDto.value =
       EPartnerCashbackConfig.firstBuyCashbackPercent.customer;
     couponHaravanDto.discountType = ECouponDiscountType.percentage;
+
     couponHaravanDto.setTimeActive = true;
     couponHaravanDto.maxAmountApply = null;
 
@@ -158,10 +159,10 @@ export class CouponRefService {
     data.ownerId = payload.ownerId;
     data.role = payload.role;
     data.type = ECouponRefType.invite;
-    data.startDate = haravanDateNow;
+    data.startDate = haravanDateNow.toISOString();
     data.endDate = new Date(
       haravanDateNow.setHours(haravanDateNow.getHours() + 3),
-    );
+    ).toISOString();
 
     return await this.create(data);
   }
