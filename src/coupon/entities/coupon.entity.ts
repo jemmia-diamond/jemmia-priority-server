@@ -35,16 +35,16 @@ export class Coupon {
   @Column('int')
   quantityLimit: number;
 
-  @Column('datetime', { default: () => 'CURRENT_TIMESTAMP' })
+  @Column('timestamp', { default: () => 'CURRENT_TIMESTAMP' })
   startDate: Date;
 
-  @Column({ type: 'datetime', nullable: true })
+  @Column({ type: 'timestamp', nullable: true })
   endDate: Date;
 
-  @Column('datetime', { default: () => 'CURRENT_TIMESTAMP', nullable: true })
+  @Column('timestamp', { default: () => 'CURRENT_TIMESTAMP', nullable: true })
   startDateHaravan: Date;
 
-  @Column({ type: 'datetime', nullable: true })
+  @Column({ type: 'timestamp', nullable: true })
   endDateHaravan: Date;
 
   @Exclude()
