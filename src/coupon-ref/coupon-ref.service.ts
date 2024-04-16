@@ -86,13 +86,16 @@ export class CouponRefService {
     couponRef.type = createCouponRefDto.type;
     couponRef.note = createCouponRefDto.note;
 
-    const noti = new Notification();
-    noti.title = 'Tạo mã mời';
-    noti.receiver = owner;
-    noti.type = NotificationType.ref;
-    noti.description = `Đã tạo mã: <b>${couponHaravanDto.code}</b>`;
+    if (owner) {
+      const noti = new Notification();
+      noti.title = 'Tạo mã mời';
+      noti.receiver = owner;
+      noti.type = NotificationType.ref;
+      noti.description = `Đã tạo mã: <b>${couponHaravanDto.code}</b>`;
 
-    await this.notificationRepository.save(noti);
+      await this.notificationRepository.save(noti);
+    }
+
     return await this.couponRefRepository.save(couponRef);
   }
 
@@ -152,9 +155,9 @@ export class CouponRefService {
     data.role = payload.role;
     data.type = ECouponRefType.invite;
     data.startDate = dateNow.toISOString();
-    // data.endDate = new Date(
-    //   dateNow.setHours(dateNow.getHours() + 1),
-    // ).toISOString();
+    data.endDate = new Date(
+      dateNow.setHours(dateNow.getHours() + 3),
+    ).toISOString();
 
     return await this.create(data);
   }
