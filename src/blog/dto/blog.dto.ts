@@ -8,8 +8,8 @@ import {
   IsUrl,
   ValidateNested,
 } from 'class-validator';
-import { Type } from 'class-transformer';
 import { EUserRole } from '../../user/enums/user-role.enum';
+import { Type } from 'class-transformer';
 
 class PostDto {
   @ApiPropertyOptional()
@@ -26,10 +26,12 @@ class PostDto {
 
   @ApiProperty({
     isArray: true,
-    type: EUserRole,
+    type: () => String,
   })
+  @IsOptional()
   @IsArray()
   @IsDefined()
+  @Type(() => String)
   userRole?: EUserRole[];
 
   haravanId?: number;
