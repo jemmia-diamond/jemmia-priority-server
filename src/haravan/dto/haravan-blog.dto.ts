@@ -11,6 +11,7 @@ import {
 } from 'class-validator';
 import { BlogpPublishedStatus as EBlogPublishedStatus } from '../enums/blog.enum';
 import { EBlogType } from '../../blog/enums/blog-type.enum';
+import { EUserRole } from '../../user/enums/user-role.enum';
 
 export class HaravanBlogSearchDto {
   /** Giới hạn kết quả trả về */
@@ -111,6 +112,14 @@ export class HaravanBlogSearchDto {
   @IsEnum(EBlogType)
   @IsDefined()
   blogId?: EBlogType;
+
+  /** Blog chứa bài viết */
+  @ApiProperty({
+    enum: EUserRole,
+  })
+  @IsEnum(EUserRole)
+  @IsDefined()
+  userRole?: EUserRole;
 }
 
 class BlogImageDto {
