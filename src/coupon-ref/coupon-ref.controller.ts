@@ -81,7 +81,7 @@ export class CouponRefController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Get('')
+  @Get()
   async findAllCouponRef(
     @Request() req: RequestPayload,
     @Query('page') page = 1,

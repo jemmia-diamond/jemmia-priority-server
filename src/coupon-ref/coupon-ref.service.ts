@@ -17,6 +17,7 @@ import { ECouponRefType } from './enums/coupon-ref.enum';
 import { EUserRole } from '../user/enums/user-role.enum';
 import { Notification } from '../notification/entities/notification.entity';
 import { NotificationType } from '../notification/enums/noti-type.enum';
+import { HaravanCustomerDto } from '../haravan/dto/haravan-customer.dto';
 
 @Injectable()
 export class CouponRefService {
@@ -35,11 +36,14 @@ export class CouponRefService {
     await validate(createCouponRefDto);
 
     let owner: User;
+    let haravanOwner: HaravanCustomerDto;
 
     if (createCouponRefDto.ownerId) {
       owner = await this.userRepository.findOneBy({
         id: createCouponRefDto.ownerId,
       });
+
+      haravanOwner = await this.haravanService.findCustomer(owner.haravanId);
     }
 
     // if (!owner) throw new BadRequestException('Customer not found');
@@ -78,6 +82,7 @@ export class CouponRefService {
     couponRef.role = createCouponRefDto.role;
     couponRef.startDate = new Date(createCouponRefDto.startDate);
     couponRef.owner = owner;
+    couponRef.ownerName = `${haravanOwner.firstName} ${haravanOwner.lastName}`;
     couponRef.type = createCouponRefDto.type;
     couponRef.note = createCouponRefDto.note;
 

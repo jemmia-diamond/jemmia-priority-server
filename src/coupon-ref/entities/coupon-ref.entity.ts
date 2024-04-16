@@ -14,6 +14,10 @@ export class CouponRef {
   @ManyToOne(() => User)
   owner: User;
 
+  /** Tên người tạo coupon */
+  @Column('varchar', { length: 200, nullable: true })
+  ownerName: string;
+
   /** Người sử dụng coupon */
   @Exclude()
   @ManyToOne(() => User)
@@ -51,6 +55,10 @@ export class CouponRef {
   /** Field này dùng để kiểm tra couponRef đã được partnerA / partnerB đi mua hàng lần đầu */
   @Column({ type: 'boolean', default: false })
   used: boolean;
+
+  /** Số lần sử dụng */
+  @Column('int', { default: 0 })
+  usedCount: number;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdDate: Date;
