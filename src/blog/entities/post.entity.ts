@@ -12,8 +12,8 @@ export class Post {
   @Column('varchar', { nullable: true })
   pdfUrl: string;
 
-  @Column('enum', { enum: EUserRole, nullable: true, array: true })
-  userRole: Array<EUserRole>;
+  @Column('json', { nullable: true })
+  userRole: EUserRole[];
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdDate: Date;
