@@ -44,7 +44,7 @@ export class CouponRef {
   type: ECouponRefType;
 
   @Column({
-    type: 'datetime',
+    type: 'timestamp',
     default: () => 'CURRENT_TIMESTAMP',
   })
   startDate: Date;
@@ -52,7 +52,7 @@ export class CouponRef {
   // @OneToMany(() => Order, (order) => order.couponRef)
   // orders: Order[];
 
-  @Column({ type: 'datetime', nullable: true })
+  @Column({ type: 'timestamp', nullable: true })
   endDate: Date;
 
   @Column('int', { nullable: true })
