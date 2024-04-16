@@ -56,7 +56,13 @@ export class UserService {
           id: id,
         });
 
+        console.log(user);
+
         haravanCusData = await this.haravanService.findCustomer(user.haravanId);
+        await this.userRedis.set(id, {
+          ...haravanCusData,
+          ...user,
+        });
       });
     }
 
