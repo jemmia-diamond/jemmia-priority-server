@@ -23,6 +23,9 @@ export class Blog {
   @Column('text', { nullable: true })
   title: string;
 
+  @Column('text', { nullable: true })
+  url: string;
+
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
 
