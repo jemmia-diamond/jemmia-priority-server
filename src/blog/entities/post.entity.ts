@@ -6,7 +6,7 @@ export class Post {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column('double', { default: 0 })
+  @Column('double', { nullable: true })
   discountAmount: number;
 
   @Column('varchar', { nullable: true })
