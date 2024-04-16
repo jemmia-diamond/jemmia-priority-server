@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { EBlogType } from './enums/blog-type.enum';
 import { HaravanService } from '../haravan/haravan.service';
 import { validate } from 'class-validator';
 import { BlogDto } from './dto/blog.dto';

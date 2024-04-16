@@ -1,8 +1,8 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { HaravanBlogDto } from '../../haravan/dto/haravan-blog.dto';
 import {
+  IsArray,
   IsDefined,
-  IsEnum,
   IsNumber,
   IsOptional,
   IsUrl,
@@ -25,11 +25,12 @@ class PostDto {
   pdfUrl?: string;
 
   @ApiProperty({
-    enum: EUserRole,
+    isArray: true,
+    type: EUserRole,
   })
-  @IsEnum(EUserRole)
+  @IsArray()
   @IsDefined()
-  userRole?: EUserRole;
+  userRole?: EUserRole[];
 
   haravanId?: number;
 }
