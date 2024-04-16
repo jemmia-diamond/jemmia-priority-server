@@ -43,13 +43,16 @@ export class CouponRef {
   @Column('enum', { enum: ECouponRefType })
   type: ECouponRefType;
 
-  @CreateDateColumn()
+  @Column({
+    type: 'datetime',
+    default: () => 'CURRENT_TIMESTAMP',
+  })
   startDate: Date;
 
   // @OneToMany(() => Order, (order) => order.couponRef)
   // orders: Order[];
 
-  @Column({ type: 'timestamp', nullable: true })
+  @Column({ type: 'datetime', nullable: true })
   endDate: Date;
 
   @Column('int', { nullable: true })
