@@ -74,7 +74,7 @@ export class OrderService {
       order: { createdDate: 'DESC' },
       skip: offset,
       take: limit,
-      relations: ['user', 'couponRef.owner.invitedBy'],
+      relations: ['user', 'couponRef.owner.invitedBy', 'couponRef'],
       select: {
         user: {
           id: true,
