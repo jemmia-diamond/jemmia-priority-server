@@ -41,7 +41,7 @@ export class BlogService {
       const offset = ((query.page || 1) - 1) * limit;
       const data = await this.blogRepository.find({
         where: {
-          id: Not(In(process.env.EXCLUDE_BLOG_IDS.split(','))),
+          id: query.excludeIds ? Not(In(query.excludeIds)) : null,
           blogId: query.blogId,
           post: [
             {

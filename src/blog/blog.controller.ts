@@ -8,6 +8,7 @@ import {
   Delete,
   UseGuards,
   Query,
+  Request,
 } from '@nestjs/common';
 import { BlogService } from './blog.service';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
@@ -16,6 +17,7 @@ import { Roles } from '../auth/decorators/roles.decorator';
 import { EUserRole } from '../user/enums/user-role.enum';
 import { HaravanBlogSearchDto } from '../haravan/dto/haravan-blog.dto';
 import { BlogDto } from './dto/blog.dto';
+import { RequestPayload } from '../shared/types/controller.type';
 
 @ApiTags('Blog')
 @ApiBearerAuth()
@@ -32,7 +34,14 @@ export class BlogController {
 
   @UseGuards(JwtAuthGuard)
   @Get()
-  async findAll(@Query() query: HaravanBlogSearchDto) {
+  async findAll(
+    @Request() req: RequestPayload,
+    @Query() query: HaravanBlogSearchDto,
+  ) {
+    if (req.user.role != EUserRole.admin) {
+      query.excludeIds = process.env.EXCLUDE_BLOG_IDS?.split(','); //Filter system posts, keep banner posts
+    }
+
     return this.blogService.findAll(query);
   }
 
