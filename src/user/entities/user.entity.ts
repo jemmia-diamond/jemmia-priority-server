@@ -65,6 +65,6 @@ export class User {
   @Column('enum', { enum: EUserRole })
   role: EUserRole;
 
-  @Column({ type: 'timestamp', nullable: true })
+  @Column({ type: 'datetime', nullable: true })
   rankExpirationTime: Date;
 }
