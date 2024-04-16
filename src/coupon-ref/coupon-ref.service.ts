@@ -82,7 +82,7 @@ export class CouponRefService {
     couponRef.role = createCouponRefDto.role;
     couponRef.startDate = new Date(createCouponRefDto.startDate);
     couponRef.owner = owner;
-    couponRef.ownerName = `${haravanOwner.firstName} ${haravanOwner.lastName}`;
+    couponRef.ownerName = `${haravanOwner?.firstName} ${haravanOwner?.lastName}`;
     couponRef.type = createCouponRefDto.type;
     couponRef.note = createCouponRefDto.note;
 
