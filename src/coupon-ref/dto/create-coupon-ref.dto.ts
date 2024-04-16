@@ -1,5 +1,5 @@
 import {
-  IsDateString,
+  IsDate,
   IsDefined,
   IsEnum,
   IsOptional,
@@ -32,14 +32,14 @@ export class CreateCouponRefDto {
   @ApiPropertyOptional()
   @IsOptional()
   @IsDefined()
-  @IsDateString()
-  startDate?: string;
+  @IsDate()
+  startDate?: Date;
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsDefined()
-  @IsDateString()
-  endDate?: string;
+  @IsDate()
+  endDate?: Date;
 
   @ApiPropertyOptional()
   @IsOptional()
