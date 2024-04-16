@@ -1,5 +1,6 @@
 import {
   Column,
+  CreateDateColumn,
   Entity,
   JoinColumn,
   ManyToOne,
@@ -7,7 +8,6 @@ import {
 } from 'typeorm';
 import { User } from '../../user/entities/user.entity';
 import { NotificationType } from '../enums/noti-type.enum';
-import { ApiProperty } from '@nestjs/swagger';
 
 @Entity('notifications')
 export class Notification {
@@ -30,6 +30,6 @@ export class Notification {
   @Column('enum', { enum: NotificationType, default: NotificationType.another })
   type: NotificationType;
 
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  @CreateDateColumn()
   createdDate: Date;
 }

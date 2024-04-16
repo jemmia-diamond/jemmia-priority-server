@@ -41,6 +41,6 @@ export class Order {
   @ManyToOne(() => CouponRef)
   couponRef: CouponRef;
 
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  @CreateDateColumn()
   createdDate: Date;
 }

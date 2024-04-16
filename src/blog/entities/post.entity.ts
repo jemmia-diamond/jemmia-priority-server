@@ -1,4 +1,9 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { EUserRole } from '../../user/enums/user-role.enum';
 
 @Entity('posts')
@@ -15,6 +20,6 @@ export class Post {
   @Column('json', { nullable: true })
   userRole: EUserRole[];
 
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  @CreateDateColumn()
   createdDate: Date;
 }
