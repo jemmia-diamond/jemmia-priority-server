@@ -5,7 +5,7 @@ import { BlogDto } from './dto/blog.dto';
 import { HaravanBlogSearchDto } from '../haravan/dto/haravan-blog.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Post } from './entities/post.entity';
-import { Like, Repository } from 'typeorm';
+import { In, Like, Not, Repository } from 'typeorm';
 import { Blog } from './entities/blog.entity';
 import { EUserRole } from '../user/enums/user-role.enum';
 
@@ -41,6 +41,7 @@ export class BlogService {
       const offset = ((query.page || 1) - 1) * limit;
       const data = await this.blogRepository.find({
         where: {
+          id: Not(In(process.env.EXCLUDE_BLOG_IDS.split(','))),
           blogId: query.blogId,
           post: [
             {
