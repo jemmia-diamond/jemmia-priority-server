@@ -12,7 +12,7 @@ export class Post {
   @Column('varchar', { nullable: true })
   pdfUrl: string;
 
-  @Column('jsonb', { nullable: true })
+  @Column('json', { nullable: true })
   userRole: EUserRole[];
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
