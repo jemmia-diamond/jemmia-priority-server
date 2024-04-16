@@ -41,7 +41,7 @@ export class Coupon {
   @Column({ type: 'datetime', nullable: true })
   endDate: Date;
 
-  @Column('datetime', { default: () => 'CURRENT_TIMESTAMP' })
+  @Column('datetime', { default: () => 'CURRENT_TIMESTAMP', nullable: true })
   startDateHaravan: Date;
 
   @Column({ type: 'datetime', nullable: true })

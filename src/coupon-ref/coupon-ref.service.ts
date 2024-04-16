@@ -80,9 +80,11 @@ export class CouponRefService {
     couponRef.couponHaravanId = coupon.id;
     couponRef.couponHaravanCode = couponHaravanDto.code;
     couponRef.role = createCouponRefDto.role;
-    couponRef.startDate = new Date(createCouponRefDto.startDate);
+    couponRef.startDate = createCouponRefDto.startDate
+      ? new Date(createCouponRefDto.startDate)
+      : new Date();
     couponRef.owner = owner;
-    couponRef.ownerName = `${haravanOwner?.firstName} ${haravanOwner?.lastName}`;
+    couponRef.ownerName = `${haravanOwner?.firstName || ''} ${haravanOwner?.lastName || ''}`;
     couponRef.type = createCouponRefDto.type;
     couponRef.note = createCouponRefDto.note;
 

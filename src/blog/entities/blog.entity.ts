@@ -37,7 +37,7 @@ export class Blog {
   @Column('enum', { nullable: true, enum: EBlogType })
   blogId: EBlogType;
 
-  @Column('datetime', { default: () => 'CURRENT_TIMESTAMP' })
+  @Column('datetime', { default: () => 'CURRENT_TIMESTAMP', nullable: true })
   publishedAt: Date;
 
   @UpdateDateColumn()
