@@ -55,22 +55,22 @@ export class CouponRefService {
     couponHaravanDto.code = StringUtils.random(6);
     couponHaravanDto.appliesOnce = true;
     couponHaravanDto.startsAt =
-      createCouponRefDto.startDate || new Date().toISOString();
+      createCouponRefDto.startDate.toUTCString() || new Date().toUTCString();
 
     if (createCouponRefDto.endDate) {
-      couponHaravanDto.endsAt = createCouponRefDto.endDate;
-      couponRef.endDate = new Date(createCouponRefDto.endDate);
+      couponHaravanDto.endsAt = createCouponRefDto.endDate.toUTCString();
+      couponRef.endDate = createCouponRefDto.endDate;
     }
 
     //TẠO MÃ INVITE COUPON
     couponHaravanDto.value =
       EPartnerCashbackConfig.firstBuyCashbackPercent.customer;
     couponHaravanDto.discountType = ECouponDiscountType.percentage;
-    couponHaravanDto.usageLimit = 1;
     couponHaravanDto.setTimeActive = true;
     couponHaravanDto.maxAmountApply = null;
 
     if (createCouponRefDto.type == ECouponRefType.partner) {
+      couponHaravanDto.usageLimit = 1;
       couponHaravanDto.value =
         EPartnerCashbackConfig.firstBuyCashbackPercent[createCouponRefDto.role];
     }
@@ -84,7 +84,7 @@ export class CouponRefService {
       ? new Date(createCouponRefDto.startDate)
       : new Date();
     couponRef.owner = owner;
-    couponRef.ownerName = `${haravanOwner?.firstName || ''} ${haravanOwner?.lastName || ''}`;
+    couponRef.ownerName = `${haravanOwner?.lastName || ''} ${haravanOwner?.firstName || ''}`;
     couponRef.type = createCouponRefDto.type;
     couponRef.note = createCouponRefDto.note;
 
@@ -158,10 +158,10 @@ export class CouponRefService {
     data.ownerId = payload.ownerId;
     data.role = payload.role;
     data.type = ECouponRefType.invite;
-    data.startDate = haravanDateNow.toISOString();
+    data.startDate = haravanDateNow;
     data.endDate = new Date(
       haravanDateNow.setHours(haravanDateNow.getHours() + 3),
-    ).toISOString();
+    );
 
     return await this.create(data);
   }
