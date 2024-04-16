@@ -1,9 +1,11 @@
 import {
   Column,
+  CreateDateColumn,
   Entity,
   JoinColumn,
   OneToOne,
   PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 import { EBlogType } from '../enums/blog-type.enum';
 import { Post } from './post.entity';
@@ -26,7 +28,7 @@ export class Blog {
   @Column('text', { nullable: true })
   url: string;
 
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  @CreateDateColumn()
   createdAt: Date;
 
   @Column('text', { nullable: true })
@@ -35,10 +37,10 @@ export class Blog {
   @Column('enum', { nullable: true, enum: EBlogType })
   blogId: EBlogType;
 
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  @CreateDateColumn()
   publishedAt: Date;
 
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  @UpdateDateColumn()
   updatedAt: Date;
 
   @Column('json', { nullable: true })

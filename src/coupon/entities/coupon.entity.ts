@@ -1,4 +1,10 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { Exclude } from 'class-transformer';
 import { ECouponType } from '../enums/gift-type.enum';
 import { IsUrl } from 'class-validator';
@@ -29,16 +35,16 @@ export class Coupon {
   @Column('int')
   quantityLimit: number;
 
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  @CreateDateColumn()
   startDate: Date;
 
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  @Column({ type: 'timestamp', nullable: true })
   endDate: Date;
 
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  @CreateDateColumn()
   startDateHaravan: Date;
 
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  @Column({ type: 'timestamp', nullable: true })
   endDateHaravan: Date;
 
   @Exclude()
@@ -51,7 +57,7 @@ export class Coupon {
   @Column('varchar')
   product: string;
 
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  @CreateDateColumn()
   createdDate: Date;
 
   @OneToMany(() => CouponRedeemed, (couponUser) => couponUser.coupon)

@@ -1,5 +1,11 @@
 import { Exclude } from 'class-transformer';
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  CreateDateColumn,
+} from 'typeorm';
 import { User } from '../../user/entities/user.entity';
 import { EWithdrawStatus } from '../dto/withdraw-status.dto';
 import { IsOptional } from 'class-validator';
@@ -27,6 +33,6 @@ export class Withdraw {
   user: User;
 
   @IsOptional()
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  @CreateDateColumn()
   createdDate?: Date;
 }

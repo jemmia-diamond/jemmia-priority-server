@@ -1,4 +1,9 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  CreateDateColumn,
+  Entity,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { User } from '../../user/entities/user.entity';
 import { Coupon } from './coupon.entity';
 
@@ -7,7 +12,7 @@ export class CouponRedeemed {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  @CreateDateColumn()
   createdDate: Date;
 
   @ManyToOne(() => User)

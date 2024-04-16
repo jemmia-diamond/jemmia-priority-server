@@ -1,4 +1,10 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { Exclude } from 'class-transformer';
 import { User } from '../../user/entities/user.entity';
 import { EUserRole } from '../../user/enums/user-role.enum';
@@ -37,7 +43,7 @@ export class CouponRef {
   @Column('enum', { enum: ECouponRefType })
   type: ECouponRefType;
 
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  @CreateDateColumn()
   startDate: Date;
 
   // @OneToMany(() => Order, (order) => order.couponRef)
@@ -60,6 +66,6 @@ export class CouponRef {
   @Column('int', { default: 0 })
   usedCount: number;
 
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  @CreateDateColumn()
   createdDate: Date;
 }
