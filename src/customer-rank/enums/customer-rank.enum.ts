@@ -6,6 +6,11 @@ export enum ECustomerRank {
   none = 'none',
 }
 
+export enum ECustomerRankCrm {
+  '658d1cf71714e07bec045e17' = 'gold',
+  '658d1cf71714e07bec045e16' = 'silver',
+}
+
 export enum ECustomerRankNum {
   platinum = 4,
   gold = 3,

@@ -24,6 +24,7 @@ import { Post } from './blog/entities/post.entity';
 import { Blog } from './blog/entities/blog.entity';
 import { CacheModule } from '@nestjs/cache-manager';
 import { redisStore } from 'cache-manager-redis-store';
+import { CrmModule } from './crm/crm.module';
 
 @Module({
   imports: [
@@ -79,6 +80,7 @@ import { redisStore } from 'cache-manager-redis-store';
     CustomerRankModule,
     NotificationModule,
     WithdrawModule,
+    CrmModule,
   ],
   providers: [],
   controllers: [],

@@ -4,6 +4,7 @@ import * as dotenv from 'dotenv';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as admin from 'firebase-admin';
 
+//!SET DEFAULT TIMEZONE
 process.env.TZ = 'Asia/Ho_Chi_Minh';
 
 async function bootstrap() {
