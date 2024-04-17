@@ -32,6 +32,16 @@ export class UserController {
 
   @UseGuards(JwtAuthGuard)
   @Roles(EUserRole.admin)
+  @Get('sync-crm')
+  @ApiOperation({
+    description: 'Sync CRM Users',
+  })
+  async syncCrm() {
+    return this.userService.syncCrmUser();
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Roles(EUserRole.admin)
   @Get()
   @ApiOperation({
     description: 'List toàn bộ user trên hệ thống',
@@ -54,33 +64,33 @@ export class UserController {
     return this.userService.findUser(id);
   }
 
-  @UseGuards(JwtAuthGuard)
-  @Roles(EUserRole.admin)
-  @Post()
-  @ApiOperation({
-    description: 'Tạo user',
-  })
-  async createUser(@Request() req: RequestPayload, @Body() body: UserInfoDto) {
-    return this.userService.createUser(body);
-  }
+  // @UseGuards(JwtAuthGuard)
+  // @Roles(EUserRole.admin)
+  // @Post()
+  // @ApiOperation({
+  //   description: 'Tạo user',
+  // })
+  // async createUser(@Request() req: RequestPayload, @Body() body: UserInfoDto) {
+  //   return this.userService.createUser(body);
+  // }
 
-  @UseGuards(JwtAuthGuard)
-  @Roles(EUserRole.admin)
-  @Put(':id')
-  @ApiOperation({
-    description: 'Update thông tin của user',
-  })
-  async updateUser(
-    @Request() req: RequestPayload,
-    @Param('id') userId: string,
-    @Body() body: UserInfoDto,
-  ) {
-    if (req.user.role != EUserRole.admin) {
-      userId = req.user.id;
-    }
+  // @UseGuards(JwtAuthGuard)
+  // @Roles(EUserRole.admin)
+  // @Put(':id')
+  // @ApiOperation({
+  //   description: 'Update thông tin của user',
+  // })
+  // async updateUser(
+  //   @Request() req: RequestPayload,
+  //   @Param('id') userId: string,
+  //   @Body() body: UserInfoDto,
+  // ) {
+  //   if (req.user.role != EUserRole.admin) {
+  //     userId = req.user.id;
+  //   }
 
-    return this.userService.updateUser(userId, body);
-  }
+  //   return this.userService.updateUser(userId, body);
+  // }
 
   // @UseGuards(JwtAuthGuard)
   // @Delete()
