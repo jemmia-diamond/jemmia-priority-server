@@ -1,5 +1,6 @@
 import {
   Column,
+  CreateDateColumn,
   Entity,
   ManyToOne,
   PrimaryColumn,
@@ -14,20 +15,27 @@ export class User {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Exclude()
+  /** BASE ON CRM BIZFLY */
+  @Column('varchar', { length: 128, unique: true })
+  crmId: string;
+
   @Column('integer', { nullable: true })
   haravanId: number;
 
-  @Exclude()
   @PrimaryColumn('varchar', { length: 128, unique: true })
   authId: string;
 
   /** Lưu theo format +yxxx
    * @param {number} y: mã vùng
    */
-  @Exclude()
   @Column('varchar', { length: 24, unique: true, nullable: true })
   phoneNumber: string;
+
+  @Column('varchar', { length: 512, nullable: true })
+  name: string;
+
+  @Column('text', { nullable: true })
+  address1: string;
 
   @Exclude()
   @Column('text', { nullable: true })
@@ -67,4 +75,10 @@ export class User {
 
   @Column({ type: 'timestamp', nullable: true })
   rankExpirationTime: Date;
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @Column('varchar', { length: 32, unique: true })
+  maKhachHang: string;
 }

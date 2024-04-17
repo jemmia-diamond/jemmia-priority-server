@@ -7,9 +7,15 @@ import { HaravanModule } from '../haravan/haravan.module';
 import { CouponRefModule } from '../coupon-ref/coupon-ref.module';
 import { UserRedis } from './user.redis';
 import { UserEntitySubscriber } from './subscribers/user-entity.subscriber';
+import { CrmModule } from '../crm/crm.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User]), HaravanModule, CouponRefModule],
+  imports: [
+    TypeOrmModule.forFeature([User]),
+    HaravanModule,
+    CouponRefModule,
+    CrmModule,
+  ],
   controllers: [UserController],
   providers: [UserService, UserRedis, UserEntitySubscriber],
   exports: [UserService, UserRedis],

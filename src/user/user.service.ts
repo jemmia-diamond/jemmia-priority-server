@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
-import { In, Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import { validate } from 'class-validator';
 import { HaravanService } from '../haravan/haravan.service';
 import { UserQueryDto } from './dto/user-query.dto';
@@ -17,6 +17,7 @@ import { CouponRefService } from '../coupon-ref/coupon-ref.service';
 import { HaravanCustomerDto } from '../haravan/dto/haravan-customer.dto';
 import { ECustomerRankNum } from '../customer-rank/enums/customer-rank.enum';
 import { UserRedis } from './user.redis';
+import { CrmService } from '../crm/crm.service';
 
 @Injectable()
 export class UserService {
@@ -24,6 +25,7 @@ export class UserService {
     @InjectRepository(User)
     private userRepository: Repository<User>,
     private readonly haravanService: HaravanService,
+    private crmService: CrmService,
     private couponRefService: CouponRefService,
     private userRedis: UserRedis,
   ) {}
@@ -37,45 +39,39 @@ export class UserService {
 
   async findUser(id: string) {
     let user = await this.userRedis.get(id);
-    let haravanCusData: any = {};
+    let crmCusData: any = {};
     const notCached = user == null;
-
-    if (notCached) {
+    const fetchUser = async () => {
       user = await this.userRepository.findOneBy({
         id: id,
       });
 
-      console.log(user);
-
       if (!user) return null;
 
-      haravanCusData = await this.haravanService.findCustomer(user.haravanId);
-    } else {
-      setImmediate(async () => {
-        user = await this.userRepository.findOneBy({
-          id: id,
-        });
+      // crmCusData = await this.haravanService.findCustomer(user.haravanId);
+      crmCusData = (
+        await this.crmService.findAllCustomer({
+          limit: 1,
+          query: {
+            id: user.crmId,
+          },
+        })
+      ).data?.[0];
 
-        console.log(user);
-
-        //!FIXME: FIX IT DUPLICATE
-        haravanCusData = await this.haravanService.findCustomer(user.haravanId);
-        await this.userRedis.set(id, {
-          ...haravanCusData,
-          ...user,
-        });
+      await this.userRedis.set(id, {
+        ...crmCusData,
+        ...user,
       });
+    };
+
+    if (notCached) {
+      await fetchUser();
+    } else {
+      setImmediate(fetchUser);
     }
 
-    setImmediate(() =>
-      this.userRedis.set(id, {
-        ...haravanCusData,
-        ...user,
-      }),
-    );
-
     return {
-      ...haravanCusData,
+      ...crmCusData,
       ...user,
       rank: user?.rank || ECustomerRankNum.silver,
       role: user?.role || EUserRole.customer,
@@ -83,34 +79,60 @@ export class UserService {
   }
 
   async findAllUser(query: UserQueryDto) {
-    query.page = Number(query.page);
-    query.limit = Number(query.limit);
-
-    const haravanCusData = await this.haravanService.findAllCustomer(query);
-    const haravanCusCount = await this.haravanService.countAllCustomer();
-    const haravanIds = haravanCusData.map((c) => c.id);
-    const users = await this.userRepository.find({
-      where: {
-        haravanId: In(haravanIds),
-      },
-    });
-
-    const usersList = haravanCusData.map((c) => {
-      const user = users.find((u) => c.id == u.haravanId);
-      return {
-        ...c,
-        ...user,
-        rank: user?.rank || ECustomerRankNum.silver,
-        role: user?.role || EUserRole.customer,
-      };
+    query.page = Number(query.page) || 1;
+    query.limit = Number(query.limit) || 1;
+    const [users, total] = await this.userRepository.findAndCount({
+      skip: query.page,
+      take: query.limit,
+      where: [
+        {
+          phoneNumber: query.query ? Like(`%${query.query}%`) : null,
+        },
+        {
+          name: query.query ? Like(`%${query.query}%`) : null,
+        },
+      ],
     });
 
     return {
-      users: usersList,
+      users,
       page: query.page,
       size: query.limit,
-      totalPage: Math.ceil(haravanCusCount / query.limit),
+      total,
+      totalPage: Math.ceil(total / query.limit),
     };
+  }
+
+  async syncCrmUser() {
+    const users = await this.crmService.findAllCustomer({
+      limit: 10,
+    });
+
+    console.log(users);
+
+    const promises = users.data.map(async (u) => {
+      try {
+        console.log(u.id);
+        if (u.maKhachHang && u.haravanId) {
+          await this.userRepository.save({
+            haravanId: u.haravanId,
+            crmId: u.id,
+            name: u.name.value,
+            authId: u.phones?.[0]?.value,
+            phoneNumber: u.phones?.[0]?.value,
+            address1: u.address1,
+            maKhachHang: u.maKhachHang,
+            role: /^kh|KH/.test(u.maKhachHang)
+              ? EUserRole.customer
+              : EUserRole.staff,
+          });
+        }
+      } catch (e) {
+        console.log(e);
+      }
+    });
+
+    await Promise.race(promises);
   }
 
   //!TODO: CREATE USER & SYNC FROM HARAVAN
