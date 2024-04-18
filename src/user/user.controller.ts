@@ -37,7 +37,7 @@ export class UserController {
     description: 'Sync CRM Users',
   })
   async syncCrm() {
-    return this.userService.syncCrmUser();
+    return this.userService.syncCrmUsers();
   }
 
   @UseGuards(JwtAuthGuard)

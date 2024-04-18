@@ -48,7 +48,6 @@ export class UserService {
 
       if (!user) return null;
 
-      // crmCusData = await this.haravanService.findCustomer(user.haravanId);
       crmCusData = (
         await this.crmService.findAllCustomer({
           limit: 1,
@@ -103,7 +102,35 @@ export class UserService {
     };
   }
 
-  async syncCrmUser() {
+  async syncFromCrm(crmId: string) {
+    const crmCusData = (
+      await this.crmService.findAllCustomer({
+        limit: 1,
+        query: {
+          id: crmId,
+        },
+      })
+    ).data?.[0];
+
+    if (!crmCusData) return null;
+
+    //!TODO SYNC WITH RANK CALCULATE
+
+    return this.userRepository.save({
+      haravanId: crmCusData.haravanId,
+      crmId: crmCusData.id,
+      name: crmCusData.name.value,
+      authId: crmCusData.phones?.[0]?.value,
+      phoneNumber: crmCusData.phones?.[0]?.value,
+      address1: crmCusData.address1,
+      maKhachHang: crmCusData.maKhachHang,
+      role: /^kh|KH/.test(crmCusData.maKhachHang)
+        ? EUserRole.customer
+        : EUserRole.staff,
+    });
+  }
+
+  async syncCrmUsers() {
     const users = await this.crmService.findAllCustomer({
       limit: 10,
     });
@@ -114,18 +141,7 @@ export class UserService {
       try {
         console.log(u.id);
         if (u.maKhachHang && u.haravanId) {
-          await this.userRepository.save({
-            haravanId: u.haravanId,
-            crmId: u.id,
-            name: u.name.value,
-            authId: u.phones?.[0]?.value,
-            phoneNumber: u.phones?.[0]?.value,
-            address1: u.address1,
-            maKhachHang: u.maKhachHang,
-            role: /^kh|KH/.test(u.maKhachHang)
-              ? EUserRole.customer
-              : EUserRole.staff,
-          });
+          await this.syncFromCrm(u.id);
         }
       } catch (e) {
         console.log(e);

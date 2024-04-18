@@ -10,6 +10,8 @@ import { RolesGuard } from './guards/roles.guard';
 import { HaravanModule } from '../haravan/haravan.module';
 import { CouponRefModule } from '../coupon-ref/coupon-ref.module';
 import { CouponRef } from '../coupon-ref/entities/coupon-ref.entity';
+import { CrmModule } from '../crm/crm.module';
+import { UserModule } from '../user/user.module';
 
 @Module({
   imports: [
@@ -17,6 +19,8 @@ import { CouponRef } from '../coupon-ref/entities/coupon-ref.entity';
     JwtModule.register({}),
     HaravanModule,
     CouponRefModule,
+    CrmModule,
+    UserModule,
   ],
   controllers: [AuthController],
   providers: [
