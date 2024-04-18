@@ -16,7 +16,7 @@ export class User {
   id: string;
 
   /** BASE ON CRM BIZFLY */
-  @Column('varchar', { length: 128, unique: true })
+  @PrimaryColumn('varchar', { length: 128, unique: true })
   crmId: string;
 
   @Column('integer', { nullable: true })

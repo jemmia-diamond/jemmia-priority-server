@@ -26,20 +26,7 @@ export class UserEntitySubscriber implements EntitySubscriberInterface<User> {
   }
 
   async updateRedis(user: User) {
-    const crmCusData = (
-      await this.crmService.findAllCustomer({
-        limit: 1,
-        query: {
-          id: user.crmId,
-        },
-      })
-    ).data?.[0];
-
-    await this.userRedis.set(user.id, {
-      ...crmCusData,
-      ...user,
-      cumulativeTovRecorded: crmCusData.cumulativeTovRecorded,
-    });
+    await this.userRedis.set(user.id, user);
   }
 
   async afterInsert(event: InsertEvent<User>) {
