@@ -60,4 +60,7 @@ export class CrmCustomerDto {
 
   @Expose({ name: 'created_at' })
   createdAt: number;
+
+  @Expose({ name: 'cumulative_tov_recorded' })
+  cumulativeTovRecorded: number;
 }

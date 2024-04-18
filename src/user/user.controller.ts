@@ -1,15 +1,12 @@
 import {
   Controller,
   Get,
-  Body,
   Param,
   UseGuards,
-  Put,
   Request,
   UseInterceptors,
   ClassSerializerInterceptor,
   Query,
-  Post,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
@@ -18,7 +15,6 @@ import { HaravanService } from '../haravan/haravan.service';
 import { RequestPayload } from '../shared/types/controller.type';
 import { EUserRole } from './enums/user-role.enum';
 import { UserQueryDto } from './dto/user-query.dto';
-import { UserInfoDto } from './dto/user-info';
 import { Roles } from '../auth/decorators/roles.decorator';
 
 @ApiTags('User')

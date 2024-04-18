@@ -39,7 +39,6 @@ export class UserService {
 
   async findUser(id: string) {
     let user = await this.userRedis.get(id);
-    let crmCusData: any = {};
     const notCached = user == null;
     const fetchUser = async () => {
       user = await this.userRepository.findOneBy({
@@ -48,17 +47,9 @@ export class UserService {
 
       if (!user) return null;
 
-      crmCusData = (
-        await this.crmService.findAllCustomer({
-          limit: 1,
-          query: {
-            id: user.crmId,
-          },
-        })
-      ).data?.[0];
+      user = await this.syncFromCrm(user.crmId);
 
       await this.userRedis.set(id, {
-        ...crmCusData,
         ...user,
       });
     };
@@ -70,7 +61,6 @@ export class UserService {
     }
 
     return {
-      ...crmCusData,
       ...user,
       rank: user?.rank || ECustomerRankNum.silver,
       role: user?.role || EUserRole.customer,
@@ -103,6 +93,7 @@ export class UserService {
   }
 
   async syncFromCrm(crmId: string) {
+    const user: User = await this.userRepository.findOneBy({ crmId });
     const crmCusData = (
       await this.crmService.findAllCustomer({
         limit: 1,
@@ -117,6 +108,7 @@ export class UserService {
     //!TODO SYNC WITH RANK CALCULATE
 
     return this.userRepository.save({
+      ...user,
       haravanId: crmCusData.haravanId,
       crmId: crmCusData.id,
       name: crmCusData.name.value,
@@ -124,6 +116,7 @@ export class UserService {
       phoneNumber: crmCusData.phones?.[0]?.value,
       address1: crmCusData.address1,
       maKhachHang: crmCusData.maKhachHang,
+      cumulativeTovRecorded: crmCusData.cumulativeTovRecorded,
       role: /^kh|KH/.test(crmCusData.maKhachHang)
         ? EUserRole.customer
         : EUserRole.staff,

@@ -81,4 +81,7 @@ export class User {
 
   @Column('varchar', { length: 32, unique: true })
   maKhachHang: string;
+
+  @Column('double', { default: 0 })
+  cumulativeTovRecorded: number;
 }

@@ -38,6 +38,7 @@ export class UserEntitySubscriber implements EntitySubscriberInterface<User> {
     await this.userRedis.set(user.id, {
       ...crmCusData,
       ...user,
+      cumulativeTovRecorded: crmCusData.cumulativeTovRecorded,
     });
   }
 
