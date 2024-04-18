@@ -8,12 +8,12 @@ import { AccessTokenPayload, RefreshTokenPayload } from './types/jwt.types';
 import { jwtConstants } from './constants';
 import * as firebaseAdmin from 'firebase-admin';
 import { HaravanService } from '../haravan/haravan.service';
-import { StringUtils } from '../shared/utils/string.utils';
 import { EUserRole } from '../user/enums/user-role.enum';
-import { HaravanCustomerDto } from '../haravan/dto/haravan-customer.dto';
 import { CouponRefService } from '../coupon-ref/coupon-ref.service';
 import { CouponRef } from '../coupon-ref/entities/coupon-ref.entity';
 import { ECustomerRankNum } from '../customer-rank/enums/customer-rank.enum';
+import { CrmService } from '../crm/crm.service';
+import { UserService } from '../user/user.service';
 
 @Injectable()
 export class AuthService {
@@ -24,6 +24,8 @@ export class AuthService {
     private couponRefRepository: Repository<CouponRef>,
     private jwtService: JwtService,
     private haravanService: HaravanService,
+    private crmService: CrmService,
+    private userService: UserService,
     private couponRefService: CouponRefService,
   ) {}
 
@@ -49,16 +51,17 @@ export class AuthService {
     //VERIFY OAUTH TOKEN
     const tokenPayload = await this.verifyOAuth(payload.token);
     const fPhoneNum = tokenPayload.phone_number?.replace(/^\+84/, '0');
-    const haravanUser: HaravanCustomerDto = (
-      await this.haravanService.findAllCustomer({
-        query: fPhoneNum,
+    const crmCusData = (
+      await this.crmService.findAllCustomer({
         limit: 1,
-        page: 0,
+        query: {
+          'phones.value': fPhoneNum,
+        },
       })
-    )[0];
+    ).data?.[0];
 
     //Trường hợp user k phải admin & cũng không phải khách hàng haravan
-    if (!tokenPayload.email && !haravanUser) {
+    if (!tokenPayload.email && !crmCusData) {
       throw new HttpException('USER_NOT_FOUND', HttpStatus.UNAUTHORIZED);
     }
 
@@ -71,21 +74,14 @@ export class AuthService {
         },
         {
           //Customer account query
-          haravanId: haravanUser?.id,
+          crmId: crmCusData.id,
         },
       ],
     });
 
     //Sync dữ liệu khách hàng từ haravan sang
-    if (haravanUser) {
-      user = await this.userRepository.save({
-        ...user,
-        authId: fPhoneNum,
-        phoneNumber: fPhoneNum,
-        inviteCode: user?.inviteCode || StringUtils.random(6),
-        role: user?.role || EUserRole.customer,
-        haravanId: haravanUser.id,
-      });
+    if (crmCusData) {
+      user = await this.userService.syncFromCrm(crmCusData.id);
     }
 
     //LOGIN
@@ -111,7 +107,8 @@ export class AuthService {
       refreshToken,
       user: {
         ...user,
-        haravan: haravanUser || {},
+        haravan: crmCusData || {},
+        crm: crmCusData,
         rank: user?.rank || ECustomerRankNum.silver,
         role: user?.role || EUserRole.customer,
       },
