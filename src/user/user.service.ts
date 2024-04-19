@@ -137,9 +137,11 @@ export class UserService {
   }
 
   async syncCrmUsers() {
-    const users = await this.crmService.findAllCustomer({});
+    const users = await this.crmService.findAllCustomer({
+      limit: 9999999999,
+    });
 
-    const promises = users.data.map(async (u) => {
+    for (const u of users.data) {
       try {
         console.log(u.id);
         if (u.maKhachHang && u.haravanId) {
@@ -148,9 +150,7 @@ export class UserService {
       } catch (e) {
         console.log(e);
       }
-    });
-
-    await Promise.all(promises);
+    }
   }
 
   //!TODO: CREATE USER & SYNC FROM HARAVAN

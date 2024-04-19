@@ -26,15 +26,15 @@ export class UserController {
     private readonly haravanService: HaravanService,
   ) {}
 
-  @UseGuards(JwtAuthGuard)
-  @Roles(EUserRole.admin)
-  @Get('sync-crm')
-  @ApiOperation({
-    description: 'Sync CRM Users',
-  })
-  async syncCrm() {
-    return this.userService.syncCrmUsers();
-  }
+  // @UseGuards(JwtAuthGuard)
+  // @Roles(EUserRole.admin)
+  // @Get('sync-crm')
+  // @ApiOperation({
+  //   description: 'Sync CRM Users',
+  // })
+  // async syncCrm() {
+  //   return this.userService.syncCrmUsers();
+  // }
 
   @UseGuards(JwtAuthGuard)
   @Roles(EUserRole.admin)
