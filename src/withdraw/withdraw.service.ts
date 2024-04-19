@@ -38,7 +38,7 @@ export class WithdrawService {
     noti.title = 'Rút tiền';
     noti.receiver = user;
     noti.type = NotificationType.cashback;
-    noti.description = `Yêu cầu rút <b>${data.amount} đ</b> đang được xử lý`;
+    noti.description = `Yêu cầu rút <b>${data.amount.toLocaleString('vi')}đ</b> đang được xử lý`;
 
     await this.notificationRepository.save(noti);
     return data;
@@ -71,7 +71,7 @@ export class WithdrawService {
       noti.title = 'Rút tiền';
       noti.receiver = withdrawFound.user;
       noti.type = NotificationType.cashback;
-      noti.description = `Yêu cầu rút <b>${withdrawFound.amount} đ</b> đã được xử lý!`;
+      noti.description = `Yêu cầu rút <b>${withdrawFound.amount.toLocaleString('vi')}đ</b> đã được xử lý`;
 
       await this.notificationRepository.save(noti);
 
