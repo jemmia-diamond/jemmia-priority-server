@@ -36,6 +36,7 @@ export class CustomerRankService implements OnModuleInit {
 
   async ranking() {
     try {
+      //!TODO HANDLE FOR CRM UPDATE REF POINT
       const listUser = await this.userRepository.find();
 
       const promises = [];
