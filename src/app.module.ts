@@ -35,9 +35,7 @@ import { CrmModule } from './crm/crm.module';
           socket: {
             host: process.env.REDIS_HOST,
             port: Number(process.env.REDIS_PORT),
-            tls: true,
           },
-          username: process.env.REDIS_USER,
           password: process.env.REDIS_PASSWORD,
         });
         return {
@@ -46,8 +44,7 @@ import { CrmModule } from './crm/crm.module';
       },
     }),
     TypeOrmModule.forRoot({
-      type: 'postgres',
-      ssl: true,
+      type: 'mariadb',
       host: process.env.DB_HOST,
       port: Number(process.env.DB_PORT),
       password: process.env.DB_PASSWORD,
