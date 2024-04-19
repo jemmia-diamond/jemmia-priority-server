@@ -137,11 +137,7 @@ export class UserService {
   }
 
   async syncCrmUsers() {
-    const users = await this.crmService.findAllCustomer({
-      limit: 10,
-    });
-
-    console.log(users);
+    const users = await this.crmService.findAllCustomer({});
 
     const promises = users.data.map(async (u) => {
       try {
@@ -154,7 +150,7 @@ export class UserService {
       }
     });
 
-    await Promise.race(promises);
+    await Promise.all(promises);
   }
 
   //!TODO: CREATE USER & SYNC FROM HARAVAN
