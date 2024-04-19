@@ -139,14 +139,30 @@ export class UserService {
   async syncCrmUsers() {
     const users = await this.crmService.findAllCustomer({
       limit: 9999999999,
+      skip: 7976,
     });
+
+    let index = 7976;
 
     for (const u of users.data) {
       try {
-        console.log(u.id);
+        console.log(`${index}/${users.total}`);
         if (u.maKhachHang && u.haravanId) {
-          await this.syncFromCrm(u.id);
+          await this.userRepository.save({
+            haravanId: u.haravanId,
+            crmId: u.id,
+            name: u.name.value,
+            authId: u.phones?.[0]?.value,
+            phoneNumber: u.phones?.[0]?.value,
+            address1: u.address1,
+            maKhachHang: u.maKhachHang,
+            cumulativeTovRecorded: u.cumulativeTovRecorded,
+            role: /^kh|KH/.test(u.maKhachHang)
+              ? EUserRole.customer
+              : EUserRole.staff,
+          });
         }
+        index++;
       } catch (e) {
         console.log(e);
       }

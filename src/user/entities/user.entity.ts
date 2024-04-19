@@ -73,7 +73,7 @@ export class User {
   @Column('enum', { enum: EUserRole })
   role: EUserRole;
 
-  @Column({ type: 'timestamp', nullable: true, default: new Date() })
+  @Column('timestamp', { default: () => 'CURRENT_TIMESTAMP', nullable: true })
   rankUpdatedTime: Date;
 
   @Column({ type: 'timestamp', nullable: true })
