@@ -5,9 +5,14 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from '../user/entities/user.entity';
 import { Order } from '../order/entities/order.entity';
 import { CustomerRankController } from './customer-rank.controller';
+import { UserModule } from '../user/user.module';
 
 @Module({
-  imports: [ScheduleModule.forRoot(), TypeOrmModule.forFeature([User, Order])],
+  imports: [
+    ScheduleModule.forRoot(),
+    TypeOrmModule.forFeature([User, Order]),
+    UserModule,
+  ],
   controllers: [CustomerRankController],
   providers: [CustomerRankService],
   exports: [CustomerRankService],

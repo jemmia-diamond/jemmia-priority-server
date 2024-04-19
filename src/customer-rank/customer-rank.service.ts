@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable, OnModuleInit } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { MoreThanOrEqual, Repository } from 'typeorm';
 import { User } from '../user/entities/user.entity';
 import { Order } from '../order/entities/order.entity';
 import {
@@ -12,6 +12,7 @@ import {
 import { EPaymentStatus } from '../order/enum/payment-status.dto';
 import { EFinancialStatus } from '../haravan/dto/haravan-order.dto';
 import { EUserRole } from '../user/enums/user-role.enum';
+import { UserService } from '../user/user.service';
 
 @Injectable()
 export class CustomerRankService implements OnModuleInit {
@@ -20,6 +21,7 @@ export class CustomerRankService implements OnModuleInit {
     private userRepository: Repository<User>,
     @InjectRepository(Order)
     private orderRepository: Repository<Order>,
+    private userService: UserService,
   ) {}
 
   onModuleInit() {
@@ -42,14 +44,16 @@ export class CustomerRankService implements OnModuleInit {
           new Promise(async (resolve) => {
             // Process each user here
             const currentDate = new Date();
-            currentDate.setFullYear(currentDate.getFullYear() - 1);
             if (user.rankExpirationTime >= currentDate) {
-              const rankNum = await this.getRankOfUser(user.id);
+              const userRank = await this.getRankOfUser(user.id);
 
-              if (rankNum > ECustomerRankNum.silver) {
+              if (userRank.rank > ECustomerRankNum.silver) {
                 if (user.rank != ECustomerRankNum.silver)
-                  user.rank = rankNum >= user.rank ? rankNum : user.rank - 1;
-                user.rankExpirationTime = new Date();
+                  user.rank =
+                    userRank.rank >= user.rank ? userRank.rank : user.rank - 1;
+                user.rankExpirationTime = new Date(
+                  currentDate.setFullYear(currentDate.getFullYear() + 1),
+                );
                 await this.userRepository.save(user);
               }
             }
@@ -65,18 +69,32 @@ export class CustomerRankService implements OnModuleInit {
     }
   }
 
+  /** Update rank của user và sync điểm ref qua CRM */
   async updateUserRank(user: User) {
     try {
-      const rankNum = await this.getRankOfUser(user.id);
-      console.log(rankNum);
-      if (rankNum > ECustomerRankNum.silver) {
-        user.rank = rankNum >= user.rank ? rankNum : user.rank - 1;
+      const currentRank = user.rank;
+      const userRank = await this.getRankOfUser(user.id);
+      if (userRank.rank > ECustomerRankNum.silver) {
+        user.rank = userRank.rank >= user.rank ? userRank.rank : user.rank - 1;
       }
-      user.rankExpirationTime = new Date();
+
+      if (user.rank !== currentRank) {
+        const dateNow = new Date();
+        user.rankUpdatedTime = dateNow;
+        user.rankExpirationTime = new Date(
+          dateNow.setFullYear(dateNow.getFullYear() + 1),
+        );
+      }
 
       await this.userRepository.save(user);
 
-      return rankNum;
+      //Sync ref point to CRM
+      await this.userService.updateCrmRefPoint(
+        user.crmId,
+        userRank.currentPoint.totalRef,
+      );
+
+      return userRank;
     } catch (error) {
       console.log(error);
     }
@@ -84,13 +102,16 @@ export class CustomerRankService implements OnModuleInit {
 
   async getRankOfUser(userId: string) {
     try {
-      const currenPoint = await this.getTotalBuyAndCashBackRef(userId);
+      const currentPoint = await this.getTotalBuyAndCashBackRef(userId);
       const customerRank = this.calculateCustomerRank(
-        currenPoint.totalPrice,
-        currenPoint.total,
+        currentPoint.totalPrice,
+        currentPoint.totalRef,
       );
 
-      return ECustomerRankNum[customerRank];
+      return {
+        rank: ECustomerRankNum[customerRank],
+        currentPoint,
+      };
     } catch (error) {
       console.log(error);
     }
@@ -104,14 +125,13 @@ export class CustomerRankService implements OnModuleInit {
       const totalPrice = user.cumulativeTovRecorded;
 
       const cashBackRef =
-        await this.getCashBackRefFollowPriceForUserLast12Months(userId);
-      const cashBackRefA =
-        await this.getCashBackRefAForUserLast12Months(userId);
+        await this.getCashBackRefFollowPriceForUserLast12Months(user);
+      const cashBackRefA = await this.getCashBackRefAForUserLast12Months(user);
 
-      const total = totalPrice + cashBackRef + cashBackRefA;
+      const totalRef = totalPrice + cashBackRef + cashBackRefA;
       return {
         totalPrice,
-        total,
+        totalRef: totalRef,
       };
     } catch (error) {
       console.log(error);
@@ -146,29 +166,39 @@ export class CustomerRankService implements OnModuleInit {
   }
 
   async getCashBackRefFollowPriceForUserLast12Months(
-    userId: string,
+    user: User,
   ): Promise<number> {
-    const currentDate = new Date();
-    const twelveMonthsAgo = new Date();
-    twelveMonthsAgo.setMonth(currentDate.getMonth() - 12);
-    const paymentStatus = EPaymentStatus.CONFIRM;
+    if (!user.rankUpdatedTime) return 0;
 
-    const query = this.orderRepository
-      .createQueryBuilder('orders')
-      .innerJoin('orders.couponRef', 'couponRef')
-      .innerJoin('couponRef.owner', 'user')
-      .select('SUM(orders.totalPrice)', 'total')
-      .where('user.id = :userId', { userId })
-      .andWhere('orders.paymentStatus = :paymentStatus', { paymentStatus })
-      .andWhere('UNIX_TIMESTAMP(orders.createdDate) >= :twelveMonthsAgo', {
-        twelveMonthsAgo: Math.floor(twelveMonthsAgo.getTime() / 1000),
-      })
-      .andWhere('UNIX_TIMESTAMP(orders.createdDate) <= :currentDate', {
-        currentDate: Math.floor(currentDate.getTime() / 1000),
-      });
+    const twelveMonthsAgo = user.rankUpdatedTime;
 
-    const result = await query.getRawOne();
-    const totalPrice = result.total;
+    const totalPrice = await this.orderRepository.sum('totalPrice', {
+      couponRef: {
+        owner: user,
+      },
+      paymentStatus: EFinancialStatus.paid,
+      createdDate: MoreThanOrEqual(twelveMonthsAgo),
+    });
+
+    // const currentDate = new Date();
+    // const paymentStatus = EPaymentStatus.CONFIRM;
+
+    // const query = this.orderRepository
+    //   .createQueryBuilder('orders')
+    //   .innerJoin('orders.couponRef', 'couponRef')
+    //   .innerJoin('couponRef.owner', 'user')
+    //   .select('SUM(orders.totalPrice)', 'total')
+    //   .where('user.id = :userId', { userId: user.id })
+    //   .andWhere('orders.paymentStatus = :paymentStatus', { paymentStatus })
+    //   .andWhere('UNIX_TIMESTAMP(orders.createdDate) >= :twelveMonthsAgo', {
+    //     twelveMonthsAgo: Math.floor(twelveMonthsAgo.getTime() / 1000),
+    //   })
+    //   .andWhere('UNIX_TIMESTAMP(orders.createdDate) <= :currentDate', {
+    //     currentDate: Math.floor(currentDate.getTime() / 1000),
+    //   });
+
+    // const result = await query.getRawOne();
+    // const totalPrice = result.total;
 
     return totalPrice;
   }
@@ -199,29 +229,45 @@ export class CustomerRankService implements OnModuleInit {
     return totalPrice;
   }
 
-  async getCashBackRefAForUserLast12Months(userId: string): Promise<number> {
-    const currentDate = new Date();
-    const twelveMonthsAgo = new Date();
-    twelveMonthsAgo.setMonth(currentDate.getMonth() - 12);
-    const paymentStatus = EPaymentStatus.CONFIRM;
+  async getCashBackRefAForUserLast12Months(user: User): Promise<number> {
+    if (!user.rankUpdatedTime) return 0;
 
-    const query = this.orderRepository
-      .createQueryBuilder('orders')
-      .innerJoin('orders.couponRef', 'couponRef')
-      .innerJoin('couponRef.owner', 'user')
-      .innerJoin('user.invitedBy', 'userInvite')
-      .select('SUM(orders.cashBackRefA)', 'total')
-      .where('userInvite.id = :userId', { userId })
-      .andWhere('orders.paymentStatus = :paymentStatus', { paymentStatus })
-      .andWhere('UNIX_TIMESTAMP(orders.createdDate) >= :twelveMonthsAgo', {
-        twelveMonthsAgo: Math.floor(twelveMonthsAgo.getTime() / 1000),
-      })
-      .andWhere('UNIX_TIMESTAMP(orders.createdDate) <= :currentDate', {
-        currentDate: Math.floor(currentDate.getTime() / 1000),
-      });
+    // const currentDate = new Date();
+    const twelveMonthsAgo = user.rankUpdatedTime;
+    // const paymentStatus = EPaymentStatus.CONFIRM;
 
-    const result = await query.getRawOne();
-    const totalPrice = result.total;
+    //Doanh thu = các đơn B1 của partnerA đã mời
+    const totalPrice = await this.orderRepository.sum('totalPrice', {
+      couponRef: {
+        owner: {
+          role: EUserRole.partnerB,
+          invitedBy: {
+            id: user.id,
+            role: EUserRole.partnerA,
+          },
+        },
+      },
+      paymentStatus: EFinancialStatus.paid,
+      createdDate: MoreThanOrEqual(twelveMonthsAgo),
+    });
+
+    // const query = this.orderRepository
+    //   .createQueryBuilder('orders')
+    //   .innerJoin('orders.couponRef', 'couponRef')
+    //   .innerJoin('couponRef.owner', 'user')
+    //   .innerJoin('user.invitedBy', 'userInvite')
+    //   .select('SUM(orders.cashBackRefA)', 'total')
+    //   .where('userInvite.id = :userId', { userId: user.id })
+    //   .andWhere('orders.paymentStatus = :paymentStatus', { paymentStatus })
+    //   .andWhere('UNIX_TIMESTAMP(orders.createdDate) >= :twelveMonthsAgo', {
+    //     twelveMonthsAgo: Math.floor(twelveMonthsAgo.getTime() / 1000),
+    //   })
+    //   .andWhere('UNIX_TIMESTAMP(orders.createdDate) <= :currentDate', {
+    //     currentDate: Math.floor(currentDate.getTime() / 1000),
+    //   });
+
+    // const result = await query.getRawOne();
+    // const totalPrice = result.total;
 
     return totalPrice;
   }
@@ -244,9 +290,9 @@ export class CustomerRankService implements OnModuleInit {
       const user = await this.userRepository.findOneBy({ id: userId });
       if (!user) throw new BadRequestException('User not found!');
 
-      let currentRank = await this.getRankOfUser(user.id);
+      const userRank = await this.getRankOfUser(user.id);
 
-      currentRank = currentRank < user.rank ? user.rank : currentRank;
+      const currentRank = userRank.rank < user.rank ? user.rank : userRank.rank;
 
       const currentPoint = await this.getTotalBuyAndCashBackRef(userId);
 
@@ -266,7 +312,7 @@ export class CustomerRankService implements OnModuleInit {
         currentRank: {
           name: ECustomerRankNum[currentRank],
           buyPoint: currentPoint.totalPrice,
-          refPoint: currentPoint.total,
+          refPoint: currentPoint.totalRef,
         },
         nextRank: {
           name: ECustomerRankNum[nextRank],
@@ -279,17 +325,17 @@ export class CustomerRankService implements OnModuleInit {
               ? nextBuyPoint - currentPoint.totalPrice
               : 0,
           refPoint:
-            nextRefPoint > currentPoint.total
-              ? nextRefPoint - currentPoint.total
+            nextRefPoint > currentPoint.totalRef
+              ? nextRefPoint - currentPoint.totalRef
               : 0,
         },
-        rankExpirationTime: !user.rankExpirationTime
-          ? null
-          : new Date(
-              user.rankExpirationTime.setFullYear(
-                user.rankExpirationTime.getFullYear() + 1,
-              ),
+        rankExpirationTime:
+          user.rankExpirationTime ||
+          new Date(
+            user.rankExpirationTime.setFullYear(
+              user.rankExpirationTime.getFullYear() + 1,
             ),
+          ),
       };
 
       return dataReturn;

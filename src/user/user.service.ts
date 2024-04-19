@@ -92,6 +92,17 @@ export class UserService {
     };
   }
 
+  /** Sync điểm ref point của hệ thống qua CRM */
+  async updateCrmRefPoint(crmId: string, refPoint: number) {
+    await this.crmService.updateCustomer(crmId, [
+      {
+        key: 'cumulative_tov_referral',
+        value: refPoint,
+      },
+    ]);
+  }
+
+  /** Sync thông tin user từ CRM về hệ thống */
   async syncFromCrm(crmId: string) {
     const user: User = await this.userRepository.findOneBy({ crmId });
     const crmCusData = (
@@ -102,6 +113,8 @@ export class UserService {
         },
       })
     ).data?.[0];
+
+    console.log(crmCusData.cumulativeTovReferral);
 
     if (!crmCusData) return null;
 
