@@ -56,5 +56,27 @@ export class CrmService {
     };
   }
 
+  async updateCustomer(
+    id: string,
+    fields: Array<{
+      key: string;
+      value: any;
+    }>,
+  ) {
+    const body = {
+      table: 'data_customer',
+      data: [
+        {
+          id: id,
+          fields: fields,
+        },
+      ],
+    };
+
+    const res = await ax.post(`/_api/base-table/update`, body);
+
+    return res.data;
+  }
+
   //#endregion
 }
