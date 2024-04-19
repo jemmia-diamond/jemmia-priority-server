@@ -22,7 +22,7 @@ export class Withdraw {
   @Column('varchar', { default: '' })
   bankName: string;
 
-  @Column('double', { default: 0 })
+  @Column('double precision', { default: 0 })
   amount: number;
 
   @Column('enum', { enum: EWithdrawStatus, default: EWithdrawStatus.pending })

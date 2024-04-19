@@ -46,7 +46,8 @@ import { CrmModule } from './crm/crm.module';
       },
     }),
     TypeOrmModule.forRoot({
-      type: 'mariadb',
+      type: 'postgres',
+      ssl: true,
       host: process.env.DB_HOST,
       port: Number(process.env.DB_PORT),
       password: process.env.DB_PASSWORD,

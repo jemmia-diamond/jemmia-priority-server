@@ -11,7 +11,7 @@ export class Post {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column('double', { nullable: true })
+  @Column('double precision', { nullable: true })
   discountAmount: number;
 
   @Column('varchar', { nullable: true })

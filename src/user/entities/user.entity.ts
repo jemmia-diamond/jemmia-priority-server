@@ -55,11 +55,11 @@ export class User {
   invitesCount: number;
 
   /** Điểm doanh thu được CASHBACK của User */
-  @Column('double', { default: 0 })
+  @Column('double precision', { default: 0 })
   point: number;
 
   /** Điểm hạng thành viên của User */
-  @Column('double', { default: 0 })
+  @Column('double precision', { default: 0 })
   rankPoint: number;
 
   /** Rank của user */
@@ -67,7 +67,7 @@ export class User {
   rank: ECustomerRankNum;
 
   /** Giá trị đơn hàng đã tích luỹ */
-  @Column('double', { default: 0 })
+  @Column('double precision', { default: 0 })
   accumulatedOrderPoint: number;
 
   @Column('enum', { enum: EUserRole })
@@ -82,6 +82,6 @@ export class User {
   @Column('varchar', { length: 32, unique: true })
   maKhachHang: string;
 
-  @Column('double', { default: 0 })
+  @Column('double precision', { default: 0 })
   cumulativeTovRecorded: number;
 }

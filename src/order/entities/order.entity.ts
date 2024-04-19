@@ -19,19 +19,19 @@ export class Order {
   haravanOrderId: number;
 
   /** Tổng giá trị đơn hàng sau giảm */
-  @Column('double', { default: 0 })
+  @Column('double precision', { default: 0 })
   totalPrice: number;
 
   /** Số tiền cashback cho người mua */
-  @Column('double', { default: 0 })
+  @Column('double precision', { default: 0 })
   cashBack: number;
 
   /** Số tiền cashback cho người giới thiệu */
-  @Column('double', { default: 0 })
+  @Column('double precision', { default: 0 })
   cashBackRef: number;
 
   /** Số tiền cashback cho partnerA khi partnerB giới thiệu thành công */
-  @Column('double', { default: 0 })
+  @Column('double precision', { default: 0 })
   cashBackRefA: number;
 
   @Column('enum', { enum: EFinancialStatus, default: EFinancialStatus.pending })

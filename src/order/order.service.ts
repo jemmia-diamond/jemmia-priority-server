@@ -25,6 +25,7 @@ import { Pagination } from 'nestjs-typeorm-paginate';
 import { CustomerRankService } from '../customer-rank/customer-rank.service';
 import { Notification } from '../notification/entities/notification.entity';
 import { NotificationType } from '../notification/enums/noti-type.enum';
+import { CrmService } from '../crm/crm.service';
 
 @Injectable()
 export class OrderService {
@@ -38,6 +39,7 @@ export class OrderService {
     @InjectRepository(Notification)
     private notificationRepository: Repository<Notification>,
     private readonly haravanService: HaravanService,
+    private readonly crmService: CrmService,
     private readonly couponRefService: CouponRefService,
     private readonly customerRankService: CustomerRankService,
     private readonly userService: UserService,
@@ -215,10 +217,12 @@ export class OrderService {
         relations: ['user', 'couponRef'],
       });
 
+      //Sync latest order
       let customer = await this.userRepository.findOneBy({
         haravanId: orderDto.customer.id,
       });
 
+      //Kiểm tra coupon được sử dụng
       let couponRef: CouponRef;
       if (orderDto.discount_codes.length) {
         couponRef = await this.couponRefRepository.findOne({
