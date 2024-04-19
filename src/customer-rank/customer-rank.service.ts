@@ -98,7 +98,11 @@ export class CustomerRankService implements OnModuleInit {
 
   async getTotalBuyAndCashBackRef(userId: string) {
     try {
-      const totalPrice = await this.getTotalPriceForUserLast12Months(userId);
+      // const totalPrice = await this.getTotalPriceForUserLast12Months(userId);
+      //Use from CRM
+      const user = await this.userRepository.findOneBy({ id: userId });
+      const totalPrice = user.cumulativeTovRecorded;
+
       const cashBackRef =
         await this.getCashBackRefFollowPriceForUserLast12Months(userId);
       const cashBackRefA =
