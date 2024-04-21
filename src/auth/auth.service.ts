@@ -14,6 +14,7 @@ import { CouponRef } from '../coupon-ref/entities/coupon-ref.entity';
 import { ECustomerRankNum } from '../customer-rank/enums/customer-rank.enum';
 import { CrmService } from '../crm/crm.service';
 import { UserService } from '../user/user.service';
+import { CrmCustomerDto } from '../crm/dto/crm-customer.dto';
 
 @Injectable()
 export class AuthService {
@@ -51,14 +52,18 @@ export class AuthService {
     //VERIFY OAUTH TOKEN
     const tokenPayload = await this.verifyOAuth(payload.token);
     const fPhoneNum = tokenPayload.phone_number?.replace(/^\+84/, '0');
-    const crmCusData = (
-      await this.crmService.findAllCustomer({
-        limit: 1,
-        query: {
-          'phones.value': fPhoneNum,
-        },
-      })
-    ).data?.[0];
+    let crmCusData: CrmCustomerDto;
+
+    if (fPhoneNum) {
+      crmCusData = (
+        await this.crmService.findAllCustomer({
+          limit: 1,
+          query: {
+            'phones.value': fPhoneNum,
+          },
+        })
+      ).data?.[0];
+    }
 
     //Trường hợp user k phải admin & cũng không phải khách hàng haravan
     if (!tokenPayload.email && !crmCusData) {
@@ -74,7 +79,7 @@ export class AuthService {
         },
         {
           //Customer account query
-          crmId: crmCusData.id,
+          crmId: crmCusData?.id,
         },
       ],
     });
