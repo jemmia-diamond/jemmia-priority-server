@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { ScheduleModule } from '@nestjs/schedule';
 import { CustomerRankService } from './customer-rank.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -11,7 +11,7 @@ import { UserModule } from '../user/user.module';
   imports: [
     ScheduleModule.forRoot(),
     TypeOrmModule.forFeature([User, Order]),
-    UserModule,
+    forwardRef(() => UserModule),
   ],
   controllers: [CustomerRankController],
   providers: [CustomerRankService],

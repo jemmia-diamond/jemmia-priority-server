@@ -1,8 +1,10 @@
 import {
   HttpException,
   HttpStatus,
+  Inject,
   Injectable,
   NotFoundException,
+  forwardRef,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
@@ -29,6 +31,7 @@ export class UserService {
     private crmService: CrmService,
     private couponRefService: CouponRefService,
     private userRedis: UserRedis,
+    @Inject(forwardRef(() => CustomerRankService))
     private readonly customerRankService: CustomerRankService,
   ) {}
 
