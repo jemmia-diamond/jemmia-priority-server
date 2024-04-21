@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { UserService } from './user.service';
 import { UserController } from './user.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -16,7 +16,7 @@ import { CustomerRankModule } from '../customer-rank/customer-rank.module';
     HaravanModule,
     CouponRefModule,
     CrmModule,
-    CustomerRankModule,
+    forwardRef(() => CustomerRankModule),
   ],
   controllers: [UserController],
   providers: [UserService, UserRedis, UserEntitySubscriber],
