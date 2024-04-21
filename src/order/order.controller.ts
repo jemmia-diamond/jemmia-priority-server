@@ -64,8 +64,8 @@ export class OrderController {
       console.log(JSON.stringify(body));
       console.log('========== HANDLE HOOK ===========');
 
-      // const res = await this.orderService.haravanHook(body);
-      // return res;
+      const res = await this.orderService.haravanHook(body);
+      return res;
 
       return;
     } else {
