@@ -18,6 +18,7 @@ import { HaravanCustomerDto } from '../haravan/dto/haravan-customer.dto';
 import { ECustomerRankNum } from '../customer-rank/enums/customer-rank.enum';
 import { UserRedis } from './user.redis';
 import { CrmService } from '../crm/crm.service';
+import { CustomerRankService } from '../customer-rank/customer-rank.service';
 
 @Injectable()
 export class UserService {
@@ -28,6 +29,7 @@ export class UserService {
     private crmService: CrmService,
     private couponRefService: CouponRefService,
     private userRedis: UserRedis,
+    private readonly customerRankService: CustomerRankService,
   ) {}
 
   async findUserNative(id: string) {
@@ -102,9 +104,9 @@ export class UserService {
     ]);
   }
 
-  /** Sync thông tin user từ CRM về hệ thống */
+  /** Sync thông tin user từ CRM về hệ thống & phân hạng */
   async syncFromCrm(crmId: string) {
-    const user: User = await this.userRepository.findOneBy({ crmId });
+    let user: User = await this.userRepository.findOneBy({ crmId });
     const crmCusData = (
       await this.crmService.findAllCustomer({
         limit: 1,
@@ -120,7 +122,7 @@ export class UserService {
 
     //!TODO SYNC WITH RANK CALCULATE
 
-    return this.userRepository.save({
+    user = await this.userRepository.save({
       ...user,
       haravanId: crmCusData.haravanId,
       crmId: crmCusData.id,
@@ -134,6 +136,11 @@ export class UserService {
         ? EUserRole.customer
         : EUserRole.staff,
     });
+
+    //Cập nhật rank cho customer
+    await this.customerRankService.updateUserRank(user);
+
+    return user;
   }
 
   async syncCrmUsers() {
@@ -202,15 +209,19 @@ export class UserService {
   }
 
   async createUserFromHaravan(data: HaravanCustomerDto) {
-    const user = await this.userRepository.save({
-      authId: data.phone,
-      phoneNumber: data.phone,
-      inviteCode: StringUtils.random(6),
-      role: EUserRole.customer,
-      haravanId: data.id,
-    });
+    //Find from CRM
+    const crmCusData = (
+      await this.crmService.findAllCustomer({
+        limit: 1,
+        query: {
+          haravan_id: data.id,
+        },
+      })
+    )?.data?.[0];
 
-    return user;
+    if (!crmCusData) return;
+
+    return this.syncFromCrm(crmCusData.id);
   }
 
   async updateNativeUser(user: User) {

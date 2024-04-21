@@ -7,6 +7,8 @@ import {
   Request,
   Post,
   Body,
+  Headers,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { OrderService } from './order.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -49,14 +51,26 @@ export class OrderController {
   async haravanHookCreate(
     @Request() req: RequestPayload,
     @Body() body: HaravanOrderDto,
+    @Headers() headers: any,
   ) {
-    console.log('/hook/haravan/create');
-    console.log(JSON.stringify(body));
-    console.log('========== HANDLE HOOK ===========');
-    // Xử lý xác thực token từ webhook.
-    const res = await this.orderService.haravanHook(body);
-    console.log('DONE');
-    return res;
+    if (
+      this.orderService.verifyHaravanHook(
+        body,
+        headers['x-haravan-hmacsha256'],
+      ) &&
+      headers['x-haravan-hmacsha256']
+    ) {
+      console.log('/hook/haravan/create');
+      console.log(JSON.stringify(body));
+      console.log('========== HANDLE HOOK ===========');
+
+      // const res = await this.orderService.haravanHook(body);
+      // return res;
+
+      return;
+    } else {
+      throw new UnauthorizedException();
+    }
   }
 
   @Post('/hook')

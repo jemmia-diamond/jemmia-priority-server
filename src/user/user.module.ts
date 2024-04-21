@@ -8,6 +8,7 @@ import { CouponRefModule } from '../coupon-ref/coupon-ref.module';
 import { UserRedis } from './user.redis';
 import { UserEntitySubscriber } from './subscribers/user-entity.subscriber';
 import { CrmModule } from '../crm/crm.module';
+import { CustomerRankModule } from '../customer-rank/customer-rank.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { CrmModule } from '../crm/crm.module';
     HaravanModule,
     CouponRefModule,
     CrmModule,
+    CustomerRankModule,
   ],
   controllers: [UserController],
   providers: [UserService, UserRedis, UserEntitySubscriber],

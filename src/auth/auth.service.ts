@@ -79,7 +79,7 @@ export class AuthService {
       ],
     });
 
-    //Sync dữ liệu khách hàng từ haravan sang
+    //Sync dữ liệu khách hàng từ CRM sang
     if (crmCusData) {
       user = await this.userService.syncFromCrm(crmCusData.id);
     }

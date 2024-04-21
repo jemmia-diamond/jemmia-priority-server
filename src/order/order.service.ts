@@ -26,6 +26,7 @@ import { CustomerRankService } from '../customer-rank/customer-rank.service';
 import { Notification } from '../notification/entities/notification.entity';
 import { NotificationType } from '../notification/enums/noti-type.enum';
 import { CrmService } from '../crm/crm.service';
+import { createHmac } from 'crypto';
 
 @Injectable()
 export class OrderService {
@@ -197,6 +198,14 @@ export class OrderService {
       /** Người mời được nhận cashbackRef */
       inviter: inviter,
     };
+  }
+
+  verifyHaravanHook(data: any, headerSignature: string) {
+    const hmac = createHmac('sha256', process.env.HARAVAN_SECRET);
+    const hmacData = hmac.update(Buffer.from(data, 'utf8'));
+    const signature = hmacData.digest('base64');
+
+    return signature === headerSignature;
   }
 
   async haravanHook(orderDto: HaravanOrderDto) {
