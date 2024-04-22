@@ -63,6 +63,8 @@ export class AuthService {
           },
         })
       ).data?.[0];
+
+      console.log(crmCusData);
     }
 
     console.log(tokenPayload);
