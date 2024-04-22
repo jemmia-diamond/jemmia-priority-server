@@ -1,29 +1,14 @@
-import { HttpAdapterHost, NestFactory } from '@nestjs/core';
+import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import * as dotenv from 'dotenv';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as admin from 'firebase-admin';
-import { TelegramFilter } from './telegram.filter';
-import { Telegraf } from 'telegraf';
-
-// const telegramBot = new Telegraf(process.env.TELEGRAM_BOT_TOKEN);
-// process.on('uncaughtException', (error) => {
-//   telegramBot.telegram.sendMessage(
-//     process.env.TELEGRAM_BOT_GROUP,
-//     `<b>UNCAUGHT EXCEPTION</b>\n<b>Message</b>\n<code>${error.message}</code>\n<b>Stack</b>\n<code>${error.stack}</code>`,
-//     {
-//       parse_mode: 'HTML',
-//     },
-//   );
-// });
 
 //!SET DEFAULT TIMEZONE
 process.env.TZ = 'Asia/Ho_Chi_Minh';
 
 async function bootstrap() {
   dotenv.config();
-
-  console.log('AAA');
 
   const app = await NestFactory.create(AppModule);
   app.enableCors({
@@ -61,21 +46,6 @@ async function bootstrap() {
       'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui.css',
     ],
   });
-
-  // if (process.env.TELEGRAM_BOT_TOKEN && process.env.TELEGRAM_BOT_GROUP) {
-  //   const { httpAdapter } = app.get(HttpAdapterHost);
-  //   app.useGlobalFilters(new TelegramFilter(httpAdapter, telegramBot));
-
-  //   telegramBot.telegram.sendMessage(
-  //     process.env.TELEGRAM_BOT_GROUP,
-  //     '<b>STARTED JEMMIA LOGS SERVICE</b>',
-  //     {
-  //       parse_mode: 'HTML',
-  //     },
-  //   );
-  // }
-
-  // telegramBot.launch();
 
   await app.listen(process.env.PORT);
 }
