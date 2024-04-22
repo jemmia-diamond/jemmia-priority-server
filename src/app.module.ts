@@ -51,6 +51,7 @@ import { CrmModule } from './crm/crm.module';
       username: process.env.DB_UNAME,
       acquireTimeout: 60 * 60 * 1000,
       connectTimeout: 60 * 60 * 1000,
+      poolSize: 1,
       entities: [
         User,
         Coupon,
