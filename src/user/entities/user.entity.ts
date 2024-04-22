@@ -87,4 +87,7 @@ export class User {
 
   @Column('double precision', { default: 0 })
   cumulativeTovRecorded: number;
+
+  @Column('tinyint', { default: 0 })
+  gender: number;
 }

@@ -21,6 +21,7 @@ import { ECustomerRankNum } from '../customer-rank/enums/customer-rank.enum';
 import { UserRedis } from './user.redis';
 import { CrmService } from '../crm/crm.service';
 import { CustomerRankService } from '../customer-rank/customer-rank.service';
+import { ECrmCustomerGender } from '../crm/enums/crm-customer.enum';
 
 @Injectable()
 export class UserService {
@@ -135,6 +136,7 @@ export class UserService {
       address1: crmCusData.address1,
       maKhachHang: crmCusData.maKhachHang,
       cumulativeTovRecorded: crmCusData.cumulativeTovRecorded,
+      gender: ECrmCustomerGender[crmCusData.gioiTinh?.[0]?.value] ?? 0,
       role: /^kh|KH/.test(crmCusData.maKhachHang)
         ? EUserRole.customer
         : EUserRole.staff,
