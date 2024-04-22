@@ -375,7 +375,7 @@ export class OrderService {
 
       if (order.paymentStatus === EFinancialStatus.paid) {
         //Cộng giá trị đơn tích luỹ
-        customer.accumulatedOrderPoint += order.totalPrice;
+        // customer.accumulatedOrderPoint += order.totalPrice;
       }
 
       await this.orderRepository.save(order);
