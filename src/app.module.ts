@@ -49,6 +49,8 @@ import { CrmModule } from './crm/crm.module';
       port: Number(process.env.DB_PORT),
       password: process.env.DB_PASSWORD,
       username: process.env.DB_UNAME,
+      acquireTimeout: 60 * 60 * 1000,
+      connectTimeout: 60 * 60 * 1000,
       entities: [
         User,
         Coupon,
