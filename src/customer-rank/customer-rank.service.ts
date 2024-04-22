@@ -337,13 +337,7 @@ export class CustomerRankService implements OnModuleInit {
               ? nextRefPoint - currentPoint.totalRef
               : 0,
         },
-        rankExpirationTime:
-          user.rankExpirationTime ||
-          new Date(
-            user.rankExpirationTime.setFullYear(
-              user.rankExpirationTime.getFullYear() + 1,
-            ),
-          ),
+        rankExpirationTime: user.rankExpirationTime,
       };
 
       return dataReturn;
