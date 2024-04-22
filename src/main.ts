@@ -66,7 +66,7 @@ async function bootstrap() {
 
     telegramBot.telegram.sendMessage(
       process.env.TELEGRAM_BOT_GROUP,
-      '<b>STARTED SIGHTSEA WEB3 SERVICE</b>',
+      '<b>STARTED JEMMIA LOGS SERVICE</b>',
       {
         parse_mode: 'HTML',
       },

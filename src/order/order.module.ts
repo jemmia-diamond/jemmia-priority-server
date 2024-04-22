@@ -11,6 +11,7 @@ import { CouponRef } from '../coupon-ref/entities/coupon-ref.entity';
 import { CustomerRankModule } from '../customer-rank/customer-rank.module';
 import { Notification } from '../notification/entities/notification.entity';
 import { CrmModule } from '../crm/crm.module';
+import { HelpersModule } from '../helpers/helpers.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { CrmModule } from '../crm/crm.module';
     UserModule,
     CustomerRankModule,
     CrmModule,
+    HelpersModule,
   ],
   controllers: [OrderController],
   providers: [OrderService],
