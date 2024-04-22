@@ -135,8 +135,8 @@ export class UserService {
       phoneNumber: crmCusData.phones?.[0]?.value,
       address1: crmCusData.address1,
       maKhachHang: crmCusData.maKhachHang,
-      cumulativeTovRecorded: crmCusData.cumulativeTovRecorded,
-      accumulatedOrderPoint: crmCusData.cumulativeTovRecorded,
+      cumulativeTovRecorded: crmCusData.cumulativeTovRecorded || 0,
+      accumulatedOrderPoint: crmCusData.cumulativeTovRecorded || 0,
       gender: ECrmCustomerGender[crmCusData.gioiTinh?.[0]?.value] ?? 0,
       role: /^kh|KH/.test(crmCusData.maKhachHang)
         ? EUserRole.customer
