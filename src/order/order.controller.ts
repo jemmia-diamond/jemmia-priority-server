@@ -68,8 +68,6 @@ export class OrderController {
 
       const res = await this.orderService.haravanHook(body);
       return res;
-
-      return;
     } else {
       await this.telegramBotService.sendException(
         'ORRDER HOOK VERIFY FAILED',

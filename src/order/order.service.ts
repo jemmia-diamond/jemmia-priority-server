@@ -202,7 +202,7 @@ export class OrderService {
 
   verifyHaravanHook(data: any, headerSignature: string) {
     const hmac = createHmac('sha256', process.env.HARAVAN_SECRET);
-    const hmacData = hmac.update(Buffer.from(data, 'utf8'));
+    const hmacData = hmac.update(Buffer.from(JSON.stringify(data), 'utf8'));
     const signature = hmacData.digest('base64');
 
     return signature === headerSignature;
