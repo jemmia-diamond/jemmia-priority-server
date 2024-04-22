@@ -65,6 +65,8 @@ export class AuthService {
       ).data?.[0];
     }
 
+    console.log(tokenPayload);
+
     //Trường hợp user k phải admin & cũng không phải khách hàng haravan
     if (!tokenPayload.email && !crmCusData) {
       throw new HttpException('USER_NOT_FOUND', HttpStatus.UNAUTHORIZED);
