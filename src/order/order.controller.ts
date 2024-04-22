@@ -19,6 +19,7 @@ import { CouponRefService } from '../coupon-ref/coupon-ref.service';
 import { UserService } from '../user/user.service';
 import { OrderQueryDto } from './dto/order-query.dto';
 import { EUserRole } from '../user/enums/user-role.enum';
+import { TelegramBotService } from '../helpers/telegram-bot.service';
 
 @ApiTags('Order')
 @ApiBearerAuth()
@@ -28,6 +29,7 @@ export class OrderController {
     private readonly orderService: OrderService,
     private readonly couponRefService: CouponRefService,
     private readonly userService: UserService,
+    private readonly telegramBotService: TelegramBotService,
   ) {}
 
   @UseGuards(JwtAuthGuard)
@@ -69,6 +71,12 @@ export class OrderController {
 
       return;
     } else {
+      await this.telegramBotService.sendException(
+        'ORRDER HOOK VERIFY FAILED',
+        '',
+        JSON.stringify(headers),
+        body,
+      );
       throw new UnauthorizedException();
     }
   }
