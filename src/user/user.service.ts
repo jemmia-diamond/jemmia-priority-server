@@ -124,7 +124,10 @@ export class UserService {
 
     if (!crmCusData) return null;
 
-    //!TODO SYNC WITH RANK CALCULATE
+    if (user) {
+      //Tính rank cho user
+      user = await this.customerRankService.calcRankAndSetToUser({ ...user });
+    }
 
     user = await this.userRepository.save({
       ...user,
@@ -139,13 +142,11 @@ export class UserService {
       accumulatedOrderPoint: crmCusData.cumulativeTovRecorded || 0,
       gender: ECrmCustomerGender[crmCusData.gioiTinh?.[0]?.value] ?? 0,
       role:
-        user?.role || /^kh|KH/.test(crmCusData.maKhachHang)
+        user?.role ||
+        (/^kh|KH/.test(crmCusData.maKhachHang)
           ? EUserRole.customer
-          : EUserRole.staff,
+          : EUserRole.staff),
     });
-
-    //Cập nhật rank cho customer
-    await this.customerRankService.updateUserRank(user);
 
     return user;
   }
