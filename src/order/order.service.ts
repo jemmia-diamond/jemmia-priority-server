@@ -247,11 +247,11 @@ export class OrderService {
       //Tạo khách hàng nếu không tồn tại
       if (!customer) {
         console.log('\n========== CUSTOMER');
-        console.log(JSON.stringify(customer));
 
         customer = await this.userService.createUserFromHaravan(
           orderDto.customer,
         );
+        console.log(JSON.stringify(customer));
       }
 
       if (!order) {
