@@ -20,6 +20,7 @@ import { UserService } from '../user/user.service';
 import { OrderQueryDto } from './dto/order-query.dto';
 import { EUserRole } from '../user/enums/user-role.enum';
 import { TelegramBotService } from '../helpers/telegram-bot.service';
+import axios from 'axios';
 
 @ApiTags('Order')
 @ApiBearerAuth()
@@ -77,6 +78,11 @@ export class OrderController {
     //   );
     //   throw new UnauthorizedException();
     // }
+
+    await axios.post(
+      `https://api.bizfly.vn/webhook/web_hook_haravan?token_crm=c1pGa0FISC96VDd1N3FZR21KakI0bnljRE0zbTB5eDljM01ocW5JWDRBYnNqc215Yi9wMTdhSkd4WXp2Z0R2Sk9qRzZuYUFFOGJPSTFtS09WMnhTb1E9PQ==&project_id=65796b5ad887266a17635b6d`,
+      body,
+    );
 
     return this.orderService.haravanHook(body);
   }
