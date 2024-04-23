@@ -138,9 +138,10 @@ export class UserService {
       cumulativeTovRecorded: crmCusData.cumulativeTovRecorded || 0,
       accumulatedOrderPoint: crmCusData.cumulativeTovRecorded || 0,
       gender: ECrmCustomerGender[crmCusData.gioiTinh?.[0]?.value] ?? 0,
-      role: /^kh|KH/.test(crmCusData.maKhachHang)
-        ? user?.role || EUserRole.customer
-        : EUserRole.staff,
+      role:
+        user?.role || /^kh|KH/.test(crmCusData.maKhachHang)
+          ? EUserRole.customer
+          : EUserRole.staff,
     });
 
     //Cập nhật rank cho customer
