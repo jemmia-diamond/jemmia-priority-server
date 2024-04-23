@@ -53,7 +53,7 @@ export class UserService {
 
       if (!user) return null;
 
-      user = await this.syncFromCrm(user.crmId);
+      // user = await this.syncFromCrm(user.crmId);
 
       await this.userRedis.set(id, {
         ...user,
