@@ -55,28 +55,30 @@ export class OrderController {
     @Body() body: HaravanOrderDto,
     @Headers() headers: any,
   ) {
-    if (
-      this.orderService.verifyHaravanHook(
-        body,
-        headers['x-haravan-hmacsha256'],
-      ) &&
-      headers['x-haravan-hmacsha256']
-    ) {
-      console.log('/hook/haravan/create');
-      console.log(JSON.stringify(body));
-      console.log('========== HANDLE HOOK ===========');
+    // if (
+    //   this.orderService.verifyHaravanHook(
+    //     body,
+    //     headers['x-haravan-hmacsha256'],
+    //   ) &&
+    //   headers['x-haravan-hmacsha256']
+    // ) {
+    //   console.log('/hook/haravan/create');
+    //   console.log(JSON.stringify(body));
+    //   console.log('========== HANDLE HOOK ===========');
 
-      const res = await this.orderService.haravanHook(body);
-      return res;
-    } else {
-      await this.telegramBotService.sendException(
-        'ORRDER HOOK VERIFY FAILED',
-        '',
-        JSON.stringify(headers),
-        body,
-      );
-      throw new UnauthorizedException();
-    }
+    //   const res = await this.orderService.haravanHook(body);
+    //   return res;
+    // } else {
+    //   await this.telegramBotService.sendException(
+    //     'ORRDER HOOK VERIFY FAILED',
+    //     '',
+    //     JSON.stringify(headers),
+    //     body,
+    //   );
+    //   throw new UnauthorizedException();
+    // }
+
+    return this.orderService.haravanHook(body);
   }
 
   @Post('/hook')
