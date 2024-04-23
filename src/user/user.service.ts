@@ -139,7 +139,7 @@ export class UserService {
       accumulatedOrderPoint: crmCusData.cumulativeTovRecorded || 0,
       gender: ECrmCustomerGender[crmCusData.gioiTinh?.[0]?.value] ?? 0,
       role: /^kh|KH/.test(crmCusData.maKhachHang)
-        ? EUserRole.customer
+        ? user?.role || EUserRole.customer
         : EUserRole.staff,
     });
 
