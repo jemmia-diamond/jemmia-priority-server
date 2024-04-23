@@ -74,10 +74,10 @@ export class UserService {
   }
 
   async findAllUser(query: UserQueryDto) {
-    query.page = Number(query.page) || 1;
     query.limit = Number(query.limit) || 1;
+    const offset = ((query.page || 1) - 1) * query.limit;
     const [users, total] = await this.userRepository.findAndCount({
-      skip: query.page,
+      skip: offset,
       take: query.limit,
       where: [
         {
@@ -87,11 +87,14 @@ export class UserService {
           name: query.query ? Like(`%${query.query}%`) : null,
         },
       ],
+      order: {
+        createdAt: 'DESC',
+      },
     });
 
     return {
       users,
-      page: query.page,
+      page: offset,
       size: query.limit,
       total,
       totalPage: Math.ceil(total / query.limit),
