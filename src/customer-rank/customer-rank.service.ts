@@ -80,6 +80,17 @@ export class CustomerRankService implements OnModuleInit {
   /** Update rank của user và sync điểm ref qua CRM */
   async updateUserRank(user: User) {
     try {
+      const u = await this.calcRankAndSetToUser(user);
+
+      await this.userRepository.save(u);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  //* Giống updateUserRank nhưng chỉ trả về giá trị & SYNC CRM REF POINT
+  async calcRankAndSetToUser(user: User) {
+    try {
       const currentRank = user.rank;
       const userRank = await this.getRankOfUser(user.id);
       const dateNow = new Date();
@@ -100,15 +111,13 @@ export class CustomerRankService implements OnModuleInit {
         );
       }
 
-      await this.userRepository.save(user);
-
       //Sync ref point to CRM
       await this.userService.updateCrmRefPoint(
         user.crmId,
         userRank.currentPoint.totalRef,
       );
 
-      return userRank;
+      return user;
     } catch (error) {
       console.log(error);
     }
