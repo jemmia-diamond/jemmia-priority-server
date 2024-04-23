@@ -82,12 +82,18 @@ export class CustomerRankService implements OnModuleInit {
     try {
       const currentRank = user.rank;
       const userRank = await this.getRankOfUser(user.id);
+      const dateNow = new Date();
+
       if (userRank.rank > ECustomerRankNum.silver) {
-        user.rank = userRank.rank >= user.rank ? userRank.rank : user.rank - 1;
+        user.rank =
+          userRank.rank >= user.rank //Nếu hạng tính ra lớn hơn thì thăng hạng
+            ? userRank.rank
+            : user.rankExpirationTime <= dateNow //Nếu hạng hết hạn & hạng tính ra nhỏ hơn hạng hiện tại thì giảm hạng
+              ? user.rank - 1
+              : user.rank; //Mặc định giữ hạng
       }
 
       if (user.rank !== currentRank) {
-        const dateNow = new Date();
         user.rankUpdatedTime = dateNow;
         user.rankExpirationTime = new Date(
           dateNow.setFullYear(dateNow.getFullYear() + 1),
