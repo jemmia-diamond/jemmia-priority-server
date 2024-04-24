@@ -101,92 +101,6 @@ export class UserService {
     };
   }
 
-  /** Sync điểm ref point của hệ thống qua CRM */
-  async updateCrmRefPoint(crmId: string, refPoint: number) {
-    await this.crmService.updateCustomer(crmId, [
-      {
-        key: 'cumulative_tov_referral',
-        value: refPoint,
-      },
-    ]);
-  }
-
-  /** Sync thông tin user từ CRM về hệ thống & phân hạng */
-  async syncFromCrm(crmId: string) {
-    let user: User = await this.userRepository.findOneBy({ crmId });
-    const crmCusData = (
-      await this.crmService.findAllCustomer({
-        limit: 1,
-        query: {
-          id: crmId,
-        },
-      })
-    ).data?.[0];
-
-    console.log(crmCusData.cumulativeTovReferral);
-
-    if (!crmCusData) return null;
-
-    if (user) {
-      //Tính rank cho user
-      user = await this.customerRankService.calcRankAndSetToUser({ ...user });
-    }
-
-    user = await this.userRepository.save({
-      ...user,
-      haravanId: crmCusData.haravanId,
-      crmId: crmCusData.id,
-      name: crmCusData.name.value,
-      authId: crmCusData.phones?.[0]?.value,
-      phoneNumber: crmCusData.phones?.[0]?.value,
-      address1: crmCusData.address1,
-      maKhachHang: crmCusData.maKhachHang,
-      cumulativeTovRecorded: crmCusData.cumulativeTovRecorded || 0,
-      accumulatedOrderPoint: crmCusData.cumulativeTovRecorded || 0,
-      gender: ECrmCustomerGender[crmCusData.gioiTinh?.[0]?.value] ?? 0,
-      role:
-        user?.role ||
-        (/^kh|KH/.test(crmCusData.maKhachHang)
-          ? EUserRole.customer
-          : EUserRole.staff),
-    });
-
-    return user;
-  }
-
-  async syncCrmUsers() {
-    const users = await this.crmService.findAllCustomer({
-      limit: 9999999999,
-      skip: 7976,
-    });
-
-    let index = 7976;
-
-    for (const u of users.data) {
-      try {
-        console.log(`${index}/${users.total}`);
-        if (u.maKhachHang && u.haravanId) {
-          await this.userRepository.save({
-            haravanId: u.haravanId,
-            crmId: u.id,
-            name: u.name.value,
-            authId: u.phones?.[0]?.value,
-            phoneNumber: u.phones?.[0]?.value,
-            address1: u.address1,
-            maKhachHang: u.maKhachHang,
-            cumulativeTovRecorded: u.cumulativeTovRecorded,
-            role: /^kh|KH/.test(u.maKhachHang)
-              ? EUserRole.customer
-              : EUserRole.staff,
-          });
-        }
-        index++;
-      } catch (e) {
-        console.log(e);
-      }
-    }
-  }
-
   //!TODO: CREATE USER & SYNC FROM HARAVAN
   async createUser(data: UserInfoDto) {
     try {
@@ -296,4 +210,115 @@ export class UserService {
 
     await this.userRepository.delete(id);
   }
+
+  //#region CRM
+  /** Sync điểm ref point của hệ thống qua CRM */
+  async updateCrmRefPoint(crmId: string, refPoint: number) {
+    await this.crmService.updateCustomer(crmId, [
+      {
+        key: 'cumulative_tov_referral',
+        value: refPoint,
+      },
+    ]);
+  }
+
+  //** Sync thời gian login lần đầu qua CRM */
+  async updateCrmFirstLoginDate(crmId: string, date: Date) {
+    const formatDate = date.toLocaleString('vi', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+    });
+
+    await this.crmService.updateCustomer(crmId, [
+      {
+        key: 'app_first_login_date',
+        value: formatDate,
+      },
+    ]);
+  }
+
+  /** Sync thông tin user từ CRM về hệ thống & phân hạng */
+  async syncFromCrm(crmId: string) {
+    let user: User = await this.userRepository.findOneBy({ crmId });
+    const crmCusData = (
+      await this.crmService.findAllCustomer({
+        limit: 1,
+        query: {
+          id: crmId,
+        },
+      })
+    ).data?.[0];
+
+    console.log(crmCusData.cumulativeTovReferral);
+
+    if (!crmCusData) return null;
+
+    if (user) {
+      //Tính rank cho user
+      user = await this.customerRankService.calcRankAndSetToUser({ ...user });
+    } else {
+      //Sync lần login lần đầu qua CRM
+      await this.updateCrmFirstLoginDate(crmCusData.id, new Date());
+    }
+
+    user = await this.userRepository.save({
+      ...user,
+      haravanId: crmCusData.haravanId,
+      crmId: crmCusData.id,
+      name: crmCusData.name.value,
+      authId: crmCusData.phones?.[0]?.value,
+      phoneNumber: crmCusData.phones?.[0]?.value,
+      address1: crmCusData.address1,
+      maKhachHang: crmCusData.maKhachHang,
+      cumulativeTovRecorded: crmCusData.cumulativeTovRecorded || 0,
+      accumulatedOrderPoint: crmCusData.cumulativeTovRecorded || 0,
+      gender: ECrmCustomerGender[crmCusData.gioiTinh?.[0]?.value] ?? 0,
+      role:
+        user?.role ||
+        (/^kh|KH/.test(crmCusData.maKhachHang)
+          ? EUserRole.customer
+          : EUserRole.staff),
+    });
+
+    return user;
+  }
+
+  async syncCrmUsers() {
+    const users = await this.crmService.findAllCustomer({
+      limit: 9999999999,
+      skip: 7976,
+    });
+
+    let index = 7976;
+
+    for (const u of users.data) {
+      try {
+        console.log(`${index}/${users.total}`);
+        if (u.maKhachHang && u.haravanId) {
+          await this.userRepository.save({
+            haravanId: u.haravanId,
+            crmId: u.id,
+            name: u.name.value,
+            authId: u.phones?.[0]?.value,
+            phoneNumber: u.phones?.[0]?.value,
+            address1: u.address1,
+            maKhachHang: u.maKhachHang,
+            cumulativeTovRecorded: u.cumulativeTovRecorded,
+            role: /^kh|KH/.test(u.maKhachHang)
+              ? EUserRole.customer
+              : EUserRole.staff,
+          });
+        }
+        index++;
+      } catch (e) {
+        console.log(e);
+      }
+    }
+  }
+
+  //#endregion
 }
