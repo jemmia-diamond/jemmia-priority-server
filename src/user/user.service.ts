@@ -241,6 +241,25 @@ export class UserService {
     ]);
   }
 
+  //*Sync thời gian login lần cuối qua CRM */
+  async updateCrmLastLoginDate(crmId: string, date: Date) {
+    const formatDate = date.toLocaleString('vi', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+    });
+
+    await this.crmService.updateCustomer(crmId, [
+      {
+        key: 'app_last_login_date',
+        value: formatDate,
+      },
+    ]);
+  }
+
   /** Sync thông tin user từ CRM về hệ thống & phân hạng */
   async syncFromCrm(crmId: string) {
     let user: User = await this.userRepository.findOneBy({ crmId });
@@ -260,6 +279,9 @@ export class UserService {
     if (user) {
       //Tính rank cho user
       user = await this.customerRankService.calcRankAndSetToUser({ ...user });
+
+      //Sync thời gian login lần cuối qua CRM
+      await this.updateCrmLastLoginDate(crmCusData.id, new Date());
     } else {
       //Sync lần login lần đầu qua CRM
       await this.updateCrmFirstLoginDate(crmCusData.id, new Date());
