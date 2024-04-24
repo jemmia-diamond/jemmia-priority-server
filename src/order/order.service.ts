@@ -8,7 +8,7 @@ import { HaravanService } from '../haravan/haravan.service';
 import { EUserRole } from '../user/enums/user-role.enum';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../user/entities/user.entity';
-import { In, Repository } from 'typeorm';
+import { In, MoreThan, Repository } from 'typeorm';
 import { Order } from './entities/order.entity';
 import { CouponRefService } from '../coupon-ref/coupon-ref.service';
 import { UserService } from '../user/user.service';
@@ -58,6 +58,8 @@ export class OrderService {
           },
         },
         {
+          cashBackRef: MoreThan(0),
+          cashBackRefA: MoreThan(0),
           couponRef: [
             {
               owner: [
@@ -77,7 +79,14 @@ export class OrderService {
       order: { createdDate: 'DESC' },
       skip: offset,
       take: limit,
-      relations: ['user', 'couponRef.owner.invitedBy'],
+      relations: {
+        user: true,
+        couponRef: {
+          owner: {
+            invitedBy: true,
+          },
+        },
+      },
       select: {
         user: {
           id: true,
