@@ -8,7 +8,7 @@ import { HaravanService } from '../haravan/haravan.service';
 import { EUserRole } from '../user/enums/user-role.enum';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../user/entities/user.entity';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { Order } from './entities/order.entity';
 import { CouponRefService } from '../coupon-ref/coupon-ref.service';
 import { UserService } from '../user/user.service';
@@ -218,12 +218,25 @@ export class OrderService {
         return 'CANT FIND CUSTOMER';
       }
 
-      //Get Order
+      //Get Order dựa trên haravanId hoặc coupon-ref (Dùng cho trường hợp coupon-ref không giới hạn)
       let order = await this.orderRepository.findOne({
-        where: {
-          haravanOrderId: orderDto.id,
+        where: [
+          {
+            haravanOrderId: orderDto.id,
+          },
+          {
+            couponRef: {
+              used: false,
+              couponHaravanCode: orderDto.discount_codes?.length
+                ? In(orderDto.discount_codes.map((d) => d.code))
+                : null,
+            },
+          },
+        ],
+        relations: {
+          user: true,
+          couponRef: true,
         },
-        relations: ['user', 'couponRef'],
       });
 
       //Sync latest order
@@ -236,9 +249,13 @@ export class OrderService {
       if (orderDto.discount_codes.length) {
         couponRef = await this.couponRefRepository.findOne({
           where: {
-            couponHaravanCode: orderDto.discount_codes[0]?.code,
+            couponHaravanCode: In(orderDto.discount_codes.map((d) => d.code)),
           },
-          relations: ['owner.invitedBy'],
+          relations: {
+            owner: {
+              invitedBy: true,
+            },
+          },
         });
         console.log('\n========== COUPON REF/');
         console.log(JSON.stringify(couponRef));
@@ -269,19 +286,24 @@ export class OrderService {
       order.paymentStatus = orderDto.financial_status;
       order.totalPrice = orderDto.total_price;
 
+      //Cập nhật owner của coupon-ref & gắn vào order
       if (couponRef) {
-        //Mặc định sẽ set luôn đã sử dụng khi tạo đơn vì khi huỷ đơn thì coupon cũng k thể sử dụng lại
-        couponRef.used = true;
-        couponRef.usedCount++;
-        couponRef.usedBy = customer;
-        couponRef.usedByName = `${orderDto.customer.firstName || ''} ${orderDto.customer.lastName || ''}`;
-
         //Gắn couponRef owner vào user ở trường hợp A cầm coupon ref đi mua hàng
         if (!couponRef.owner) {
           couponRef.owner = customer;
         }
 
         order.couponRef = couponRef;
+
+        //Cập nhật người sử dụng coupon-ref
+        if (
+          order.paymentStatus == EFinancialStatus.pending ||
+          order.paymentStatus == EFinancialStatus.cancelled //Trường hợp đơn đang được huỷ -> User đặt lại
+        ) {
+          couponRef.usedCount++;
+          couponRef.usedBy = customer;
+          couponRef.usedByName = `${orderDto.customer.firstName || ''} ${orderDto.customer.lastName || ''}`;
+        }
       }
       order.user = customer;
 
@@ -307,7 +329,7 @@ export class OrderService {
         //Chỉ khi đã thanh toán
         if (order.paymentStatus == EFinancialStatus.paid) {
           //*Nếu đơn có sử dụng mã mời
-          if (couponRef) {
+          if (couponRef && !couponRef.used) {
             couponRef.used = true;
 
             //Set thăng hạng cho partner khi mua hàng lần đầu nếu sử dụng couponRef Partner
