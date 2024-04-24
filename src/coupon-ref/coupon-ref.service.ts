@@ -273,7 +273,9 @@ export class CouponRefService {
           where: {
             type: type,
             role: role,
-            owner: user,
+            owner: {
+              id: user.id,
+            },
           },
           order: { createdDate: 'DESC' },
           skip: offset,
