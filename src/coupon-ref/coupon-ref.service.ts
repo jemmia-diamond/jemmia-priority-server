@@ -88,21 +88,21 @@ export class CouponRefService {
 
     //TẠO MÃ INVITE PARTNER
     if (createCouponRefDto.type == ECouponRefType.partner) {
-      couponHaravanDto.usageLimit = 1;
+      // couponHaravanDto.usageLimit = 1;
       couponHaravanDto.value =
         EPartnerCashbackConfig.firstBuyCashbackPercent[createCouponRefDto.role];
 
       //Thêm giới hạn 3h nếu là coupon-ref partner
-      const dateNow = new Date();
-      const haravanDateNow = dateNow;
-      haravanDateNow.setHours(haravanDateNow.getHours() + 7);
-      couponHaravanDto.startsAt = haravanDateNow.toISOString();
-      couponHaravanDto.endsAt = new Date(
-        haravanDateNow.setHours(haravanDateNow.getHours() + 3),
-      ).toISOString();
+      // const dateNow = new Date();
+      // const haravanDateNow = dateNow;
+      // haravanDateNow.setHours(haravanDateNow.getHours() + 7);
+      // couponHaravanDto.startsAt = haravanDateNow.toISOString();
+      // couponHaravanDto.endsAt = new Date(
+      //   haravanDateNow.setHours(haravanDateNow.getHours() + 3),
+      // ).toISOString();
 
-      couponRef.startDate = dateNow;
-      couponRef.endDate = new Date(dateNow.setHours(dateNow.getHours() + 3));
+      // couponRef.startDate = dateNow;
+      // couponRef.endDate = new Date(dateNow.setHours(dateNow.getHours() + 3));
     }
 
     console.log(couponHaravanDto);
