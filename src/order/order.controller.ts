@@ -88,7 +88,7 @@ export class OrderController {
       body,
     );
 
-    await new Promise((res) => setTimeout(() => res(1), 6000));
+    await new Promise((res) => setTimeout(() => res(1), 3000));
 
     return this.orderService.haravanHook(body);
   }
