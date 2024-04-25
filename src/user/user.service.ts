@@ -296,8 +296,8 @@ export class UserService {
       phoneNumber: crmCusData.phones?.[0]?.value,
       address1: crmCusData.address1,
       maKhachHang: crmCusData.maKhachHang,
-      cumulativeTovRecorded: crmCusData.cumulativeTovRecorded || 0,
-      accumulatedOrderPoint: crmCusData.cumulativeTovRecorded || 0,
+      cumulativeTovRecorded: crmCusData.cumulativeTovLifeTime || 0,
+      accumulatedOrderPoint: crmCusData.cumulativeTovLifeTime || 0,
       gender: ECrmCustomerGender[crmCusData.gioiTinh?.[0]?.value] ?? 0,
       role:
         user?.role ||
@@ -329,7 +329,7 @@ export class UserService {
             phoneNumber: u.phones?.[0]?.value,
             address1: u.address1,
             maKhachHang: u.maKhachHang,
-            cumulativeTovRecorded: u.cumulativeTovRecorded,
+            cumulativeTovRecorded: u.cumulativeTovLifeTime,
             role: /^kh|KH/.test(u.maKhachHang)
               ? EUserRole.customer
               : EUserRole.staff,

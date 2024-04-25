@@ -64,6 +64,9 @@ export class CrmCustomerDto {
   @Expose({ name: 'cumulative_tov_recorded' })
   cumulativeTovRecorded: number;
 
+  @Expose({ name: 'cumulative_tov_lifetime' })
+  cumulativeTovLifeTime: number;
+
   @Expose({ name: 'cumulative_tov_referral' })
   cumulativeTovReferral: number;
 }
