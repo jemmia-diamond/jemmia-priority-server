@@ -43,13 +43,11 @@ export class BlogService {
         where: {
           id: query.excludeIds ? Not(In(query.excludeIds)) : null,
           blogId: query.blogId,
-          post: [
-            {
-              userRole: query.userRole
-                ? (Like(`%${query.userRole}%`) as unknown as EUserRole)
-                : null,
-            },
-          ],
+          post: {
+            userRole: query.userRole
+              ? (Like(`%${query.userRole}%`) as unknown as EUserRole)
+              : null,
+          },
         },
         relations: ['post'],
         take: limit,
