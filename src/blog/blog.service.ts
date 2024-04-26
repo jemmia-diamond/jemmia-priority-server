@@ -55,8 +55,6 @@ export class BlogService {
         order: { createdAt: 'DESC' },
       });
 
-      console.log(data);
-
       return data;
     } catch (error) {
       return error;
