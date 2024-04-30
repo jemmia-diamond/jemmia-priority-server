@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { HaravanService } from '../haravan/haravan.service';
-import { validate } from 'class-validator';
+import { IsEmpty, validate } from 'class-validator';
 import { BlogDto } from './dto/blog.dto';
 import { HaravanBlogSearchDto } from '../haravan/dto/haravan-blog.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -43,15 +43,20 @@ export class BlogService {
         where: {
           id: query.excludeIds ? Not(In(query.excludeIds)) : null,
           blogId: query.blogId,
-          published:
-            query.published == null || query.published == undefined
-              ? true
-              : query.published,
-          post: {
-            userRole: query.userRole
-              ? (Like(`%${query.userRole}%`) as unknown as EUserRole)
-              : In([IsNull(), [], '[]']),
-          },
+          // published:
+          //   query.published == null || query.published == undefined
+          //     ? true
+          //     : query.published,
+          post: [
+            {
+              userRole: query.userRole
+                ? (Like(`%${query.userRole}%`) as unknown as EUserRole)
+                : (Like(`%[]%`) as unknown as EUserRole),
+            },
+            {
+              userRole: IsNull(),
+            },
+          ],
         },
         relations: ['post'],
         take: limit,
