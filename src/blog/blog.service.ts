@@ -35,7 +35,7 @@ export class BlogService {
     }
   }
 
-  async findAll(query: HaravanBlogSearchDto) {
+  async findAll(query: HaravanBlogSearchDto, isAdmin: boolean) {
     try {
       const limit = query.limit || 999999999;
       const offset = ((query.page || 1) - 1) * limit;
@@ -43,23 +43,23 @@ export class BlogService {
         where: {
           id: query.excludeIds ? Not(In(query.excludeIds)) : null,
           blogId: query.blogId,
-          published:
-            query.published == null || query.published == undefined
+          published: isAdmin
+            ? null
+            : query.published == null || query.published == undefined
               ? true
               : query.published,
-          post: [
-            {
-              userRole: query.userRole
-                ? (Like(`%${query.userRole}%`) as unknown as EUserRole)
-                : (Like(`%[]%`) as unknown as EUserRole),
-            },
-            {
-              userRole: IsNull(),
-            },
-            {
-              userRole: null,
-            },
-          ],
+          post: isAdmin
+            ? null
+            : [
+                {
+                  userRole: query.userRole
+                    ? (Like(`%${query.userRole}%`) as unknown as EUserRole)
+                    : (Like(`%[]%`) as unknown as EUserRole),
+                },
+                {
+                  userRole: IsNull(),
+                },
+              ],
         },
         relations: ['post'],
         take: limit,
