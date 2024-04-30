@@ -42,7 +42,7 @@ export class BlogController {
       query.excludeIds = process.env.EXCLUDE_BLOG_IDS?.split(','); //Filter system posts, keep banner posts
     }
 
-    return this.blogService.findAll(query);
+    return this.blogService.findAll(query, req.user.role == EUserRole.admin);
   }
 
   @UseGuards(JwtAuthGuard)
