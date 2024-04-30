@@ -2,6 +2,7 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { HaravanBlogDto } from '../../haravan/dto/haravan-blog.dto';
 import {
   IsArray,
+  IsBoolean,
   IsDefined,
   IsNumber,
   IsOptional,
@@ -38,6 +39,11 @@ class PostDto {
 }
 
 export class BlogDto extends HaravanBlogDto {
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsBoolean()
+  published: boolean;
+
   @ApiPropertyOptional()
   @IsOptional()
   @IsDefined()

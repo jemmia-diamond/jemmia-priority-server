@@ -46,6 +46,9 @@ export class Blog {
   @Column('json', { nullable: true })
   image: BlogImageDto;
 
+  @Column('bool', { default: true })
+  published: boolean;
+
   @JoinColumn()
   @OneToOne(() => Post)
   post: Post;
