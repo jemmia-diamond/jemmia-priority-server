@@ -5,7 +5,7 @@ import { BlogDto } from './dto/blog.dto';
 import { HaravanBlogSearchDto } from '../haravan/dto/haravan-blog.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Post } from './entities/post.entity';
-import { In, Like, Not, Repository } from 'typeorm';
+import { In, IsNull, Like, Not, Or, Repository } from 'typeorm';
 import { Blog } from './entities/blog.entity';
 import { EUserRole } from '../user/enums/user-role.enum';
 
@@ -43,10 +43,14 @@ export class BlogService {
         where: {
           id: query.excludeIds ? Not(In(query.excludeIds)) : null,
           blogId: query.blogId,
+          published:
+            query.published == null || query.published == undefined
+              ? true
+              : query.published,
           post: {
             userRole: query.userRole
               ? (Like(`%${query.userRole}%`) as unknown as EUserRole)
-              : null,
+              : In([IsNull(), [], '[]']),
           },
         },
         relations: ['post'],
