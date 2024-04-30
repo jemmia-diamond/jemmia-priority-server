@@ -2,6 +2,7 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Expose, Type } from 'class-transformer';
 import {
   IsArray,
+  IsBoolean,
   IsDefined,
   IsEnum,
   IsNumber,
@@ -15,6 +16,12 @@ import { EBlogType } from '../../blog/enums/blog-type.enum';
 import { EUserRole } from '../../user/enums/user-role.enum';
 
 export class HaravanBlogSearchDto {
+  /** Filter trạng thái hiển thị */
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsBoolean()
+  published?: boolean;
+
   /** Filter ID bài viết ra khỏi kết quả */
   @ApiPropertyOptional({
     isArray: true,
@@ -126,11 +133,11 @@ export class HaravanBlogSearchDto {
   blogId?: EBlogType;
 
   /** Blog chứa bài viết */
-  @ApiProperty({
+  @ApiPropertyOptional({
     enum: EUserRole,
   })
   @IsEnum(EUserRole)
-  @IsDefined()
+  @IsOptional()
   userRole?: EUserRole;
 }
 
