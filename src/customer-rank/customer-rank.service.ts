@@ -153,8 +153,8 @@ export class CustomerRankService implements OnModuleInit {
 
       const totalRef = totalPrice + cashBackRef + cashBackRefA;
       return {
-        totalPrice,
-        totalRef: totalRef,
+        totalPrice: totalPrice < 0 ? 0 : totalPrice,
+        totalRef: totalRef < 0 ? 0 : totalRef,
       };
     } catch (error) {
       console.log(error);
