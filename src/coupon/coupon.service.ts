@@ -428,7 +428,7 @@ export class CouponService {
       noti.title = 'Đổi mã giảm giá';
       noti.receiver = user;
       noti.type = NotificationType.coupon;
-      noti.description = `Đổi mã: <b>${couponHaravan.code}</b> với giá trị: ${money} thành công`;
+      noti.description = `Đổi mã: <b>${couponHaravan.code}</b> với giá trị: ${money.toLocaleString('vi')} đ thành công`;
 
       await this.notificationRepository.save(noti);
 
