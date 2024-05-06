@@ -22,6 +22,7 @@ import { UserRedis } from './user.redis';
 import { CrmService } from '../crm/crm.service';
 import { CustomerRankService } from '../customer-rank/customer-rank.service';
 import { ECrmCustomerGender } from '../crm/enums/crm-customer.enum';
+import moment from 'moment';
 
 @Injectable()
 export class UserService {
@@ -224,14 +225,7 @@ export class UserService {
 
   //** Sync thời gian login lần đầu qua CRM */
   async updateCrmFirstLoginDate(crmId: string, date: Date) {
-    const formatDate = date.toLocaleString('vi', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-    });
+    const formatDate = moment(date).format('HH:mm:ss DD/MM/YYYY');
 
     await this.crmService.updateCustomer(crmId, [
       {
@@ -243,14 +237,7 @@ export class UserService {
 
   //*Sync thời gian login lần cuối qua CRM */
   async updateCrmLastLoginDate(crmId: string, date: Date) {
-    const formatDate = date.toLocaleString('vi', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-    });
+    const formatDate = moment(date).format('HH:mm:ss DD/MM/YYYY');
 
     await this.crmService.updateCustomer(crmId, [
       {
@@ -279,12 +266,6 @@ export class UserService {
     if (user) {
       //Tính rank cho user
       user = await this.customerRankService.calcRankAndSetToUser({ ...user });
-
-      //Sync thời gian login lần cuối qua CRM
-      await this.updateCrmLastLoginDate(crmCusData.id, new Date());
-    } else {
-      //Sync lần login lần đầu qua CRM
-      await this.updateCrmFirstLoginDate(crmCusData.id, new Date());
     }
 
     user = await this.userRepository.save({
