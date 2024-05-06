@@ -23,6 +23,7 @@ import { CrmService } from '../crm/crm.service';
 import { CustomerRankService } from '../customer-rank/customer-rank.service';
 import { ECrmCustomerGender } from '../crm/enums/crm-customer.enum';
 import moment from 'moment';
+import { UserUpdateCrmInfoDto } from './dto/user-update-profile.dto';
 
 @Injectable()
 export class UserService {
@@ -221,6 +222,31 @@ export class UserService {
         value: refPoint,
       },
     ]);
+  }
+
+  //** Gửi yêu cầu đổi thông tin cá nhân qua CRM */
+  async sendUpdateInfoRequestToCrm(crmId: string, body: UserUpdateCrmInfoDto) {
+    await validate(body);
+
+    const crmPayload = [];
+
+    if (body.email) {
+      crmPayload.push({
+        key: 'customer_email_update_pwa',
+        value: body.email,
+      });
+    }
+
+    if (body.birthday) {
+      crmPayload.push({
+        key: 'customer_birthday_update_pwa',
+        value: body.birthday,
+      });
+    }
+
+    console.log(body);
+
+    await this.crmService.updateCustomer(crmId, []);
   }
 
   //** Sync thời gian login lần đầu qua CRM */

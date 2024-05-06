@@ -1,5 +1,7 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
+  IsDateString,
+  IsEmail,
   IsOptional,
   IsPhoneNumber,
   IsString,
@@ -49,4 +51,16 @@ export class UserUpdateProfileDto {
   @IsUrl()
   @IsOptional()
   kycFaceImageUrl?: string;
+}
+
+export class UserUpdateCrmInfoDto {
+  @ApiPropertyOptional()
+  @IsEmail()
+  @IsOptional()
+  email?: string;
+
+  @ApiPropertyOptional()
+  @IsDateString()
+  @IsOptional()
+  birthday: string;
 }
