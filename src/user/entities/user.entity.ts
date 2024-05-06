@@ -70,6 +70,10 @@ export class User {
   @Column('double precision', { default: 0 })
   accumulatedOrderPoint: number;
 
+  /** Giá trị doanh thu ref đã tích luỹ */
+  @Column('double precision', { default: 0 })
+  accumulatedRefPoint: number;
+
   @Column('enum', { enum: EUserRole })
   role: EUserRole;
 
