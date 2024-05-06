@@ -4,6 +4,7 @@ export type AccessTokenPayload = {
   id: string;
   authId: string;
   haravanId: string;
+  crmId: string;
   sub: string;
   role: EUserRole;
 };

@@ -7,6 +7,8 @@ import {
   UseInterceptors,
   ClassSerializerInterceptor,
   Query,
+  Put,
+  Body,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
@@ -16,6 +18,7 @@ import { RequestPayload } from '../shared/types/controller.type';
 import { EUserRole } from './enums/user-role.enum';
 import { UserQueryDto } from './dto/user-query.dto';
 import { Roles } from '../auth/decorators/roles.decorator';
+import { UserUpdateCrmInfoDto } from './dto/user-update-profile.dto';
 
 @ApiTags('User')
 @ApiBearerAuth()
@@ -58,6 +61,18 @@ export class UserController {
     }
 
     return this.userService.findUser(id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Put('crm/request-update-info')
+  @ApiOperation({
+    description: 'Update thông tin CRM của user',
+  })
+  async updateUser(
+    @Request() req: RequestPayload,
+    @Body() body: UserUpdateCrmInfoDto,
+  ) {
+    return this.userService.sendUpdateInfoRequestToCrm(req.user.crmId, body);
   }
 
   // @UseGuards(JwtAuthGuard)

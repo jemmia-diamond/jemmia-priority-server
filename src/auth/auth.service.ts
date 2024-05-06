@@ -117,6 +117,7 @@ export class AuthService {
       sub: user.id,
       role: user.role,
       haravanId: user.haravanId?.toString(),
+      crmId: user.crmId,
     });
 
     return {
@@ -143,6 +144,7 @@ export class AuthService {
       authId: user.authId,
       sub: user.id,
       haravanId: user.haravanId.toString(),
+      crmId: user.crmId,
     });
 
     const refreshToken = await this.signRefreshToken({
