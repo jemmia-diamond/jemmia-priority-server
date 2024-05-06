@@ -88,16 +88,22 @@ export class AuthService {
       ],
     });
 
-    if (user) {
-      //Sync thời gian login lần cuối qua CRM
-      await this.userService.updateCrmLastLoginDate(crmCusData.id, new Date());
-    } else {
-      //Sync lần login lần đầu qua CRM
-      await this.userService.updateCrmFirstLoginDate(crmCusData.id, new Date());
-    }
-
-    //Sync dữ liệu khách hàng từ CRM sang
+    //Sync dữ liệu khách hàng <-> CRM
     if (crmCusData) {
+      if (user) {
+        //Sync thời gian login lần cuối qua CRM
+        await this.userService.updateCrmLastLoginDate(
+          crmCusData.id,
+          new Date(),
+        );
+      } else {
+        //Sync lần login lần đầu qua CRM
+        await this.userService.updateCrmFirstLoginDate(
+          crmCusData.id,
+          new Date(),
+        );
+      }
+
       user = await this.userService.syncFromCrm(crmCusData.id);
     }
 
