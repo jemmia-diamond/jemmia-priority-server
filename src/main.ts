@@ -1,8 +1,9 @@
-import { NestFactory } from '@nestjs/core';
+import { HttpAdapterHost, NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import * as dotenv from 'dotenv';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as admin from 'firebase-admin';
+import { AllExceptionsFilter } from './shared/filters/all-exception.filter';
 
 //!SET DEFAULT TIMEZONE
 process.env.TZ = 'Asia/Ho_Chi_Minh';
@@ -16,6 +17,10 @@ async function bootstrap() {
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
   });
+
+  //FILTERS
+  const httpAdapter = app.get(HttpAdapterHost);
+  app.useGlobalFilters(new AllExceptionsFilter(httpAdapter));
 
   //FIREBASE ADMIN
   // Initialize the firebase admin app
