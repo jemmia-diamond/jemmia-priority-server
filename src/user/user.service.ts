@@ -22,7 +22,7 @@ import { UserRedis } from './user.redis';
 import { CrmService } from '../crm/crm.service';
 import { CustomerRankService } from '../customer-rank/customer-rank.service';
 import { ECrmCustomerGender } from '../crm/enums/crm-customer.enum';
-import moment from 'moment';
+import * as moment from 'moment';
 import { UserUpdateCrmInfoDto } from './dto/user-update-profile.dto';
 
 @Injectable()
