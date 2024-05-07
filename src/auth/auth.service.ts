@@ -49,6 +49,8 @@ export class AuthService {
   }
 
   async oauth(payload: AuthDto) {
+    console.log('START LOGGIN');
+
     //VERIFY OAUTH TOKEN
     const tokenPayload = await this.verifyOAuth(payload.token);
     const fPhoneNum = tokenPayload.phone_number?.replace(/^\+84/, '0');
@@ -68,6 +70,7 @@ export class AuthService {
     }
 
     console.log(tokenPayload);
+    console.log(crmCusData);
 
     //Trường hợp user k phải admin & cũng không phải khách hàng haravan
     if (!tokenPayload.email && !crmCusData) {
