@@ -246,7 +246,7 @@ export class UserService {
 
     console.log(body);
 
-    await this.crmService.updateCustomer(crmId, []);
+    await this.crmService.updateCustomer(crmId, crmPayload);
   }
 
   //** Sync thời gian login lần đầu qua CRM */
