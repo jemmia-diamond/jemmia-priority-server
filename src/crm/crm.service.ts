@@ -10,20 +10,27 @@ const ax = axios.create({
   baseURL: process.env.CRM_ENDPOINT,
   timeout: 120000,
   headers: (() => {
-    const timestamp = Date.now();
-    const hmac = createHmac('sha512', process.env.CRM_API_SECRET);
-
-    const data = hmac.update(timestamp + process.env.CRM_PROJECT_TOKEN);
-    const signature = data.digest('hex');
-
     return {
       'Content-Type': 'application/json',
       'cb-access-key': process.env.CRM_API_KEY,
       'cb-project-token': process.env.CRM_PROJECT_TOKEN,
-      'cb-access-timestamp': timestamp,
-      'cb-access-sign': signature,
+      'cb-access-sign': '',
     };
   })(),
+});
+// Intercept request để cập nhật timestamp và signature trước khi gửi request
+ax.interceptors.request.use((config) => {
+  const timestamp = Date.now();
+  const hmac = createHmac('sha512', process.env.CRM_API_SECRET);
+
+  const data = hmac.update(timestamp + process.env.CRM_PROJECT_TOKEN);
+  const signature = data.digest('hex');
+
+  // Cập nhật timestamp và signature vào header
+  config.headers['cb-access-timestamp'] = timestamp;
+  config.headers['cb-access-sign'] = signature;
+
+  return config;
 });
 
 @Injectable()
@@ -48,6 +55,9 @@ export class CrmService {
     );
 
     const res = await ax.post(`/_api/base-table/find`, body);
+
+    console.log('RESULT');
+    console.log(res);
 
     return {
       data: plainToInstance(CrmCustomerDto, <any[]>res.data.data),
