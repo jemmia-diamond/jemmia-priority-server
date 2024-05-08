@@ -31,6 +31,8 @@ export class AllExceptionsFilter implements ExceptionFilter {
       stack: Config.dev ? (exception as Error).stack : '',
     };
 
+    console.error(exception);
+
     httpAdapter.reply(
       ctx.getResponse(),
       responseBody,
