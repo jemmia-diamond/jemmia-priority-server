@@ -228,6 +228,12 @@ export class UserService {
   async sendUpdateInfoRequestToCrm(crmId: string, body: UserUpdateCrmInfoDto) {
     await validate(body);
 
+    const user = await this.userRepository.findOne({
+      where: {
+        crmId,
+      },
+    });
+
     const crmPayload = [];
 
     if (body.email) {
@@ -235,6 +241,8 @@ export class UserService {
         key: 'customer_email_update_pwa',
         value: body.email,
       });
+
+      user.customerEmailUpdatePwa = body.email;
     }
 
     if (body.birthday) {
@@ -242,10 +250,11 @@ export class UserService {
         key: 'customer_birthday_update_pwa',
         value: body.birthday,
       });
+
+      user.customerBirthdayUpdatePwa = body.birthday;
     }
 
-    console.log(body);
-
+    await this.userRepository.save(user);
     await this.crmService.updateCustomer(crmId, crmPayload);
   }
 
