@@ -253,7 +253,6 @@ export class CouponRefService {
       const user = await this.userRepository.findOneBy({ id: userId });
       if (!user) throw new BadRequestException('User not found');
 
-      limit = limit || 999999;
       const offset = (page - 1) * limit;
       let items: CouponRef[];
       let totalItems: number;
@@ -309,7 +308,6 @@ export class CouponRefService {
     used: boolean,
   ): Promise<Pagination<CouponRef>> {
     try {
-      limit = limit || 999999;
       const offset = (page - 1) * limit;
       const [items, totalItems] = await this.couponRefRepository.findAndCount({
         where: {
