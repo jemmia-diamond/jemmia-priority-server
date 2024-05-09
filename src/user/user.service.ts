@@ -137,11 +137,18 @@ export class UserService {
 
   async createUserFromHaravan(data: HaravanCustomerDto) {
     //Find from CRM
+    console.log('CREATE USER CRM');
+    console.log({
+      limit: 1,
+      query: {
+        haravan_id: data.id,
+      },
+    });
     const crmCusData = (
       await this.crmService.findAllCustomer({
         limit: 1,
         query: {
-          haravan_id: data.id,
+          haravan_id: data.id.toString(),
         },
       })
     ).data?.[0];
