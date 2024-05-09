@@ -95,9 +95,9 @@ export class User {
   @Column('tinyint', { default: 0 })
   gender: number;
 
-  @PrimaryColumn('varchar', { length: 128, default: '' })
+  @Column('varchar', { length: 128, default: '' })
   customerEmailUpdatePwa: string;
 
-  @PrimaryColumn('varchar', { length: 10, default: '' })
+  @Column('varchar', { length: 10, default: '' })
   customerBirthdayUpdatePwa: string;
 }
