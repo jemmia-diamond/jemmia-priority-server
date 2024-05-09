@@ -197,7 +197,9 @@ export class CustomerRankService implements OnModuleInit {
 
     const totalPrice = await this.orderRepository.sum('totalPrice', {
       couponRef: {
-        owner: user,
+        owner: {
+          id: user.id,
+        },
       },
       paymentStatus: EFinancialStatus.paid,
       createdDate: MoreThanOrEqual(twelveMonthsAgo),

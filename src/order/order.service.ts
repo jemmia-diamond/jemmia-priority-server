@@ -370,9 +370,6 @@ export class OrderService {
               //Cashback thông thường theo rank
               couponRef.owner.point += order.cashBackRef;
 
-              //Ghi nhận doanh thu ref
-              couponRef.owner.accumulatedRefPoint += order.totalPrice;
-
               //Set người đã mời khách hàng
               customer.invitedBy = couponRef.owner;
 
