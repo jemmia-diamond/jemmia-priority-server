@@ -1,6 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
-  IsDateString,
   IsEmail,
   IsOptional,
   IsPhoneNumber,
@@ -60,7 +59,7 @@ export class UserUpdateCrmInfoDto {
   email?: string;
 
   @ApiPropertyOptional()
-  @IsDateString()
+  @IsString()
   @IsOptional()
   birthday: string;
 }
