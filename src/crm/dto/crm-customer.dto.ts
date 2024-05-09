@@ -67,6 +67,9 @@ export class CrmCustomerDto {
   @Expose({ name: 'cumulative_tov_referral' })
   cumulativeTovReferral: number;
 
+  @Expose({ name: 'cumulative_tov_in_last_12mos' })
+  cumulativeTovInLast12mos: number;
+
   @Expose({ name: 'sinh_nhat' })
   @Transform((value) => (value.value ? new Date(value.value) : null))
   birthDate?: Date;
