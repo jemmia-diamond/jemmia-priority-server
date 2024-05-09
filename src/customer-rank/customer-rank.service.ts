@@ -203,7 +203,7 @@ export class CustomerRankService implements OnModuleInit {
       createdDate: MoreThanOrEqual(twelveMonthsAgo),
     });
 
-    return totalPrice;
+    return totalPrice || 0;
   }
 
   async getCashBackRefForUserLast12Months(userId: string): Promise<number> {
