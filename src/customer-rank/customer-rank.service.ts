@@ -150,22 +150,12 @@ export class CustomerRankService implements OnModuleInit {
       // const cashBackRef =
       //   await this.getCashBackRefFollowPriceForUserLast12Months(user);
       // const cashBackRefA = await this.getCashBackRefAForUserLast12Months(user);
-
-      const twelveMonthsAgo = user.rankUpdatedTime;
-
-      const totalRef = await this.orderRepository.sum('totalPrice', {
-        createdDate: MoreThanOrEqual(twelveMonthsAgo),
-        couponRef: {
-          owner: {
-            id: userId,
-          },
-        },
-      });
+      const totalRef = await this.getTotalRefPriceLastYear(user);
 
       // const totalRef = totalPrice + cashBackRef + cashBackRefA;
       return {
         totalPrice: totalPrice <= 0 ? 0 : totalPrice,
-        totalRef: totalRef <= 0 ? 0 : totalRef,
+        totalRef: totalRef,
       };
     } catch (error) {
       console.log(error);
@@ -199,9 +189,8 @@ export class CustomerRankService implements OnModuleInit {
     return totalPrice;
   }
 
-  async getCashBackRefFollowPriceForUserLast12Months(
-    user: User,
-  ): Promise<number> {
+  /** Tổng doanh thu ref tích luỹ trong 12 tháng */
+  async getTotalRefPriceLastYear(user: User): Promise<number> {
     if (!user.rankUpdatedTime) return 0;
 
     const twelveMonthsAgo = user.rankUpdatedTime;
@@ -213,26 +202,6 @@ export class CustomerRankService implements OnModuleInit {
       paymentStatus: EFinancialStatus.paid,
       createdDate: MoreThanOrEqual(twelveMonthsAgo),
     });
-
-    // const currentDate = new Date();
-    // const paymentStatus = EPaymentStatus.CONFIRM;
-
-    // const query = this.orderRepository
-    //   .createQueryBuilder('orders')
-    //   .innerJoin('orders.couponRef', 'couponRef')
-    //   .innerJoin('couponRef.owner', 'user')
-    //   .select('SUM(orders.totalPrice)', 'total')
-    //   .where('user.id = :userId', { userId: user.id })
-    //   .andWhere('orders.paymentStatus = :paymentStatus', { paymentStatus })
-    //   .andWhere('UNIX_TIMESTAMP(orders.createdDate) >= :twelveMonthsAgo', {
-    //     twelveMonthsAgo: Math.floor(twelveMonthsAgo.getTime() / 1000),
-    //   })
-    //   .andWhere('UNIX_TIMESTAMP(orders.createdDate) <= :currentDate', {
-    //     currentDate: Math.floor(currentDate.getTime() / 1000),
-    //   });
-
-    // const result = await query.getRawOne();
-    // const totalPrice = result.total;
 
     return totalPrice;
   }
