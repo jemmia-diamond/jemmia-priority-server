@@ -253,6 +253,7 @@ export class UserService {
         customerBirthdayUpdatePwa: body.birthday,
       },
     );
+    console.log(crmPayload);
     await this.crmService.updateCustomer(crmId, crmPayload);
   }
 
@@ -292,13 +293,17 @@ export class UserService {
       })
     ).data?.[0];
 
-    console.log(crmCusData.cumulativeTovReferral);
-
     if (!crmCusData) return null;
 
     if (user) {
       //Tính rank cho user
       user = await this.customerRankService.calcRankAndSetToUser({ ...user });
+    }
+
+    let crmBirtDate: string;
+
+    if (crmCusData.birthDate) {
+      crmBirtDate = moment(crmCusData.birthDate).format('DD/MM/YYYY');
     }
 
     user = await this.userRepository.save({
@@ -313,6 +318,9 @@ export class UserService {
       cumulativeTovRecorded: crmCusData.cumulativeTovLifeTime || 0,
       accumulatedOrderPoint: crmCusData.cumulativeTovLifeTime || 0,
       gender: ECrmCustomerGender[crmCusData.gioiTinh?.[0]?.value] ?? 0,
+      customerBirthdayUpdatePwa: user.customerBirthdayUpdatePwa || crmBirtDate,
+      customerEmailUpdatePwa:
+        user.customerEmailUpdatePwa || crmCusData.emails?.[0]?.value,
       role:
         user?.role ||
         (/^kh|KH/.test(crmCusData.maKhachHang)

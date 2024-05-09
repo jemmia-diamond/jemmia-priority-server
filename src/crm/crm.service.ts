@@ -56,9 +56,6 @@ export class CrmService {
 
     const res = await ax.post(`/_api/base-table/find`, body);
 
-    console.log('RESULT');
-    console.log(res);
-
     return {
       data: plainToInstance(CrmCustomerDto, <any[]>res.data.data),
       limit: res.data.limit,

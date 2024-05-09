@@ -33,9 +33,6 @@ export class CrmCustomerDto {
     hide: string;
   }>;
 
-  @Expose({ name: 'sinh_nhat' })
-  sinhNhat: string;
-
   @Expose({ name: '_customer_rank' })
   _customerRank?: number;
 
@@ -69,4 +66,8 @@ export class CrmCustomerDto {
 
   @Expose({ name: 'cumulative_tov_referral' })
   cumulativeTovReferral: number;
+
+  @Expose({ name: 'sinh_nhat' })
+  @Transform((value) => (value.value ? new Date(value.value) : null))
+  birthDate?: Date;
 }
