@@ -318,9 +318,8 @@ export class UserService {
       cumulativeTovRecorded: crmCusData.cumulativeTovLifeTime || 0,
       accumulatedOrderPoint: crmCusData.cumulativeTovLifeTime || 0,
       gender: ECrmCustomerGender[crmCusData.gioiTinh?.[0]?.value] ?? 0,
-      customerBirthdayUpdatePwa: user.customerBirthdayUpdatePwa || crmBirtDate,
-      customerEmailUpdatePwa:
-        user.customerEmailUpdatePwa || crmCusData.emails?.[0]?.value,
+      customerBirthdayUpdatePwa: crmBirtDate,
+      customerEmailUpdatePwa: crmCusData.emails?.[0]?.value,
       role:
         user?.role ||
         (/^kh|KH/.test(crmCusData.maKhachHang)
