@@ -147,14 +147,25 @@ export class CustomerRankService implements OnModuleInit {
       const user = await this.userRepository.findOneBy({ id: userId });
       const totalPrice = user.cumulativeTovRecorded;
 
-      const cashBackRef =
-        await this.getCashBackRefFollowPriceForUserLast12Months(user);
-      const cashBackRefA = await this.getCashBackRefAForUserLast12Months(user);
+      // const cashBackRef =
+      //   await this.getCashBackRefFollowPriceForUserLast12Months(user);
+      // const cashBackRefA = await this.getCashBackRefAForUserLast12Months(user);
 
-      const totalRef = totalPrice + cashBackRef + cashBackRefA;
+      const twelveMonthsAgo = user.rankUpdatedTime;
+
+      const totalRef = await this.orderRepository.sum('totalPrice', {
+        createdDate: MoreThanOrEqual(twelveMonthsAgo),
+        couponRef: {
+          owner: {
+            id: userId,
+          },
+        },
+      });
+
+      // const totalRef = totalPrice + cashBackRef + cashBackRefA;
       return {
-        totalPrice: totalPrice < 0 ? 0 : totalPrice,
-        totalRef: totalRef < 0 ? 0 : totalRef,
+        totalPrice: totalPrice <= 0 ? 0 : totalPrice,
+        totalRef: totalRef <= 0 ? 0 : totalRef,
       };
     } catch (error) {
       console.log(error);
