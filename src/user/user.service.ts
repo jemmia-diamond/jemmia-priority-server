@@ -316,6 +316,21 @@ export class UserService {
       crmBirtDate = moment(crmCusData.birthDate).format('DD/MM/YYYY');
     }
 
+    crmCusData.cumulativeTovLifeTime =
+      crmCusData.cumulativeTovLifeTime <= 0
+        ? 0
+        : crmCusData.cumulativeTovLifeTime;
+
+    crmCusData.cumulativeTovInLast12mos =
+      crmCusData.cumulativeTovInLast12mos <= 0
+        ? 0
+        : crmCusData.cumulativeTovInLast12mos;
+
+    crmCusData.cumulativeTovReferral =
+      crmCusData.cumulativeTovReferral <= 0
+        ? 0
+        : crmCusData.cumulativeTovReferral;
+
     user = await this.userRepository.save({
       ...user,
       haravanId: crmCusData.haravanId,
@@ -325,8 +340,8 @@ export class UserService {
       phoneNumber: crmCusData.phones?.[0]?.value,
       address1: crmCusData.address1,
       maKhachHang: crmCusData.maKhachHang,
-      cumulativeTovRecorded: crmCusData.cumulativeTovLifeTime || 0,
-      accumulatedOrderPoint: crmCusData.cumulativeTovLifeTime || 0,
+      cumulativeTovRecorded: crmCusData.cumulativeTovRecorded || 0,
+      accumulatedOrderPoint: crmCusData.cumulativeTovInLast12mos || 0,
       accumulatedRefPoint: crmCusData.cumulativeTovReferral || 0,
       gender: ECrmCustomerGender[crmCusData.gioiTinh?.[0]?.value] ?? 0,
       customerBirthdayUpdatePwa: crmBirtDate,

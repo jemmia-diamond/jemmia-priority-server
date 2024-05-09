@@ -66,7 +66,7 @@ export class User {
   @Column('integer', { default: ECustomerRankNum.silver })
   rank: ECustomerRankNum;
 
-  /** Giá trị đơn hàng đã tích luỹ */
+  /** Giá trị đơn hàng đã tích luỹ trong 12 tháng */
   @Column('double precision', { default: 0 })
   accumulatedOrderPoint: number;
 
@@ -89,6 +89,7 @@ export class User {
   @Column('varchar', { length: 32, unique: true })
   maKhachHang: string;
 
+  /** Doanh thu tích luỹ haravan */
   @Column('double precision', { default: 0 })
   cumulativeTovRecorded: number;
 
