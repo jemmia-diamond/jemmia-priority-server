@@ -122,7 +122,7 @@ export class CouponRefService {
       noti.title = 'Tạo mã mời';
       noti.receiver = owner;
       noti.type = NotificationType.ref;
-      noti.description = `Đã tạo mã: <b>${couponHaravanDto.code}</b>`;
+      noti.description = `Đã tạo mã: <b>${couponHaravanDto.code.toUpperCase()}</b>`;
 
       await this.notificationRepository.save(noti);
     }
