@@ -59,7 +59,7 @@ export class CouponRefController {
     @Request() req: RequestPayload,
     @Param('userId') userId: string,
     @Query('page') page = 1,
-    @Query('limit') limit = 10,
+    @Query('limit') limit = 999999,
     @Query('type') type: ECouponRefType,
     @Query('used') used: string | null,
   ): Promise<Pagination<CouponRef>> {
@@ -85,7 +85,7 @@ export class CouponRefController {
   async findAllCouponRef(
     @Request() req: RequestPayload,
     @Query('page') page = 1,
-    @Query('limit') limit = 10,
+    @Query('limit') limit = 999999,
     @Query('type') type: ECouponRefType,
     @Query('role') role: EUserRole,
   ): Promise<Pagination<CouponRef>> {
