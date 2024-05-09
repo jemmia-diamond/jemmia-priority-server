@@ -55,7 +55,7 @@ export class UserService {
 
       if (!user) return null;
 
-      // user = await this.syncFromCrm(user.crmId);
+      user = await this.syncFromCrm(user.crmId);
 
       await this.userRedis.set(id, {
         ...user,
@@ -229,6 +229,9 @@ export class UserService {
         value: refPoint,
       },
     ]);
+
+    console.log('U CRM REF POINT');
+    console.log(refPoint);
   }
 
   //** Gửi yêu cầu đổi thông tin cá nhân qua CRM */
@@ -324,6 +327,7 @@ export class UserService {
       maKhachHang: crmCusData.maKhachHang,
       cumulativeTovRecorded: crmCusData.cumulativeTovLifeTime || 0,
       accumulatedOrderPoint: crmCusData.cumulativeTovLifeTime || 0,
+      accumulatedRefPoint: crmCusData.cumulativeTovReferral || 0,
       gender: ECrmCustomerGender[crmCusData.gioiTinh?.[0]?.value] ?? 0,
       customerBirthdayUpdatePwa: crmBirtDate,
       customerEmailUpdatePwa: crmCusData.emails?.[0]?.value,
