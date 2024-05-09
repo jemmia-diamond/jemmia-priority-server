@@ -141,7 +141,7 @@ export class UserService {
       await this.crmService.findAllCustomer({
         limit: 1,
         query: {
-          'phones.value': data.phone,
+          haravan_id: data.id,
         },
       })
     ).data?.[0];
