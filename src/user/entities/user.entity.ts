@@ -75,6 +75,10 @@ export class User {
   @Column('double precision', { default: 0 })
   accumulatedRefPoint: number;
 
+  /** Đánh dấu rằng user này đã login vào app */
+  @Column('bool', { default: false })
+  isLoggedIn: boolean;
+
   @Column('enum', { enum: EUserRole })
   role: EUserRole;
 
