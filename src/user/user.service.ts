@@ -13,7 +13,6 @@ import { validate } from 'class-validator';
 import { HaravanService } from '../haravan/haravan.service';
 import { UserQueryDto } from './dto/user-query.dto';
 import { UserInfoDto } from './dto/user-info';
-import { StringUtils } from '../shared/utils/string.utils';
 import { EUserRole } from './enums/user-role.enum';
 import { CouponRefService } from '../coupon-ref/coupon-ref.service';
 import { HaravanCustomerDto } from '../haravan/dto/haravan-customer.dto';
@@ -105,34 +104,31 @@ export class UserService {
 
   //!TODO: CREATE USER & SYNC FROM HARAVAN
   async createUser(data: UserInfoDto) {
-    try {
-      await validate(data, {
-        whitelist: true,
-      });
-
-      if (data.role == EUserRole.admin) {
-        throw new HttpException(
-          "Can't create customer with admin role",
-          HttpStatus.BAD_REQUEST,
-        );
-      }
-
-      const haravanCusData = await this.haravanService.createCustomer(data);
-      const user = await this.userRepository.save({
-        haravanId: haravanCusData.id,
-        authId: data.phone,
-        phoneNumber: data.phone,
-        inviteCode: StringUtils.random(6),
-        role: data.role,
-      });
-
-      return {
-        ...haravanCusData,
-        ...user,
-      };
-    } catch (e) {
-      return e;
-    }
+    // try {
+    //   await validate(data, {
+    //     whitelist: true,
+    //   });
+    //   if (data.role == EUserRole.admin) {
+    //     throw new HttpException(
+    //       "Can't create customer with admin role",
+    //       HttpStatus.BAD_REQUEST,
+    //     );
+    //   }
+    //   const haravanCusData = await this.haravanService.createCustomer(data);
+    //   const user = await this.userRepository.save({
+    //     haravanId: haravanCusData.id,
+    //     authId: data.phone,
+    //     phoneNumber: data.phone,
+    //     inviteCode: StringUtils.random(6),
+    //     role: data.role,
+    //   });
+    //   return {
+    //     ...haravanCusData,
+    //     ...user,
+    //   };
+    // } catch (e) {
+    //   return e;
+    // }
   }
 
   async createUserFromHaravan(data: HaravanCustomerDto) {
@@ -172,13 +168,6 @@ export class UserService {
         whitelist: true,
       });
 
-      if (data.role == EUserRole.admin) {
-        throw new HttpException(
-          "Can't update customer with admin role",
-          HttpStatus.BAD_REQUEST,
-        );
-      }
-
       let user = await this.userRepository.findOne({
         where: {
           id: userId,
@@ -189,20 +178,12 @@ export class UserService {
         throw new HttpException('User not found!', HttpStatus.NOT_FOUND);
       }
 
-      const haravanCusData = await this.haravanService.updateCustomer(
-        user.haravanId,
-        data,
-      );
-
       user = await this.userRepository.save({
         ...user,
-        authId: data.phone ?? user.phoneNumber,
-        phoneNumber: data.phone ?? user.phoneNumber,
-        role: data.role ?? user.role,
+        bankingAccount: data.bankingAccount,
       });
 
       return {
-        ...haravanCusData,
         ...user,
       };
     } catch (e) {

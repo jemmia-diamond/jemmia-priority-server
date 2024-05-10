@@ -19,6 +19,7 @@ import { EUserRole } from './enums/user-role.enum';
 import { UserQueryDto } from './dto/user-query.dto';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { UserUpdateCrmInfoDto } from './dto/user-update-profile.dto';
+import { UserInfoDto } from './dto/user-info';
 
 @ApiTags('User')
 @ApiBearerAuth()
@@ -68,7 +69,7 @@ export class UserController {
   @ApiOperation({
     description: 'Update thông tin CRM của user',
   })
-  async updateUser(
+  async updateUserCrmInfo(
     @Request() req: RequestPayload,
     @Body() body: UserUpdateCrmInfoDto,
   ) {
@@ -85,23 +86,22 @@ export class UserController {
   //   return this.userService.createUser(body);
   // }
 
-  // @UseGuards(JwtAuthGuard)
-  // @Roles(EUserRole.admin)
-  // @Put(':id')
-  // @ApiOperation({
-  //   description: 'Update thông tin của user',
-  // })
-  // async updateUser(
-  //   @Request() req: RequestPayload,
-  //   @Param('id') userId: string,
-  //   @Body() body: UserInfoDto,
-  // ) {
-  //   if (req.user.role != EUserRole.admin) {
-  //     userId = req.user.id;
-  //   }
+  @UseGuards(JwtAuthGuard)
+  @Put(':id')
+  @ApiOperation({
+    description: 'Update thông tin của user',
+  })
+  async updateUser(
+    @Request() req: RequestPayload,
+    @Param('id') userId: string,
+    @Body() body: UserInfoDto,
+  ) {
+    if (req.user.role != EUserRole.admin) {
+      userId = req.user.id;
+    }
 
-  //   return this.userService.updateUser(userId, body);
-  // }
+    return this.userService.updateUser(userId, body);
+  }
 
   // @UseGuards(JwtAuthGuard)
   // @Delete()
