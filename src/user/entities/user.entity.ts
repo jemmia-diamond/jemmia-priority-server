@@ -9,6 +9,7 @@ import {
 import { Exclude } from 'class-transformer';
 import { EUserRole } from '../enums/user-role.enum';
 import { ECustomerRankNum } from '../../customer-rank/enums/customer-rank.enum';
+import { UserBankingAccountDto } from '../dto/user-info';
 
 @Entity('users')
 export class User {
@@ -101,4 +102,7 @@ export class User {
 
   @Column('varchar', { length: 10, default: '' })
   customerBirthdayUpdatePwa: string;
+
+  @Column('json', { default: '{}' })
+  bankingAccount: UserBankingAccountDto;
 }
