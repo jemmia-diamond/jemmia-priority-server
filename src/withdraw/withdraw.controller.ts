@@ -46,6 +46,10 @@ export class WithdrawController {
     if (user.point > body.amount) {
       user.point -= Math.abs(body.amount);
       this.userService.updateNativeUser(user);
+
+      body.bankName = user.bankingAccount.bankName;
+      body.bankNumber = user.bankingAccount.number;
+
       return this.withdrawService.save(body, user);
     }
     return 'You do not have enough points to redeem.';
