@@ -58,8 +58,6 @@ export class OrderService {
           },
         },
         {
-          cashBackRef: MoreThan(0),
-          cashBackRefA: MoreThan(0),
           couponRef: [
             {
               owner: [
