@@ -1,4 +1,4 @@
-FROM oven/bun:1 as base
+FROM --platform=linux/amd64 oven/bun:1 as base
 WORKDIR /app
 
 #Install deps
