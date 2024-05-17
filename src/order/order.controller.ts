@@ -82,15 +82,19 @@ export class OrderController {
     console.log(JSON.stringify(headers));
     console.log(JSON.stringify(body));
 
-    //Trigger to CRM hook
-    await axios.post(
-      `https://api.bizfly.vn/webhook/web_hook_haravan?token_crm=c1pGa0FISC96VDd1N3FZR21KakI0bnljRE0zbTB5eDljM01ocW5JWDRBYnNqc215Yi9wMTdhSkd4WXp2Z0R2Sk9qRzZuYUFFOGJPSTFtS09WMnhTb1E9PQ==&project_id=65796b5ad887266a17635b6d`,
-      body,
-    );
+    setImmediate(async () => {
+      //Trigger to CRM hook
+      await axios.post(
+        `https://api.bizfly.vn/webhook/web_hook_haravan?token_crm=c1pGa0FISC96VDd1N3FZR21KakI0bnljRE0zbTB5eDljM01ocW5JWDRBYnNqc215Yi9wMTdhSkd4WXp2Z0R2Sk9qRzZuYUFFOGJPSTFtS09WMnhTb1E9PQ==&project_id=65796b5ad887266a17635b6d`,
+        body,
+      );
 
-    await new Promise((res) => setTimeout(() => res(1), 3000));
+      await new Promise((res) => setTimeout(() => res(1), 3000));
 
-    return this.orderService.haravanHook(body);
+      await this.orderService.haravanHook(body);
+    });
+
+    return;
   }
 
   @Post('/hook')
