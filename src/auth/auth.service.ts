@@ -93,7 +93,7 @@ export class AuthService {
 
     //Sync dữ liệu khách hàng <-> CRM
     if (crmCusData) {
-      if (user.isLoggedIn) {
+      if (user?.isLoggedIn) {
         //Sync thời gian login lần cuối qua CRM
         await this.userService.updateCrmLastLoginDate(
           crmCusData.id,
