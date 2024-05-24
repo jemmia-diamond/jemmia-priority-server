@@ -3,7 +3,6 @@ import {
   CreateDateColumn,
   Entity,
   ManyToOne,
-  PrimaryColumn,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Exclude } from 'class-transformer';
@@ -23,13 +22,13 @@ export class User {
   @Column('integer', { nullable: true })
   haravanId: number;
 
-  @PrimaryColumn('varchar', { length: 128, unique: true })
+  @Column('varchar', { length: 128 })
   authId: string;
 
   /** Lưu theo format +yxxx
    * @param {number} y: mã vùng
    */
-  @Column('varchar', { length: 24, unique: true, nullable: true })
+  @Column('varchar', { length: 24, nullable: true })
   phoneNumber: string;
 
   @Column('varchar', { length: 512, nullable: true })
