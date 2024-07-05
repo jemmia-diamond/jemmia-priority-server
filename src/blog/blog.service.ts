@@ -8,6 +8,8 @@ import { Post } from './entities/post.entity';
 import { In, IsNull, Like, Not, Repository } from 'typeorm';
 import { Blog } from './entities/blog.entity';
 import { EUserRole } from '../user/enums/user-role.enum';
+import { User } from '../user/entities/user.entity';
+import { DateUtils } from '../shared/utils/date.utils';
 
 @Injectable()
 export class BlogService {
@@ -16,6 +18,8 @@ export class BlogService {
     private postRepository: Repository<Post>,
     @InjectRepository(Blog)
     private blogRepository: Repository<Blog>,
+    @InjectRepository(User)
+    private userRepository: Repository<User>,
     private readonly haravanService: HaravanService,
   ) {}
 
@@ -35,10 +39,41 @@ export class BlogService {
     }
   }
 
-  async findAll(query: HaravanBlogSearchDto, isAdmin: boolean) {
+  async findAll(
+    query: HaravanBlogSearchDto,
+    isAdmin: boolean,
+    userId?: string,
+  ) {
     try {
       const limit = query.limit || 999999999;
       const offset = ((query.page || 1) - 1) * limit;
+
+      //Add birthday post if is in birthdate
+      if (userId) {
+        const user = await this.userRepository.findOneBy({
+          id: userId,
+        });
+
+        if (
+          user &&
+          user.role !== EUserRole.admin &&
+          user.customerBirthdayUpdatePwa
+        ) {
+          if (
+            DateUtils.isBirthday(
+              new Date(
+                user.customerBirthdayUpdatePwa.split('/').reverse().join(','),
+              ),
+            )
+          ) {
+            query.excludeIds.splice(
+              query.excludeIds.indexOf(process.env.BIRTHDAY_BLOG_ID),
+              1,
+            );
+          }
+        }
+      }
+
       const data = await this.blogRepository.find({
         where: {
           id: query.excludeIds ? Not(In(query.excludeIds)) : null,
