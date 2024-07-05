@@ -76,6 +76,18 @@ export class UserController {
     return this.userService.sendUpdateInfoRequestToCrm(req.user.crmId, body);
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Put('crm/update-tol-ref')
+  @ApiOperation({
+    description: 'Update thông tin ref CRM của user',
+  })
+  async updateCrmRef() {
+    return this.userService.updateCrmRefPoint(
+      '661d4333f803a4002b440c53',
+      449122050,
+    );
+  }
+
   // @UseGuards(JwtAuthGuard)
   // @Roles(EUserRole.admin)
   // @Post()
