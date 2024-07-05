@@ -37,7 +37,7 @@ export class CustomerRankService implements OnModuleInit {
 
   @Cron('0 0 * * *')
   async handleCron() {
-    console.log('Cron job is running on the 1st of every day');
+    console.log('Cron job ranking running every day');
     await this.ranking();
   }
 
@@ -197,9 +197,18 @@ export class CustomerRankService implements OnModuleInit {
 
     const totalPrice = await this.orderRepository.sum('totalPrice', {
       couponRef: {
-        owner: {
-          id: user.id,
-        },
+        owner: [
+          {
+            id: user.id,
+          },
+          {
+            role: EUserRole.partnerB,
+            invitedBy: {
+              id: user.id,
+              role: EUserRole.partnerA,
+            },
+          },
+        ],
       },
       paymentStatus: EFinancialStatus.paid,
       createdDate: MoreThanOrEqual(twelveMonthsAgo),
