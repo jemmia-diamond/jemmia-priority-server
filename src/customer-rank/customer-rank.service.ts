@@ -35,47 +35,47 @@ export class CustomerRankService implements OnModuleInit {
     this.handleCron(); // Kích hoạt cron job ngay khi module được khởi tạo
   }
 
-  @Cron('0 0 * * *')
-  async handleCron() {
-    console.log('Cron job ranking running every day');
-    await this.ranking();
-  }
+  // @Cron('0 0 * * *')
+  // async handleCron() {
+  //   console.log('Cron job ranking running every day');
+  //   await this.ranking();
+  // }
 
-  async ranking() {
-    try {
-      //!TODO HANDLE FOR CRM UPDATE REF POINT
-      const listUser = await this.userRepository.find();
+  // async ranking() {
+  //   try {
+  //     //!TODO HANDLE FOR CRM UPDATE REF POINT
+  //     const listUser = await this.userRepository.find();
 
-      const promises = [];
-      listUser.forEach((user: User) => {
-        promises.push(
-          new Promise(async (resolve) => {
-            // Process each user here
-            const currentDate = new Date();
-            if (user.rankExpirationTime >= currentDate) {
-              const userRank = await this.getRankOfUser(user.id);
+  //     const promises = [];
+  //     listUser.forEach((user: User) => {
+  //       promises.push(
+  //         new Promise(async (resolve) => {
+  //           // Process each user here
+  //           const currentDate = new Date();
+  //           if (user.rankExpirationTime >= currentDate) {
+  //             const userRank = await this.getRankOfUser(user.id);
 
-              if (userRank.rank > ECustomerRankNum.silver) {
-                if (user.rank != ECustomerRankNum.silver)
-                  user.rank =
-                    userRank.rank >= user.rank ? userRank.rank : user.rank - 1;
-                user.rankExpirationTime = new Date(
-                  currentDate.setFullYear(currentDate.getFullYear() + 1),
-                );
-                await this.userRepository.save(user);
-              }
-            }
+  //             if (userRank.rank > ECustomerRankNum.silver) {
+  //               if (user.rank != ECustomerRankNum.silver)
+  //                 user.rank =
+  //                   userRank.rank >= user.rank ? userRank.rank : user.rank - 1;
+  //               user.rankExpirationTime = new Date(
+  //                 currentDate.setFullYear(currentDate.getFullYear() + 1),
+  //               );
+  //               await this.userRepository.save(user);
+  //             }
+  //           }
 
-            resolve(1);
-          }),
-        );
-      });
+  //           resolve(1);
+  //         }),
+  //       );
+  //     });
 
-      await Promise.race(promises);
-    } catch (error) {
-      console.log(error);
-    }
-  }
+  //     await Promise.race(promises);
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // }
 
   /** Update rank của user và sync điểm ref qua CRM */
   async updateUserRank(user: User) {
