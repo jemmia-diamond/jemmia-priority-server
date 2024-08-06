@@ -45,7 +45,7 @@ export class WithdrawController {
 
     if (user.point > body.amount) {
       user.point -= Math.abs(body.amount);
-      this.userService.updateNativeUser(user);
+      await this.userService.updateNativeUser(user);
 
       body.bankName = user.bankingAccount.bankName;
       body.bankNumber = user.bankingAccount.number;
