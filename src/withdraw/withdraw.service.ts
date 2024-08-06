@@ -63,8 +63,13 @@ export class WithdrawService {
   }
 
   async checkandupdateStatus(withdrawDto: UpdateWithDrawDto) {
-    const withdrawFound = await this.withdrawRepostitory.findOneBy({
-      id: withdrawDto.id,
+    const withdrawFound = await this.withdrawRepostitory.findOne({
+      where: {
+        id: withdrawDto.id,
+      },
+      relations: {
+        user: true,
+      },
     });
     if (withdrawFound) {
       withdrawFound.status = withdrawDto.status;

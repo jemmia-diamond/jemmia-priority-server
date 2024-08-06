@@ -155,7 +155,7 @@ export class UserService {
   }
 
   async updateNativeUser(user: User) {
-    return await this.userRepository.save(user);
+    return this.userRepository.save(user);
   }
 
   async createNativeUser(user) {
