@@ -51,6 +51,8 @@ export class WithdrawController {
       body.bankName = user.bankingAccount.bankName;
       body.bankNumber = user.bankingAccount.number;
 
+      body.amount *= 0.9;
+
       axios.post(
         'https://open.larksuite.com/open-apis/bot/v2/hook/d9bf991e-e01f-47c6-b4c9-cf2689ff023c',
         {
