@@ -37,7 +37,7 @@ export class WithdrawController {
     @Request() req: RequestPayload,
     @Body() body: WithdrawMoneyDto,
   ) {
-    const user = await this.userService.findUser(req.user.id);
+    const user = await this.userService.findUserNative(req.user.id);
 
     if (!user) {
       throw new BadRequestException('Unknown User');
