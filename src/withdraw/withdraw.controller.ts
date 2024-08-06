@@ -18,6 +18,7 @@ import { EUserRole } from '../user/enums/user-role.enum';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { UpdateWithDrawDto } from './dto/update-withdraw.dto';
+import axios from 'axios';
 
 @ApiTags('Withdraw')
 @ApiBearerAuth()
@@ -49,6 +50,20 @@ export class WithdrawController {
 
       body.bankName = user.bankingAccount.bankName;
       body.bankNumber = user.bankingAccount.number;
+
+      axios.post(
+        'https://open.larksuite.com/open-apis/bot/v2/hook/d9bf991e-e01f-47c6-b4c9-cf2689ff023c',
+        {
+          msg_type: 'text',
+          content: {
+            text: `Có yêu cầu rút tiền mới từ ${user.name}
+SĐT: ${user.phoneNumber}
+Số tiền: ${body.amount}
+STK: ${body.bankNumber}
+Ngân hàng: ${body.bankName}`,
+          },
+        },
+      );
 
       return this.withdrawService.save(body, user);
     }
