@@ -32,7 +32,7 @@ export class CustomerRankService implements OnModuleInit {
   ) {}
 
   onModuleInit() {
-    this.handleCron(); // Kích hoạt cron job ngay khi module được khởi tạo
+    // this.handleCron(); // Kích hoạt cron job ngay khi module được khởi tạo
   }
 
   // @Cron('0 0 * * *')

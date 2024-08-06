@@ -30,17 +30,19 @@ export class WithdrawService {
       bankName: withdraw.bankName,
       bankNumber: withdraw.bankNumber,
       amount: withdraw.amount,
-      user: user,
+      user: {
+        id: user.id,
+      },
       status: EWithdrawStatus.pending,
     });
 
-    const noti = new Notification();
-    noti.title = 'Rút tiền';
-    noti.receiver = user;
-    noti.type = NotificationType.cashback;
-    noti.description = `Yêu cầu rút <b>${data.amount.toLocaleString('vi')}đ</b> đang được xử lý`;
-
-    await this.notificationRepository.save(noti);
+    await this.notificationRepository.save({
+      title: 'Rút tiền',
+      receiver: {
+        id: user.id,
+      },
+      description: `Yêu cầu rút <b>${data.amount.toLocaleString('vi')}đ</b> đang được xử lý`,
+    });
     return data;
   }
 
@@ -67,13 +69,14 @@ export class WithdrawService {
     if (withdrawFound) {
       withdrawFound.status = withdrawDto.status;
 
-      const noti = new Notification();
-      noti.title = 'Rút tiền';
-      noti.receiver = withdrawFound.user;
-      noti.type = NotificationType.cashback;
-      noti.description = `Yêu cầu rút <b>${withdrawFound.amount.toLocaleString('vi')}đ</b> đã được xử lý`;
-
-      await this.notificationRepository.save(noti);
+      await this.notificationRepository.save({
+        title: 'Rút tiền',
+        receiver: {
+          id: withdrawFound.user.id,
+        },
+        description: `Yêu cầu rút <b>${withdrawFound.amount.toLocaleString('vi')}đ</b> đã được xử lý`,
+        type: NotificationType.cashback,
+      });
 
       return await this.withdrawRepostitory.save(withdrawFound);
     }
