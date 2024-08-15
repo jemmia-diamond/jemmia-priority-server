@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { HaravanCustomerDto } from '../../haravan/dto/haravan-customer.dto';
 
 export class UserBankingAccountDto {
@@ -10,6 +10,12 @@ export class UserBankingAccountDto {
 }
 
 export class UserInfoDto extends HaravanCustomerDto {
-  @ApiProperty()
-  bankingAccount: UserBankingAccountDto;
+  @ApiPropertyOptional()
+  bankingAccount?: UserBankingAccountDto;
+
+  @ApiPropertyOptional()
+  frontIDCardImageUrl: string;
+
+  @ApiPropertyOptional()
+  backIDCardImageUrl: string;
 }

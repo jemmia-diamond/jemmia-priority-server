@@ -108,4 +108,10 @@ export class User {
 
   @Column('json', { default: '{}' })
   bankingAccount: UserBankingAccountDto;
+
+  @Column('text', { nullable: true })
+  frontIDCardImageUrl: string;
+
+  @Column('text', { nullable: true })
+  backIDCardImageUrl: string;
 }
