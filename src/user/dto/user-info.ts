@@ -7,6 +7,9 @@ export class UserBankingAccountDto {
 
   @ApiProperty()
   bankName: string;
+
+  @ApiPropertyOptional()
+  name: string;
 }
 
 export class UserInfoDto extends HaravanCustomerDto {
