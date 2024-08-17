@@ -180,7 +180,7 @@ export class UserService {
 
       user = await this.userRepository.save({
         ...user,
-        bankingAccount: data.bankingAccount || {},
+        bankingAccount: data.bankingAccount || user.bankingAccount,
         frontIDCardImageUrl: data.frontIDCardImageUrl,
         backIDCardImageUrl: data.backIDCardImageUrl,
       });
