@@ -9,10 +9,11 @@ import { UserRedis } from './user.redis';
 import { UserEntitySubscriber } from './subscribers/user-entity.subscriber';
 import { CrmModule } from '../crm/crm.module';
 import { CustomerRankModule } from '../customer-rank/customer-rank.module';
+import { Withdraw } from '../withdraw/entities/withdraw.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User]),
+    TypeOrmModule.forFeature([User, Withdraw]),
     HaravanModule,
     CouponRefModule,
     CrmModule,
