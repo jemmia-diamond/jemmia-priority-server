@@ -23,6 +23,8 @@ import { CustomerRankService } from '../customer-rank/customer-rank.service';
 import { ECrmCustomerGender } from '../crm/enums/crm-customer.enum';
 import * as moment from 'moment';
 import { UserUpdateCrmInfoDto } from './dto/user-update-profile.dto';
+import { Withdraw } from '../withdraw/entities/withdraw.entity';
+import { EWithdrawStatus } from '../withdraw/dto/withdraw-status.dto';
 
 @Injectable()
 export class UserService {
@@ -32,6 +34,8 @@ export class UserService {
     private readonly haravanService: HaravanService,
     private crmService: CrmService,
     private couponRefService: CouponRefService,
+    @InjectRepository(Withdraw)
+    private readonly withdraws: Repository<Withdraw>,
     private userRedis: UserRedis,
     @Inject(forwardRef(() => CustomerRankService))
     private readonly customerRankService: CustomerRankService,
@@ -61,6 +65,20 @@ export class UserService {
       });
     };
 
+    const withdrawPending = await this.withdraws.sum('amount', {
+      user: {
+        id: id,
+      },
+      status: EWithdrawStatus.pending,
+    });
+
+    const withdrawSuccess = await this.withdraws.sum('amount', {
+      user: {
+        id: id,
+      },
+      status: EWithdrawStatus.done,
+    });
+
     if (notCached) {
       await fetchUser();
     } else {
@@ -71,6 +89,8 @@ export class UserService {
       ...user,
       rank: user?.rank || ECustomerRankNum.silver,
       role: user?.role || EUserRole.customer,
+      withdrawPending: withdrawPending || 0,
+      withdrawSuccess: withdrawSuccess || 0,
     };
   }
 

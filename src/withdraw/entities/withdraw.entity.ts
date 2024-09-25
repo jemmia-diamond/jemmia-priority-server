@@ -25,6 +25,10 @@ export class Withdraw {
   @Column('double precision', { default: 0 })
   amount: number;
 
+  //Số dư còn lại
+  @Column('double precision', { default: 0 })
+  remainAmount: number;
+
   @Column('enum', { enum: EWithdrawStatus, default: EWithdrawStatus.pending })
   status: EWithdrawStatus;
 

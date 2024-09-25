@@ -50,7 +50,7 @@ export class WithdrawController {
 
       body.bankName = user.bankingAccount.bankName;
       body.bankNumber = user.bankingAccount.number;
-
+      body.remainAmount = user.point;
       body.amount *= 0.9;
 
       axios.post(
