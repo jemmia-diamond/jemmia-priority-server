@@ -8,7 +8,6 @@ import {
   Post,
   Body,
   Headers,
-  UnauthorizedException,
 } from '@nestjs/common';
 import { OrderService } from './order.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';

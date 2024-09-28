@@ -53,6 +53,9 @@ export class WithdrawService {
       order: {
         createdDate: 'DESC',
       },
+      relations: {
+        user: true,
+      },
     });
     return {
       requestWithdraws,
