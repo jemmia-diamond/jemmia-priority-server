@@ -33,10 +33,10 @@ import { CrmModule } from './crm/crm.module';
       useFactory: async (): Promise<any> => {
         const store = await redisStore({
           socket: {
-            host: process.env.REDIS_HOST,
+            host: process.env.REDIS_URL,
             port: Number(process.env.REDIS_PORT),
           },
-          password: process.env.REDIS_PASSWORD,
+          // password: process.env.REDIS_PASSWORD,
         });
         return {
           store: () => store,
