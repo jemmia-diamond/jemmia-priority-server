@@ -1,0 +1,1 @@
+dokku config:set $(cat .env.prod | tr "\n" " ")
