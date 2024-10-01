@@ -1,4 +1,4 @@
-import { HttpAdapterHost, NestFactory } from '@nestjs/core';
+import { HttpAdapterHost, NestFactory, repl } from '@nestjs/core';
 import { AppModule } from './app.module';
 import * as dotenv from 'dotenv';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
@@ -9,7 +9,7 @@ import { AllExceptionsFilter } from './shared/filters/all-exception.filter';
 process.env.TZ = 'Asia/Ho_Chi_Minh';
 
 async function bootstrap() {
-  // await repl(AppModule);
+  await repl(AppModule);
   dotenv.config();
 
   const app = await NestFactory.create(AppModule);
