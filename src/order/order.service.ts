@@ -60,16 +60,16 @@ export class OrderService {
         {
           couponRef: [
             {
-              owner: [
-                {
+              owner: {
+                id: query.userId,
+              },
+            },
+            {
+              owner: {
+                invitedBy: {
                   id: query.userId,
                 },
-                {
-                  invitedBy: {
-                    id: query.userId,
-                  },
-                },
-              ],
+              },
             },
           ],
         },
