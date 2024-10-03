@@ -61,7 +61,7 @@ import { CrmModule } from './crm/crm.module';
         Blog,
       ],
       database: process.env.DB,
-      synchronize: true,
+      synchronize: false,
       logging: false,
     }),
     ServeStaticModule.forRoot({
