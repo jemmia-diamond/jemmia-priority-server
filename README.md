@@ -10,4 +10,4 @@ Biên tập/etc/docker/daemon.json
 Khởi động lại trình nền docker để những thay đổi đó có hiệu lực:
 sudo systemctl restart docker
 
-Bây giờ khi bạn chạy/khởi động một vùng chứa, docker sẽ điền /etc/resolv.confcác giá trị từ daemon.json.
+Bây giờ khi bạn chạy/khởi động một vùng chứa, docker sẽ điền /etc/resolv.confcác giá trị từ daemon.json..
