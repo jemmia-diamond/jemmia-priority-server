@@ -273,19 +273,12 @@ export class UserService {
 
   //** Sync thời gian login lần đầu qua CRM */
   async updateCrmFirstLoginDate(crmId: string, date: Date) {
-    const formatDate = moment(date).format('HH:mm:ss DD/MM/YYYY');
-
-    console.log([
-      {
-        key: 'app_first_login_date',
-        value: formatDate,
-      },
-    ]);
+    // const formatDate = moment(date).format('HH:mm:ss DD/MM/YYYY');
 
     await this.crmService.updateCustomer(crmId, [
       {
         key: 'app_first_login_date',
-        value: formatDate,
+        value: date.getTime(),
       },
     ]);
   }
