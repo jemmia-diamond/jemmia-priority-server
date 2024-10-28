@@ -44,22 +44,15 @@ export class WithdrawController {
       throw new BadRequestException('Unknown User');
     }
 
-    if (user.point > body.amount) {
-      user.point -= Math.abs(body.amount);
+    const amountWTax = body.amount * 1.1;
+
+    if (user.point > amountWTax) {
+      user.point -= Math.abs(amountWTax);
       await this.userService.updateNativeUser(user);
 
       body.bankName = user.bankingAccount.bankName;
       body.bankNumber = user.bankingAccount.number;
       body.remainAmount = user.point;
-
-      //!HARDCODE:
-      if (body.amount === 550000) {
-        body.amount = 500000;
-      } else if (body.amount === 1100000) {
-        body.amount = 1000000;
-      } else {
-        body.amount *= 0.9;
-      }
 
       axios.post(
         'https://open.larksuite.com/open-apis/bot/v2/hook/d9bf991e-e01f-47c6-b4c9-cf2689ff023c',
