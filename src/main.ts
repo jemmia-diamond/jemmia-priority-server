@@ -5,14 +5,12 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as admin from 'firebase-admin';
 import { AllExceptionsFilter } from './shared/filters/all-exception.filter';
 import * as Sentry from '@sentry/nestjs';
-import { nodeProfilingIntegration } from '@sentry/profiling-node';
 
 //!SET DEFAULT TIMEZONE
 process.env.TZ = 'Asia/Ho_Chi_Minh';
 
 Sentry.init({
   dsn: 'https://510b8e6112c232034d9914c638ef4ed0@o4508209618354176.ingest.us.sentry.io/4508257769684992',
-  integrations: [nodeProfilingIntegration()],
   // Performance Monitoring
   tracesSampleRate: 1.0, //  Capture 100% of the transactions
 
