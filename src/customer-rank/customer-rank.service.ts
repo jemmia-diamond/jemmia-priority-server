@@ -211,7 +211,7 @@ export class CustomerRankService implements OnModuleInit {
         ],
       },
       paymentStatus: EFinancialStatus.paid,
-      createdDate: MoreThanOrEqual(twelveMonthsAgo),
+      // createdDate: MoreThanOrEqual(twelveMonthsAgo),
     });
 
     return totalPrice || 0;
