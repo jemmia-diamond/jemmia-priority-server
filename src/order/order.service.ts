@@ -225,6 +225,8 @@ export class OrderService {
         return 'CANT FIND CUSTOMER';
       }
 
+      console.log('FIND ORDER');
+
       //Get Order dựa trên haravanId hoặc coupon-ref (Dùng cho trường hợp coupon-ref không giới hạn)
       let order = await this.orderRepository.findOne({
         where: [
@@ -250,6 +252,7 @@ export class OrderService {
       let customer = await this.userRepository.findOneBy({
         haravanId: orderDto.customer.id,
       });
+      console.log('FIND CUSTOMER');
 
       //Kiểm tra coupon được sử dụng
       let couponRef: CouponRef;
@@ -292,6 +295,8 @@ export class OrderService {
 
       order.paymentStatus = orderDto.financial_status;
       order.totalPrice = orderDto.total_price;
+      console.log('FIND ORDER');
+      console.log(order);
 
       //Cập nhật owner của coupon-ref & gắn vào order
       if (couponRef) {
