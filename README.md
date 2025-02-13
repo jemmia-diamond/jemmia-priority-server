@@ -1,4 +1,13 @@
 # README
+## Install packages
+```bash
+yarn i
+```
+
+```bash
+yarn dev
+```
+
 ## 502 BAD GATE WAY
 1. Máy chủ DNS mã hóa cứng trong docker daemon.json
 
