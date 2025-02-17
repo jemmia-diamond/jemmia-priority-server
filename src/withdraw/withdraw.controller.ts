@@ -83,8 +83,9 @@ Ngân hàng: ${body.bankName}`,
     @Request() req: RequestPayload,
     @Query('page') page: number,
     @Query('size') size: number,
+    @Query('ownerId') ownerId: string,
   ) {
-    return this.withdrawService.findAll(page, size);
+    return this.withdrawService.findAll(ownerId,page, size);
   }
 
   @Roles(EUserRole.admin)

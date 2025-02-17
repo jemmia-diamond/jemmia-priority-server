@@ -243,6 +243,7 @@ export class CouponRefService {
   }
 
   async findAllCouponRef(
+    ownerId: string,
     userId: string,
     type: ECouponRefType,
     role: EUserRole,
@@ -262,11 +263,14 @@ export class CouponRefService {
           where: {
             type: type,
             role: role,
+            owner: {
+              id: ownerId,
+            },
           },
           order: { createdDate: 'DESC' },
           skip: offset,
           take: limit,
-          relations: ['owner', 'usedBy'],
+          relations: ['owner', 'usedBy', 'order'],
         });
       } else {
         [items, totalItems] = await this.couponRefRepository.findAndCount({
@@ -280,7 +284,7 @@ export class CouponRefService {
           order: { createdDate: 'DESC' },
           skip: offset,
           take: limit,
-          relations: ['owner', 'usedBy'],
+          relations: ['owner', 'usedBy', ''],
         });
       }
 
