@@ -284,7 +284,7 @@ export class CouponRefService {
           order: { createdDate: 'DESC' },
           skip: offset,
           take: limit,
-          relations: ['owner', 'usedBy', ''],
+          relations: ['owner', 'usedBy', 'order'],
         });
       }
 
