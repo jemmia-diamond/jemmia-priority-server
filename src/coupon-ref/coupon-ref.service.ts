@@ -243,12 +243,12 @@ export class CouponRefService {
   }
 
   async findAllCouponRef(
-    ownerId: string,
     userId: string,
     type: ECouponRefType,
     role: EUserRole,
     page: number,
     limit: number,
+    ownerId?: string,
   ): Promise<Pagination<CouponRef>> {
     try {
       const user = await this.userRepository.findOneBy({ id: userId });
