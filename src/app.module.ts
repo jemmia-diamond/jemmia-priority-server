@@ -62,7 +62,7 @@ import { CrmModule } from './crm/crm.module';
       ],
       database: process.env.DB,
       synchronize: false,
-      logging: false,
+      logging: true,
     }),
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'public'),

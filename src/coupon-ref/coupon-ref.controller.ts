@@ -88,6 +88,7 @@ export class CouponRefController {
     @Query('limit') limit = 999999,
     @Query('type') type: ECouponRefType,
     @Query('role') role: EUserRole,
+    @Query('ownerId') ownerId?: string,
   ): Promise<Pagination<CouponRef>> {
     limit = Math.min(50, limit); // Giới hạn limit tối đa là 50
     return this.couponRefService.findAllCouponRef(
@@ -96,6 +97,7 @@ export class CouponRefController {
       role,
       page,
       limit,
+      ownerId,
     );
   }
 }

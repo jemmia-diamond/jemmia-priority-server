@@ -46,8 +46,13 @@ export class WithdrawService {
     return data;
   }
 
-  async findAll(page: number, size: number) {
+  async findAll(page: number, size: number, ownerId?: string) {
     const requestWithdraws = await this.withdrawRepostitory.find({
+      where: {
+        user: {
+          id: ownerId,
+        },
+      },
       skip: (page - 1) * size,
       take: size,
       order: {

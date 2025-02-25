@@ -3,12 +3,14 @@ import {
   CreateDateColumn,
   Entity,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Exclude } from 'class-transformer';
 import { User } from '../../user/entities/user.entity';
 import { EUserRole } from '../../user/enums/user-role.enum';
 import { ECouponRefType } from '../enums/coupon-ref.enum';
+import { Order } from '../../order/entities/order.entity';
 
 @Entity('coupon_refs')
 export class CouponRef {
@@ -64,6 +66,9 @@ export class CouponRef {
   /** Field này dùng để kiểm tra couponRef đã được partnerA / partnerB đi mua hàng lần đầu */
   @Column({ type: 'boolean', default: false })
   used: boolean;
+
+  @OneToMany(() => Order, (order) => order.couponRef)
+  order: Order;
 
   /** Số lần sử dụng */
   @Column('int', { default: 0 })
