@@ -8,12 +8,6 @@ import {
 import { ECouponRefType } from '../enums/coupon-ref.enum';
 import { EUserRole } from '../../user/enums/user-role.enum';
 
-// @Query('page') page = 1,
-// @Query('limit') limit = 999999,
-// @Query('type') type: ECouponRefType,
-// @Query('role') role: EUserRole,
-// @Query('ownerId') ownerId?: string,
-// @Query('isUsed') isUsed?: boolean,
 export class FindAllCouponRef {
   @IsBoolean()
   @IsOptional()
