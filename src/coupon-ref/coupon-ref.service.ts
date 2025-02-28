@@ -2,7 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateCouponRefDto } from './dto/create-coupon-ref.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../user/entities/user.entity';
-import { In, Repository } from 'typeorm';
+import { In, MoreThan, Repository } from 'typeorm';
 import { CouponService } from '../coupon/coupon.service';
 import { CouponRef } from './entities/coupon-ref.entity';
 import { HaravanCouponDto } from '../haravan/dto/haravan-coupon.dto';
@@ -249,6 +249,7 @@ export class CouponRefService {
     page: number,
     limit: number,
     ownerId?: string,
+    isUsed?: boolean,
   ): Promise<Pagination<CouponRef>> {
     try {
       const user = await this.userRepository.findOneBy({ id: userId });
@@ -266,6 +267,7 @@ export class CouponRefService {
             owner: {
               id: ownerId,
             },
+            usedCount: isUsed ? MoreThan(0) : undefined,
           },
           order: { createdDate: 'DESC' },
           skip: offset,
@@ -280,6 +282,7 @@ export class CouponRefService {
             owner: {
               id: user.id,
             },
+            usedCount: isUsed ? MoreThan(0) : undefined,
           },
           order: { createdDate: 'DESC' },
           skip: offset,

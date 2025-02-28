@@ -5,6 +5,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as admin from 'firebase-admin';
 import { AllExceptionsFilter } from './shared/filters/all-exception.filter';
 import * as Sentry from '@sentry/nestjs';
+import { ValidationPipe } from '@nestjs/common';
 
 //!SET DEFAULT TIMEZONE
 process.env.TZ = 'Asia/Ho_Chi_Minh';
@@ -31,6 +32,12 @@ async function bootstrap() {
   //FILTERS
   const httpAdapter = app.get(HttpAdapterHost);
   app.useGlobalFilters(new AllExceptionsFilter(httpAdapter));
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true,
+      transformOptions: { enableImplicitConversion: true },
+    }),
+  );
   Sentry.setupNestErrorHandler(app, new AllExceptionsFilter(httpAdapter));
 
   //FIREBASE ADMIN
