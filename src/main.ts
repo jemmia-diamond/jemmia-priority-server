@@ -32,12 +32,6 @@ async function bootstrap() {
   //FILTERS
   const httpAdapter = app.get(HttpAdapterHost);
   app.useGlobalFilters(new AllExceptionsFilter(httpAdapter));
-  app.useGlobalPipes(
-    new ValidationPipe({
-      transform: true,
-      transformOptions: { enableImplicitConversion: true },
-    }),
-  );
   Sentry.setupNestErrorHandler(app, new AllExceptionsFilter(httpAdapter));
 
   //FIREBASE ADMIN
