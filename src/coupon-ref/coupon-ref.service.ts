@@ -2,7 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateCouponRefDto } from './dto/create-coupon-ref.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../user/entities/user.entity';
-import { In, MoreThan, Repository } from 'typeorm';
+import { FindOperator, In, MoreThan, Repository } from 'typeorm';
 import { CouponService } from '../coupon/coupon.service';
 import { CouponRef } from './entities/coupon-ref.entity';
 import { HaravanCouponDto } from '../haravan/dto/haravan-coupon.dto';
@@ -258,7 +258,13 @@ export class CouponRefService {
       const offset = (page - 1) * limit;
       let items: CouponRef[];
       let totalItems: number;
+      let usedCount: number | FindOperator<number> | undefined;
 
+      if (isUsed) {
+        usedCount = MoreThan(0);
+      } else if (isUsed === false) {
+        usedCount = 0;
+      }
       if (user.role === EUserRole.admin) {
         [items, totalItems] = await this.couponRefRepository.findAndCount({
           where: {
@@ -267,7 +273,7 @@ export class CouponRefService {
             owner: {
               id: ownerId,
             },
-            usedCount: isUsed ? MoreThan(0) : undefined,
+            usedCount: usedCount,
           },
           order: { createdDate: 'DESC' },
           skip: offset,
@@ -282,7 +288,7 @@ export class CouponRefService {
             owner: {
               id: user.id,
             },
-            usedCount: isUsed ? MoreThan(0) : undefined,
+            usedCount: usedCount,
           },
           order: { createdDate: 'DESC' },
           skip: offset,
