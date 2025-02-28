@@ -20,6 +20,7 @@ import { Pagination } from 'nestjs-typeorm-paginate';
 import { InviteCouponRefDto } from './dto/invite-coupon-ref.dto';
 import { RequestPayload } from '../shared/types/controller.type';
 import { ECouponRefType } from './enums/coupon-ref.enum';
+import { FindAllCouponRef } from './dto/find-all-coupon-ref.dto';
 
 @ApiTags('Coupon Referral')
 @ApiBearerAuth()
@@ -84,20 +85,17 @@ export class CouponRefController {
   @Get()
   async findAllCouponRef(
     @Request() req: RequestPayload,
-    @Query('page') page = 1,
-    @Query('limit') limit = 999999,
-    @Query('type') type: ECouponRefType,
-    @Query('role') role: EUserRole,
-    @Query('ownerId') ownerId?: string,
+    @Query() query: FindAllCouponRef,
   ): Promise<Pagination<CouponRef>> {
-    limit = Math.min(50, limit); // Giới hạn limit tối đa là 50
+    query.limit = Math.min(50, query.limit); // Giới hạn limit tối đa là 50
     return this.couponRefService.findAllCouponRef(
       req.user.id,
-      type,
-      role,
-      page,
-      limit,
-      ownerId,
+      query.type,
+      query.role,
+      query.page,
+      query.limit,
+      query.ownerId,
+      query.isUsed,
     );
   }
 }
