@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import axios from 'axios';
 import { createHmac } from 'crypto';
 import { CrmQueryDto } from './dto/crm.dto';
@@ -35,6 +35,8 @@ ax.interceptors.request.use((config) => {
 
 @Injectable()
 export class CrmService {
+  private readonly logger = new Logger(CrmService.name);
+
   constructor() {}
 
   //*CUSTOMER
@@ -55,6 +57,9 @@ export class CrmService {
     );
 
     const res = await ax.post(`/_api/base-table/find`, body);
+    if (res.data.status === -1) {
+      this.logger.error(res.data.msg, new Error().stack);
+    }
 
     return {
       data: plainToInstance(CrmCustomerDto, <any[]>res.data.data),

@@ -13,7 +13,7 @@ export const EPartnerCashbackConfig = {
     },
   },
   refferalCashbackPercent: {
-    [ECustomerRank.platinum]: 0.04,
+    [ECustomerRank.platinum]: 0.035,
     [ECustomerRank.gold]: 0.025,
     [ECustomerRank.silver]: 0.015,
     [ECustomerRank.staff]: 0.02,
