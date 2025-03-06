@@ -342,6 +342,16 @@ export class UserService {
         ? 0
         : crmCusData.cumulativeTovReferral;
 
+    let userRole = user?.role;
+    if (
+      (userRole === EUserRole.customer || !userRole) &&
+      crmCusData.customerTypes?.[0]?.value === EUserRole.staff
+    ) {
+      userRole = EUserRole.staff;
+    } else if (!userRole) {
+      userRole = EUserRole.customer;
+    }
+
     user = await this.userRepository.save({
       ...user,
       haravanId: crmCusData.haravanId,
@@ -357,11 +367,7 @@ export class UserService {
       gender: ECrmCustomerGender[crmCusData.gioiTinh?.[0]?.value] ?? 0,
       customerBirthdayUpdatePwa: crmBirtDate,
       customerEmailUpdatePwa: crmCusData.emails?.[0]?.value,
-      role:
-        user?.role ||
-        (/^kh|KH/.test(crmCusData.maKhachHang)
-          ? EUserRole.customer
-          : EUserRole.staff),
+      role: userRole,
     });
 
     return user;

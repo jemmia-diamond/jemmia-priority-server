@@ -73,4 +73,11 @@ export class CrmCustomerDto {
   @Expose({ name: 'sinh_nhat' })
   @Transform((value) => (value.value ? new Date(value.value) : null))
   birthDate?: Date;
+
+  @Expose({ name: 'customer_types' })
+  customerTypes: Array<{
+    label: string;
+    value: string;
+    id: string;
+  }>;
 }
