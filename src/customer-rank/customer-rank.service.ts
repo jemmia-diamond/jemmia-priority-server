@@ -95,7 +95,9 @@ export class CustomerRankService implements OnModuleInit {
       const userRank = await this.getRankOfUser(user.id);
       const dateNow = new Date();
 
-      if (userRank.rank > ECustomerRankNum.silver) {
+      if (user.role === EUserRole.staff) {
+        user.rank = ECustomerRankNum.staff;
+      } else if (userRank.rank > ECustomerRankNum.silver) {
         user.rank =
           userRank.rank >= user.rank //Nếu hạng tính ra lớn hơn thì thăng hạng
             ? userRank.rank
