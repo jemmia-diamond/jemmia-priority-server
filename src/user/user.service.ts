@@ -407,7 +407,7 @@ export class UserService {
     }
   }
 
-  async getUserPriorityById(haravanId: string): Promise<ReturnUserPriorityDto> {
+  async getUserPriorityById(haravanId: string) {
     // Use your user repository instance here, e.g. this.userRepository
     const query = this.userRepository
       .createQueryBuilder('c')
@@ -434,5 +434,31 @@ export class UserService {
       totalCashBack: Number(result?.totalCashBack) || 0,
       withdrawAmount: Number(result?.withdrawAmount) || 0,
     };
+  }
+
+  async getAllUserPriority(): Promise<ReturnUserPriorityDto[]> {
+    const result = await this.userRepository
+      .createQueryBuilder('c')
+      .select('c.haravanId', 'haravanId')
+      .addSelect('COALESCE(SUM(o.totalPrice), 0)', 'totalReferAmount')
+      .addSelect(
+        'COALESCE(SUM(o.cashBackRef + o.cashBackRefA), 0)',
+        'totalCashBack',
+      )
+      .addSelect('COALESCE(SUM(wd.amount), 0)', 'withdrawAmount')
+      .innerJoin('coupon_refs', 'cf', 'c.id = cf.ownerId')
+      .innerJoin('orders', 'o', 'o.couponRefId = cf.id')
+      .leftJoin('withdraws', 'wd', 'wd.userId = c.id')
+      .groupBy('c.id')
+      .addGroupBy('c.name')
+      .addGroupBy('c.haravanId')
+      .getRawMany(); // 🔁 get all users' data
+
+    return result.map((row) => ({
+      haravanId: row.haravanId,
+      totalReferAmount: Number(row.totalReferAmount) || 0,
+      totalCashBack: Number(row.totalCashBack) || 0,
+      withdrawAmount: Number(row.withdrawAmount) || 0,
+    }));
   }
 }

@@ -20,6 +20,7 @@ import { UserQueryDto } from './dto/user-query.dto';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { UserUpdateCrmInfoDto } from './dto/user-update-profile.dto';
 import { UserInfoDto } from './dto/user-info';
+import { ReturnUserPriorityDto } from './dto/get-user-priority.dto';
 
 @ApiTags('User')
 @ApiBearerAuth()
@@ -115,11 +116,21 @@ export class UserController {
     return this.userService.updateUser(userId, body);
   }
 
+  @Get('priority/get-all')
+  @ApiOperation({
+    description: 'Get priority of all users',
+  })
+  async getAllUserPriority(): Promise<ReturnUserPriorityDto[]> {
+    return this.userService.getAllUserPriority();
+  }
+
   @Get('priority/:haravanId')
   @ApiOperation({
     description: 'Get user priority by haravanId',
   })
-  async getUserPriorityById(@Param('haravanId') haravanId: string) {
+  async getUserPriorityById(
+    @Param('haravanId') haravanId: string,
+  ): Promise<ReturnUserPriorityDto> {
     return this.userService.getUserPriorityById(haravanId);
   }
 
