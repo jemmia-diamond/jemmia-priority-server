@@ -4,20 +4,20 @@ import * as dotenv from 'dotenv';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as admin from 'firebase-admin';
 import { AllExceptionsFilter } from './shared/filters/all-exception.filter';
-import * as Sentry from '@sentry/nestjs';
+// import * as Sentry from '@sentry/nestjs';
 import { ValidationPipe } from '@nestjs/common';
 
 //!SET DEFAULT TIMEZONE
 process.env.TZ = 'Asia/Ho_Chi_Minh';
 
-Sentry.init({
-  dsn: 'https://510b8e6112c232034d9914c638ef4ed0@o4508209618354176.ingest.us.sentry.io/4508257769684992',
-  // Performance Monitoring
-  tracesSampleRate: 1.0, //  Capture 100% of the transactions
+// Sentry.init({
+//   dsn: 'https://510b8e6112c232034d9914c638ef4ed0@o4508209618354176.ingest.us.sentry.io/4508257769684992',
+//   // Performance Monitoring
+//   tracesSampleRate: 1.0, //  Capture 100% of the transactions
 
-  // Set sampling rate for profiling - this is relative to tracesSampleRate
-  profilesSampleRate: 1.0,
-});
+//   // Set sampling rate for profiling - this is relative to tracesSampleRate
+//   profilesSampleRate: 1.0,
+// });
 
 async function bootstrap() {
   dotenv.config();
@@ -32,7 +32,7 @@ async function bootstrap() {
   //FILTERS
   const httpAdapter = app.get(HttpAdapterHost);
   app.useGlobalFilters(new AllExceptionsFilter(httpAdapter));
-  Sentry.setupNestErrorHandler(app, new AllExceptionsFilter(httpAdapter));
+//   Sentry.setupNestErrorHandler(app, new AllExceptionsFilter(httpAdapter));
 
   //FIREBASE ADMIN
   // Initialize the firebase admin app
