@@ -60,3 +60,6 @@ report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 jemmia-priority-firebase-adminsdk-mfgu1-8128a5a469.json
 dev_token
 HOOK_DATA_TEST
+
+# Remove VSCode settings
+.vscode/
