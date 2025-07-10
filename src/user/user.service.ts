@@ -435,4 +435,32 @@ export class UserService {
       withdrawAmount: Number(result?.withdrawAmount) || 0,
     };
   }
+
+  async getAllUserPriority(): Promise<{ results: ReturnUserPriorityDto[] }> {
+    const result = await this.userRepository
+      .createQueryBuilder('c')
+      .select('c.haravanId', 'haravanId')
+      .addSelect('COALESCE(SUM(o.totalPrice), 0)', 'totalReferAmount')
+      .addSelect(
+        'COALESCE(SUM(o.cashBackRef + o.cashBackRefA), 0)',
+        'totalCashBack',
+      )
+      .addSelect('COALESCE(SUM(wd.amount), 0)', 'withdrawAmount')
+      .innerJoin('coupon_refs', 'cf', 'c.id = cf.ownerId')
+      .innerJoin('orders', 'o', 'o.couponRefId = cf.id')
+      .leftJoin('withdraws', 'wd', 'wd.userId = c.id')
+      .groupBy('c.id')
+      .addGroupBy('c.name')
+      .addGroupBy('c.haravanId')
+      .getRawMany();
+
+    const mappedResults: ReturnUserPriorityDto[] = result.map((row) => ({
+      haravanId: row.haravanId,
+      totalReferAmount: Number(row.totalReferAmount) || 0,
+      totalCashBack: Number(row.totalCashBack) || 0,
+      withdrawAmount: Number(row.withdrawAmount) || 0,
+    }));
+
+    return { results: mappedResults };
+  }
 }

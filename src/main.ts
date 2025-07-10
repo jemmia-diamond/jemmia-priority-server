@@ -9,9 +9,8 @@ import { ValidationPipe } from '@nestjs/common';
 
 //!SET DEFAULT TIMEZONE
 process.env.TZ = 'Asia/Ho_Chi_Minh';
-
 Sentry.init({
-  dsn: 'https://510b8e6112c232034d9914c638ef4ed0@o4508209618354176.ingest.us.sentry.io/4508257769684992',
+  dsn: process.env.SENTRY_DSN,
   // Performance Monitoring
   tracesSampleRate: 1.0, //  Capture 100% of the transactions
 
