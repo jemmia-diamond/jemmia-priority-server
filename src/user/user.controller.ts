@@ -120,7 +120,7 @@ export class UserController {
   @ApiOperation({
     description: 'Get priority of all users',
   })
-  async getAllUserPriority(): Promise<ReturnUserPriorityDto[]> {
+  async getAllUserPriority(): Promise<any> {
     return this.userService.getAllUserPriority();
   }
 

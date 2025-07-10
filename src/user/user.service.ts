@@ -407,7 +407,7 @@ export class UserService {
     }
   }
 
-  async getUserPriorityById(haravanId: string) {
+  async getUserPriorityById(haravanId: string): Promise<ReturnUserPriorityDto> {
     // Use your user repository instance here, e.g. this.userRepository
     const query = this.userRepository
       .createQueryBuilder('c')
@@ -436,7 +436,7 @@ export class UserService {
     };
   }
 
-  async getAllUserPriority(): Promise<ReturnUserPriorityDto[]> {
+  async getAllUserPriority(): Promise<{ results: ReturnUserPriorityDto[] }> {
     const result = await this.userRepository
       .createQueryBuilder('c')
       .select('c.haravanId', 'haravanId')
@@ -452,13 +452,15 @@ export class UserService {
       .groupBy('c.id')
       .addGroupBy('c.name')
       .addGroupBy('c.haravanId')
-      .getRawMany(); // 🔁 get all users' data
+      .getRawMany();
 
-    return result.map((row) => ({
+    const mappedResults: ReturnUserPriorityDto[] = result.map((row) => ({
       haravanId: row.haravanId,
       totalReferAmount: Number(row.totalReferAmount) || 0,
       totalCashBack: Number(row.totalCashBack) || 0,
       withdrawAmount: Number(row.withdrawAmount) || 0,
     }));
+
+    return { results: mappedResults };
   }
 }
