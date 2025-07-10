@@ -25,6 +25,7 @@ import * as moment from 'moment';
 import { UserUpdateCrmInfoDto } from './dto/user-update-profile.dto';
 import { Withdraw } from '../withdraw/entities/withdraw.entity';
 import { EWithdrawStatus } from '../withdraw/dto/withdraw-status.dto';
+import { ReturnUserPriorityDto } from './dto/get-user-priority.dto';
 
 @Injectable()
 export class UserService {
@@ -406,5 +407,32 @@ export class UserService {
     }
   }
 
-  //#endregion
+  async getUserPriorityById(haravanId: string): Promise<ReturnUserPriorityDto> {
+    // Use your user repository instance here, e.g. this.userRepository
+    const query = this.userRepository
+      .createQueryBuilder('c')
+      .select('c.haravanId', 'haravanId')
+      .addSelect('COALESCE(SUM(o.totalPrice), 0)', 'totalReferAmount')
+      .addSelect(
+        'COALESCE(SUM(o.cashBackRef + o.cashBackRefA), 0)',
+        'totalCashBack',
+      )
+      .addSelect('COALESCE(SUM(wd.amount), 0)', 'withdrawAmount')
+      .innerJoin('coupon_refs', 'cf', 'c.id = cf.ownerId')
+      .innerJoin('orders', 'o', 'o.couponRefId = cf.id')
+      .leftJoin('withdraws', 'wd', 'wd.userId = c.id')
+      .where('c.haravanId = :haravanId', { haravanId })
+      .groupBy('c.id')
+      .addGroupBy('c.name')
+      .addGroupBy('c.haravanId');
+
+    const result = await query.getRawOne();
+
+    return {
+      haravanId: haravanId,
+      totalReferAmount: Number(result?.totalReferAmount) || 0,
+      totalCashBack: Number(result?.totalCashBack) || 0,
+      withdrawAmount: Number(result?.withdrawAmount) || 0,
+    };
+  }
 }

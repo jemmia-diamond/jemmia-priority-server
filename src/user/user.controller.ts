@@ -115,6 +115,14 @@ export class UserController {
     return this.userService.updateUser(userId, body);
   }
 
+  @Get('priority/:haravanId')
+  @ApiOperation({
+    description: 'Get user priority by haravanId',
+  })
+  async getUserPriorityById(@Param('haravanId') haravanId: string) {
+    return this.userService.getUserPriorityById(haravanId);
+  }
+
   // @UseGuards(JwtAuthGuard)
   // @Delete()
   // async deleteById(@Request() req: RequestPayload): Promise<void> {
