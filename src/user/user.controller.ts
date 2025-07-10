@@ -124,7 +124,7 @@ export class UserController {
     return this.userService.getAllUserPriority();
   }
 
-  @Get('priority/:haravanId')
+  @Get('priority/:haravanId/haravan')
   @ApiOperation({
     description: 'Get user priority by haravanId',
   })
