@@ -413,10 +413,7 @@ export class UserService {
       .createQueryBuilder('c')
       .select('c.haravanId', 'haravanId')
       .addSelect('COALESCE(SUM(o.totalPrice), 0)', 'totalReferAmount')
-      .addSelect(
-        'COALESCE(SUM(o.cashBackRef + o.cashBackRefA), 0)',
-        'totalCashBack',
-      )
+      .addSelect('COALESCE(SUM(c.point), 0)', 'totalCashBack')
       .addSelect('COALESCE(SUM(wd.amount), 0)', 'withdrawAmount')
       .innerJoin('coupon_refs', 'cf', 'c.id = cf.ownerId')
       .innerJoin('orders', 'o', 'o.couponRefId = cf.id')
@@ -441,10 +438,7 @@ export class UserService {
       .createQueryBuilder('c')
       .select('c.haravanId', 'haravanId')
       .addSelect('COALESCE(SUM(o.totalPrice), 0)', 'totalReferAmount')
-      .addSelect(
-        'COALESCE(SUM(o.cashBackRef + o.cashBackRefA), 0)',
-        'totalCashBack',
-      )
+      .addSelect('COALESCE(c.point, 0)', 'remainingCashBack')
       .addSelect('COALESCE(SUM(wd.amount), 0)', 'withdrawAmount')
       .innerJoin('coupon_refs', 'cf', 'c.id = cf.ownerId')
       .innerJoin('orders', 'o', 'o.couponRefId = cf.id')
@@ -454,10 +448,10 @@ export class UserService {
       .addGroupBy('c.haravanId')
       .getRawMany();
 
-    const mappedResults: ReturnUserPriorityDto[] = result.map((row) => ({
+    const mappedResults: any[] = result.map((row) => ({
       haravanId: row.haravanId,
       totalReferAmount: Number(row.totalReferAmount) || 0,
-      totalCashBack: Number(row.totalCashBack) || 0,
+      remainingCashBack: Number(row.remainingCashBack) || 0,
       withdrawAmount: Number(row.withdrawAmount) || 0,
     }));
 
