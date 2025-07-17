@@ -18,6 +18,7 @@ import { EUserRole } from '../user/enums/user-role.enum';
 import { Notification } from '../notification/entities/notification.entity';
 import { NotificationType } from '../notification/enums/noti-type.enum';
 import { HaravanCustomerDto } from '../haravan/dto/haravan-customer.dto';
+import { GetCouponRefDto } from './dto/get-all-coupon-ref.dto';
 
 @Injectable()
 export class CouponRefService {
@@ -372,5 +373,30 @@ export class CouponRefService {
 
   async update(couponRef: CouponRef) {
     return await this.couponRefRepository.save(couponRef);
+  }
+
+  async getAllCouponRef(): Promise<GetCouponRefDto[]> {
+    const result = await this.couponRefRepository
+      .createQueryBuilder('cf')
+      .select([
+        'u.haravanId AS "haravanId"',
+        'cf.ownerName AS "ownerName"',
+        'cf.couponHaravanCode AS "couponHaravanCode"',
+        'cf.couponHaravanId AS "couponHaravanId"',
+        'o.paymentStatus AS "paymentStatus"',
+        'cf.usedByName AS "usedByName"',
+        'o.totalPrice AS "totalPrice"',
+        'o.cashBackRef AS "cashBackRef"',
+      ])
+      .leftJoin('users', 'u', 'cf.ownerId = u.id')
+      .leftJoin('orders', 'o', 'o.couponRefId = cf.id')
+      .where('cf.role = :role', { role: 'customer' })
+      .andWhere('(o.paymentStatus = :paid OR o.paymentStatus = :pending)', {
+        paid: 'paid',
+        pending: 'pending',
+      })
+      .getRawMany();
+
+    return result;
   }
 }

@@ -103,4 +103,9 @@ export class CouponRefController {
       isUsed,
     );
   }
+
+  @Get('/get-all')
+  async getAllCouponRef() {
+    return this.couponRefService.getAllCouponRef();
+  }
 }
