@@ -4,7 +4,6 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-import { createHmac } from 'crypto';
 
 @Injectable()
 export class BearerAuthGuard implements CanActivate {
