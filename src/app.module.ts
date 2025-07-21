@@ -20,6 +20,7 @@ import { NotificationModule } from './notification/notification.module';
 import { Notification } from './notification/entities/notification.entity';
 import { WithdrawModule } from './withdraw/withdraw.module';
 import { Withdraw } from './withdraw/entities/withdraw.entity';
+//import { ZaloOtpModule } from './zalo-otp/zalo-otp.module';
 import { Post } from './blog/entities/post.entity';
 import { Blog } from './blog/entities/blog.entity';
 import { CacheModule } from '@nestjs/cache-manager';
@@ -61,7 +62,7 @@ import { CrmModule } from './crm/crm.module';
         Blog,
       ],
       database: process.env.DB,
-      synchronize: false,
+      synchronize: true,
       logging: true,
     }),
     ServeStaticModule.forRoot({
@@ -79,6 +80,7 @@ import { CrmModule } from './crm/crm.module';
     NotificationModule,
     WithdrawModule,
     CrmModule,
+    //ZaloOtpModule,
   ],
   providers: [],
   controllers: [],
