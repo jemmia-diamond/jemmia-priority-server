@@ -7,7 +7,7 @@ import {
 
 @Injectable()
 export class BearerAuthGuard implements CanActivate {
-  private readonly validToken = process.env.PRIORITY_SECRET;
+  private readonly validToken = process.env.BEARER_TOKEN;
 
   canActivate(context: ExecutionContext): boolean {
     const req = context.switchToHttp().getRequest();
