@@ -76,7 +76,4 @@ export class CouponRef {
 
   @CreateDateColumn()
   createdDate: Date;
-
-  @Column('boolean', { default: false })
-  updatedInCrm: boolean;
 }

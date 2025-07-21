@@ -395,18 +395,8 @@ export class CouponRefService {
         paid: 'paid',
         pending: 'pending',
       })
-      .andWhere('cf.updatedInCrm = :updatedInCrm', {
-        updatedInCrm: false,
-      })
       .getRawMany();
 
-    // Set the fetched coupon ref to true to avoid fetching again
-    if (result.length > 0) {
-      await this.couponRefRepository.update(
-        { id: In(result.map((r) => r.id)) },
-        { updatedInCrm: true },
-      );
-    }
     return result;
   }
 }
