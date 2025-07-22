@@ -21,6 +21,7 @@ import { InviteCouponRefDto } from './dto/invite-coupon-ref.dto';
 import { RequestPayload } from '../shared/types/controller.type';
 import { ECouponRefType } from './enums/coupon-ref.enum';
 import { ParseBoolean } from '../shared/decorators/parse-boolean.decorator';
+import { BearerAuthGuard } from '../auth/guards/bearer-auth.guard';
 
 @ApiTags('Coupon Referral')
 @ApiBearerAuth()
@@ -105,6 +106,7 @@ export class CouponRefController {
   }
 
   @Get('/get-all')
+  @UseGuards(BearerAuthGuard)
   async getAllCouponRef() {
     return this.couponRefService.getAllCouponRef();
   }
