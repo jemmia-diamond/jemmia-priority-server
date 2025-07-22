@@ -400,7 +400,6 @@ export class CouponRefService {
       })
       .getRawMany();
 
-    // Set the fetched coupon ref to true to avoid fetching again
     if (result.length > 0) {
       await this.couponRefRepository.update(
         { id: In(result.map((r) => r.id)) },
