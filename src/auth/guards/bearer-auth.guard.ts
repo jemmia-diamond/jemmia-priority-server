@@ -10,6 +10,10 @@ export class BearerAuthGuard implements CanActivate {
   private readonly validToken = process.env.BEARER_TOKEN;
 
   canActivate(context: ExecutionContext): boolean {
+    if (!this.validToken) {
+      throw new UnauthorizedException('Bearer token not configured');
+    }
+
     const req = context.switchToHttp().getRequest();
     const authHeader = req.headers['authorization'];
 
