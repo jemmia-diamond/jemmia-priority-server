@@ -14,6 +14,7 @@ import { JwtRefreshTokenStrategy } from './strategy/jwt-refresh.strategy';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { JwtStrategy } from './strategy/jwt.strategy';
 import { EUserRole } from '../user/enums/user-role.enum';
+import { VerifyOtpDto } from '../zalo-otp/dto/send-otp.dto';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -43,5 +44,10 @@ export class AuthController {
     }
 
     throw new HttpException('NOT_ADMIN', HttpStatus.UNAUTHORIZED);
+  }
+
+  @Post('/zaloauth')
+  zaloAuth(@Body() body: VerifyOtpDto) {
+    return this.authService.zaloAuth(body.phone, body.otp);
   }
 }

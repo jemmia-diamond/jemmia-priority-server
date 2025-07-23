@@ -26,6 +26,7 @@ import { CacheModule } from '@nestjs/cache-manager';
 import { redisStore } from 'cache-manager-redis-store';
 import { CrmModule } from './crm/crm.module';
 import { SyncCrmModule } from './syncCrm/sync-crm.module';
+import { ZaloOtpModule } from './zalo-otp/zalo-otp.module';
 
 @Module({
   imports: [
@@ -81,6 +82,7 @@ import { SyncCrmModule } from './syncCrm/sync-crm.module';
     WithdrawModule,
     CrmModule,
     SyncCrmModule,
+    ZaloOtpModule,
   ],
   providers: [],
   controllers: [],
