@@ -104,10 +104,4 @@ export class CouponRefController {
       isUsed,
     );
   }
-
-  @Get('/get-all')
-  @UseGuards(BearerAuthGuard)
-  async getAllCouponRef() {
-    return this.couponRefService.getAllCouponRef();
-  }
 }

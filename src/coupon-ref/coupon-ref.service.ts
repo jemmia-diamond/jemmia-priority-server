@@ -374,45 +374,4 @@ export class CouponRefService {
   async update(couponRef: CouponRef) {
     return await this.couponRefRepository.save(couponRef);
   }
-
-  async getAllCouponRef(): Promise<GetCouponRefDto[]> {
-    const result = await this.couponRefRepository
-      .createQueryBuilder('cf')
-      .select([
-        'cf.id AS "id"',
-        'u.haravanId AS "haravanId"',
-        'cf.ownerName AS "ownerName"',
-        'cf.couponHaravanCode AS "couponHaravanCode"',
-        'cf.couponHaravanId AS "couponHaravanId"',
-        'o.paymentStatus AS "paymentStatus"',
-        'cf.usedByName AS "usedByName"',
-        'o.totalPrice AS "totalPrice"',
-        'o.cashBackRef AS "cashBackRef"',
-      ])
-      .leftJoin('users', 'u', 'cf.ownerId = u.id')
-      .leftJoin('orders', 'o', 'o.couponRefId = cf.id')
-      .where('cf.role = :role', { role: 'customer' })
-      .andWhere('(o.paymentStatus = :paid OR o.paymentStatus = :pending)', {
-        paid: 'paid',
-        pending: 'pending',
-      })
-      .andWhere('cf.updatedInCrm = :updatedInCrm', {
-        updatedInCrm: false,
-      })
-      .getRawMany();
-
-    // Set the fetched coupon ref to true to avoid fetching again
-    if (result.length > 0) {
-      try {
-        await this.couponRefRepository.update(
-          { id: In(result.map((r) => r.id)) },
-          { updatedInCrm: true },
-        );
-      } catch (error) {
-        // Log error but don't fail the entire operation
-        console.error('Failed to update coupon ref records:', error);
-      }
-    }
-    return result;
-  }
 }
