@@ -104,15 +104,4 @@ export class CouponRefController {
       isUsed,
     );
   }
-
-  @Get('/crm-sync')
-  @UseGuards(BearerAuthGuard)
-  async getAllCouponRef(@Query('updatedInCrm') updatedInCrm?: string) {
-    const filter =
-      updatedInCrm !== undefined
-        ? { updatedInCrm: updatedInCrm === 'true' }
-        : {};
-
-    return this.couponRefService.getAllCouponRef(filter);
-  }
 }
