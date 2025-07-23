@@ -379,6 +379,7 @@ export class CouponRefService {
     const result = await this.couponRefRepository
       .createQueryBuilder('cf')
       .select([
+        'cf.id AS "id"',
         'u.haravanId AS "haravanId"',
         'cf.ownerName AS "ownerName"',
         'cf.couponHaravanCode AS "couponHaravanCode"',
@@ -395,8 +396,23 @@ export class CouponRefService {
         paid: 'paid',
         pending: 'pending',
       })
+      .andWhere('cf.updatedInCrm = :updatedInCrm', {
+        updatedInCrm: false,
+      })
       .getRawMany();
 
+    // Set the fetched coupon ref to true to avoid fetching again
+    if (result.length > 0) {
+      try {
+        await this.couponRefRepository.update(
+          { id: In(result.map((r) => r.id)) },
+          { updatedInCrm: true },
+        );
+      } catch (error) {
+        // Log error but don't fail the entire operation
+        console.error('Failed to update coupon ref records:', error);
+      }
+    }
     return result;
   }
 }
