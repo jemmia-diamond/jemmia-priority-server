@@ -12,6 +12,7 @@ import { CouponRefModule } from '../coupon-ref/coupon-ref.module';
 import { CouponRef } from '../coupon-ref/entities/coupon-ref.entity';
 import { CrmModule } from '../crm/crm.module';
 import { UserModule } from '../user/user.module';
+import { ZaloOtpModule } from '../zalo-otp/zalo-otp.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { UserModule } from '../user/user.module';
     CouponRefModule,
     CrmModule,
     UserModule,
+    ZaloOtpModule,
   ],
   controllers: [AuthController],
   providers: [
