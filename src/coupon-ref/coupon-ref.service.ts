@@ -375,8 +375,13 @@ export class CouponRefService {
     return await this.couponRefRepository.save(couponRef);
   }
 
-  async getAllCouponRef(): Promise<GetCouponRefDto[]> {
-    const result = await this.couponRefRepository
+  async getAllCouponRef(filter: {
+    updatedInCrm?: boolean;
+  }): Promise<GetCouponRefDto[]> {
+    if (filter.updatedInCrm === undefined) {
+      throw new BadRequestException('updatedInCrm filter is required');
+    }
+    const query = this.couponRefRepository
       .createQueryBuilder('cf')
       .select([
         'cf.id AS "id"',
@@ -392,14 +397,15 @@ export class CouponRefService {
       .leftJoin('users', 'u', 'cf.ownerId = u.id')
       .leftJoin('orders', 'o', 'o.couponRefId = cf.id')
       .where('cf.role = :role', { role: 'customer' })
+      .andWhere('cf.updatedInCrm = :updatedInCrm', {
+        updatedInCrm: filter.updatedInCrm,
+      })
       .andWhere('(o.paymentStatus = :paid OR o.paymentStatus = :pending)', {
         paid: 'paid',
         pending: 'pending',
-      })
-      .andWhere('cf.updatedInCrm = :updatedInCrm', {
-        updatedInCrm: false,
-      })
-      .getRawMany();
+      });
+
+    const result = await query.getRawMany();
 
     // Set the fetched coupon ref to true to avoid fetching again
     if (result.length > 0) {
@@ -409,10 +415,13 @@ export class CouponRefService {
           { updatedInCrm: true },
         );
       } catch (error) {
-        // Log error but don't fail the entire operation
-        console.error('Failed to update coupon ref records:', error);
+        throw new BadRequestException(
+          'Failed to update coupon references in CRM',
+          error.message,
+        );
       }
     }
+
     return result;
   }
 }
