@@ -176,10 +176,13 @@ export class AuthService {
 
   async zaloAuth(phone: string, otp: string) {
     // Verify Zalo OTP
+
     const otpResult = await this.zaloOtpService.verifyOtp(phone, otp);
     if (otpResult.status !== 200) {
       throw new HttpException(otpResult.message, HttpStatus.UNAUTHORIZED);
     }
+    // Normalize phone number
+    phone = phone.replace(/^84/, '0');
 
     const user = await this.userRepository.findOne({
       where: { phoneNumber: phone },
