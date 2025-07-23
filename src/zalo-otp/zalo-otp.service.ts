@@ -14,10 +14,9 @@ export class ZaloOtpService {
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
-    // Define static ZaloPay credentials
     const clientId = process.env.ZALOPAY_CLIENT_ID;
     const secretKey = process.env.ZALOPAY_SECRET_KEY;
-    const requestId = Date.now().toString(); // Or use uuid if preferred
+    const requestId = Date.now().toString();
 
     const payloadObj = {
       zalo_oa_id: process.env.ZALOPAY_OA_ID,
@@ -25,7 +24,7 @@ export class ZaloOtpService {
       content: {
         template_id: Number(process.env.ZALOPAY_TEMPLATE_ID),
         template_data: {
-          customer_name: 'User', // Optional: customize this
+          customer_name: 'User',
           phone: phone,
           day: 'today',
           total_amount: '0',
