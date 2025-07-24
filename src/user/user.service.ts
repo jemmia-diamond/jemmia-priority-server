@@ -384,7 +384,6 @@ export class UserService {
 
     for (const u of users.data) {
       try {
-        console.log(`${index}/${users.total}`);
         if (u.maKhachHang && u.haravanId) {
           await this.userRepository.save({
             haravanId: u.haravanId,

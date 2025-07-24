@@ -82,6 +82,12 @@ export class HaravanService {
     return plainToInstance(HaravanCouponDto, res.data.discount);
   }
 
+  async findPaymentMethod(orderId: number) {
+    const res = await ax.get(`/com/payment_methods.json`);
+
+    return res.data.payment_methods;
+  }
+
   async findAllCoupon(query: HaravanCouponSearchDto) {
     await validate(query, { whitelist: true });
 

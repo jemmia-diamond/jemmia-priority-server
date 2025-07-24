@@ -1,18 +1,38 @@
-import { Test, TestingModule } from '@nestjs/testing';
 import { CrmService } from './crm.service';
+import axios from 'axios';
 
-describe('CrmService', () => {
-  let service: CrmService;
+jest.mock('axios');
+const mockedAxios = axios as jest.Mocked<typeof axios>;
 
-  beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [CrmService],
-    }).compile();
+describe('CrmService - direct method test', () => {
+  const service = new CrmService();
 
-    service = module.get<CrmService>(CrmService);
+  it('should return customer_types when found', async () => {
+    mockedAxios.post.mockResolvedValueOnce({
+      data: {
+        data: [{ customer_types: 'vip' }],
+      },
+    });
+
+    const result = await service.findCustomerRankByUserId('KH001');
+    expect(result).toBe('vip');
   });
 
-  it('should be defined', () => {
-    expect(service).toBeDefined();
+  it('should return null when not found', async () => {
+    mockedAxios.post.mockResolvedValueOnce({
+      data: {
+        data: [],
+      },
+    });
+
+    const result = await service.findCustomerRankByUserId('KH002');
+    expect(result).toBeNull();
+  });
+
+  it('should return null on axios error', async () => {
+    mockedAxios.post.mockRejectedValueOnce(new Error('Network error'));
+
+    const result = await service.findCustomerRankByUserId('KH003');
+    expect(result).toBeNull();
   });
 });
