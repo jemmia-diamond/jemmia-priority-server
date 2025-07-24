@@ -434,27 +434,49 @@ export class UserService {
   }
 
   async getAllUserPriority(): Promise<{ results: ReturnUserPriorityDto[] }> {
-    const result = await this.userRepository
+    // Query 1: Referral info for all users
+    const referList = await this.userRepository
       .createQueryBuilder('c')
-      .select('c.haravanId', 'haravanId')
+      .select('c.id', 'id')
+      .addSelect('c.haravanId', 'haravanId')
       .addSelect('COALESCE(SUM(o.totalPrice), 0)', 'totalReferAmount')
-      .addSelect('COALESCE(c.point, 0)', 'remainingCashBack')
-      .addSelect('COALESCE(SUM(wd.amount), 0)', 'withdrawAmount')
-      .innerJoin('coupon_refs', 'cf', 'c.id = cf.ownerId')
-      .innerJoin('orders', 'o', 'o.couponRefId = cf.id')
-      .leftJoin('withdraws', 'wd', 'wd.userId = c.id')
+      .addSelect('COALESCE(c.point, 0)', 'remainingCashback')
+      .innerJoin('coupon_refs', 'cf', 'cf.ownerId = c.id')
+      .innerJoin(
+        'orders',
+        'o',
+        'o.couponRefId = cf.id AND o.paymentStatus = :paid',
+        { paid: 'paid' },
+      )
+      .where('cf.usedById IS NOT NULL')
       .groupBy('c.id')
-      .addGroupBy('c.name')
       .addGroupBy('c.haravanId')
+      .addGroupBy('c.point')
       .getRawMany();
 
-    const mappedResults: any[] = result.map((row) => ({
-      haravanId: row.haravanId,
-      totalReferAmount: Number(row.totalReferAmount) || 0,
-      remainingCashBack: Number(row.remainingCashBack) || 0,
-      withdrawAmount: Number(row.withdrawAmount) || 0,
+    // Query 2: All withdraws (grouped by userId)
+    const withdrawList = await this.userRepository.manager
+      .createQueryBuilder()
+      .select('w.userId', 'userId')
+      .addSelect('COALESCE(SUM(w.amount), 0)', 'withdrawAmount')
+      .from('withdraws', 'w')
+      .where('w.status = :status', { status: 'done' })
+      .groupBy('w.userId')
+      .getRawMany();
+
+    // Map withdrawAmount by userId
+    const withdrawMap = new Map<string, number>();
+    for (const w of withdrawList) {
+      withdrawMap.set(w.userId, Number(w.withdrawAmount) || 0);
+    }
+
+    const results: any[] = referList.map((r) => ({
+      haravanId: r.haravanId,
+      totalReferAmount: Number(r.totalReferAmount) || 0,
+      remainingCashBack: Number(r.remainingCashBack) || 0,
+      withdrawAmount: withdrawMap.get(r.id) || 0,
     }));
 
-    return { results: mappedResults };
+    return { results };
   }
 }
