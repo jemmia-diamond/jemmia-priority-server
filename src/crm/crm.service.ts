@@ -91,7 +91,9 @@ export class CrmService {
     return res.data;
   }
 
-  async findCustomerRankByUserId(MaKhachHang: string): Promise<string | null> {
+  async findCustomerRankByUserCode(
+    MaKhachHang: string,
+  ): Promise<string | null> {
     const body = {
       table: 'data_customer',
       limit: 10,
@@ -114,7 +116,7 @@ export class CrmService {
         return null;
       }
 
-      // 👉 Trả về value đầu tiên trong customer_types
+      // Trả về value đầu tiên trong customer_types
       return result.customer_types[0].value || null;
     } catch (error) {
       this.logger.error('Failed to fetch customer rank from CRM', error);

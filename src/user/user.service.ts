@@ -385,6 +385,16 @@ export class UserService {
     for (const u of users.data) {
       try {
         if (u.maKhachHang && u.haravanId) {
+          const customerType = await this.crmService.findCustomerRankByUserCode(
+            u.maKhachHang,
+          );
+          const isAffiliate = customerType?.includes('affiliate') ?? false;
+          const role = isAffiliate
+            ? EUserRole.affiliate
+            : /^kh|KH/.test(u.maKhachHang)
+              ? EUserRole.customer
+              : EUserRole.staff;
+
           await this.userRepository.save({
             haravanId: u.haravanId,
             crmId: u.id,
@@ -394,14 +404,12 @@ export class UserService {
             address1: u.address1,
             maKhachHang: u.maKhachHang,
             cumulativeTovRecorded: u.cumulativeTovLifeTime,
-            role: /^kh|KH/.test(u.maKhachHang)
-              ? EUserRole.customer
-              : EUserRole.staff,
+            role,
           });
         }
         index++;
       } catch (e) {
-        console.log(e);
+        console.log(`Error at index ${index}:`, e);
       }
     }
   }

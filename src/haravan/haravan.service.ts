@@ -22,6 +22,7 @@ import {
   HaravanOrderDto,
   HaravanOrderSearchDto,
 } from './dto/haravan-order.dto';
+import { PaymentType } from './enums/payment-type.enum';
 
 const ax = axios.create({
   baseURL: process.env.HARAVAN_ENDPOINT,
@@ -295,5 +296,19 @@ export class HaravanService {
     );
 
     return plainToInstance(HaravanOrderDto, <any>res.data.order);
+  }
+
+  async getPaymentType(haravanOrderId: number, role: string) {
+    if (role !== 'affiliate') {
+      return PaymentType.NOT_AFFILIATE; // Chỉ trả về NOT_POS nếu không phải affiliate
+    }
+    const res = await ax.get(`/com/orders/${haravanOrderId}/transactions.json
+`);
+
+    const gateway = res.data?.transactions?.[0]?.gateway || null;
+    if (gateway === 'Cà Thẻ Tại Cửa Hàng' || gateway === 'Cà Thẻ Online') {
+      return PaymentType.POS;
+    }
+    return PaymentType.NOT_POS;
   }
 }

@@ -27,6 +27,7 @@ import { Notification } from '../notification/entities/notification.entity';
 import { NotificationType } from '../notification/enums/noti-type.enum';
 import { CrmService } from '../crm/crm.service';
 import { createHmac } from 'crypto';
+import { EPaymentStatus } from './enum/order-type.dto';
 
 @Injectable()
 export class OrderService {
@@ -139,7 +140,6 @@ export class OrderService {
   }
 
   async calculateCashback(order: Order) {
-    console.log('========== CALC CASHBACK ==========');
     const couponRef = order.couponRef;
     let cashBack = 0,
       cashBackRef = 0,
@@ -206,6 +206,13 @@ export class OrderService {
       inviter: inviter,
     };
   }
+
+  calculateCashbackForBusiness = (order: Order) => {
+    if (order.paymentType === 'POS') {
+      return order.totalPrice * EPaymentStatus.POS;
+    }
+    return order.totalPrice * EPaymentStatus.NOT_POS;
+  };
 
   verifyHaravanHook(data: any, headerSignature: string) {
     const hmac = createHmac('sha256', process.env.HARAVAN_SECRET);
@@ -284,12 +291,17 @@ export class OrderService {
       if (!order) {
         console.log('\n========== ORDER');
         console.log(JSON.stringify(order));
+        const paymentType = await this.haravanService.getPaymentType(
+          orderDto.id,
+          customer.role,
+        );
 
         order = await this.orderRepository.save({
           haravanOrderId: orderDto.id,
           totalPrice: orderDto.total_price,
           paymentStatus: orderDto.financial_status,
           customer,
+          paymentType,
         });
       }
 
@@ -336,6 +348,11 @@ export class OrderService {
           order.cashBack = cashbackVal.cashBack;
           order.cashBackRef = cashbackVal.cashBackRef;
           order.cashBackRefA = cashbackVal.cashBackRefA;
+        }
+
+        //Check role của người mua hàng, nếu là affiliate thì cộng cashback riêng
+        if (customer.role === EUserRole.affiliate) {
+          order.cashBack += this.calculateCashbackForBusiness(order);
         }
 
         //Chỉ khi đã thanh toán

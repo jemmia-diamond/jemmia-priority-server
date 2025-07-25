@@ -4,5 +4,5 @@ export enum EUserRole {
   partnerB = 'partnerB',
   customer = 'customer',
   staff = 'staff',
-  business = 'company_affiliate_1',
+  affiliate = 'affiliate',
 }
