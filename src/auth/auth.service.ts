@@ -65,12 +65,7 @@ export class AuthService {
           },
         })
       ).data?.[0];
-
-      console.log(crmCusData);
     }
-
-    console.log(tokenPayload);
-    console.log(crmCusData);
 
     //Trường hợp user k phải admin & cũng không phải khách hàng haravan
     if (!tokenPayload.email && !crmCusData) {
@@ -106,8 +101,8 @@ export class AuthService {
           new Date(),
         );
       }
-
-      user = await this.userService.syncFromCrm(crmCusData.id);
+      const customerType = crmCusData.customerTypes?.[0].value || 'customer';
+      user = await this.userService.syncFromCrm(crmCusData.id, customerType);
     }
 
     //LOGIN

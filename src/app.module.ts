@@ -62,7 +62,7 @@ import { SyncCrmModule } from './syncCrm/sync-crm.module';
         Blog,
       ],
       database: process.env.DB,
-      synchronize: false,
+      synchronize: true,
       logging: true,
     }),
     ServeStaticModule.forRoot({

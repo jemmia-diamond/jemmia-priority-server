@@ -304,7 +304,7 @@ export class UserService {
   }
 
   /** Sync thông tin user từ CRM về hệ thống & phân hạng */
-  async syncFromCrm(crmId: string) {
+  async syncFromCrm(crmId: string, customerType?: string) {
     let user: User = await this.userRepository.findOneBy({ crmId });
     const crmCusData = (
       await this.crmService.findAllCustomer({
@@ -344,7 +344,10 @@ export class UserService {
         : crmCusData.cumulativeTovReferral;
 
     let userRole = user?.role;
-    if (
+    const isAffiliate = customerType?.includes('affiliate') ?? false;
+    if (isAffiliate) {
+      userRole = EUserRole.affiliate;
+    } else if (
       (userRole === EUserRole.customer || !userRole) &&
       crmCusData.customerTypes?.[0]?.value === EUserRole.staff
     ) {
