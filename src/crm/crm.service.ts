@@ -92,7 +92,7 @@ export class CrmService {
   }
 
   async findCustomerRankByCustomerCode(
-    MaKhachHang: string,
+    maKhachHang: string,
   ): Promise<string | null> {
     const body = {
       table: 'data_customer',
@@ -100,7 +100,7 @@ export class CrmService {
       skip: 0,
       select: ['customer_types'],
       query: {
-        ma_khach_hang: MaKhachHang,
+        ma_khach_hang: maKhachHang,
       },
       output: 'by-key',
     };
@@ -111,7 +111,7 @@ export class CrmService {
 
       if (!result || !result.customer_types?.length) {
         this.logger.warn(
-          `No CRM customer_types found for MaKhachHang: ${MaKhachHang}`,
+          `No CRM customer_types found for maKhachHang: ${maKhachHang}`,
         );
         return null;
       }
