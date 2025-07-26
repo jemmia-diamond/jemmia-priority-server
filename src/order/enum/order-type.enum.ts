@@ -1,3 +1,3 @@
-export enum EPaymentStatus {
+export enum EPaymentAffiliateCommission {
   POS = 0.02,
 }

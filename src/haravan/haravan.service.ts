@@ -33,6 +33,7 @@ const ax = axios.create({
     Authorization: `Bearer ${process.env.HARAVAN_SECRET}`,
   },
 });
+import { EUserRole } from '../user/enums/user-role.enum';
 
 @Injectable()
 export class HaravanService {
@@ -300,7 +301,7 @@ export class HaravanService {
   }
 
   async getPaymentType(haravanOrderId: number, role: string) {
-    if (role !== 'affiliate') {
+    if (role !== EUserRole.affiliate) {
       return ''; //Only affiliates can have POS payment type
     }
     const res = await ax.get(`/com/orders/${haravanOrderId}/transactions.json`);

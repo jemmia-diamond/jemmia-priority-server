@@ -344,7 +344,7 @@ export class UserService {
         : crmCusData.cumulativeTovReferral;
 
     let userRole = user?.role;
-    const isAffiliate = !!customerType?.includes('affiliate');
+    const isAffiliate = !!customerType?.includes(EUserRole.affiliate);
     if (isAffiliate) {
       userRole = EUserRole.affiliate;
     } else if (
@@ -390,12 +390,16 @@ export class UserService {
         if (u.maKhachHang && u.haravanId) {
           const customerType =
             await this.crmService.findCustomerRankByCustomerCode(u.maKhachHang);
-          const isAffiliate = !!customerType?.includes('affiliate');
-          const role = isAffiliate
-            ? EUserRole.affiliate
-            : /^kh|KH/.test(u.maKhachHang)
-              ? EUserRole.customer
-              : EUserRole.staff;
+          const isAffiliate = !!customerType?.includes(EUserRole.affiliate);
+
+          let role: EUserRole;
+          if (isAffiliate) {
+            role = EUserRole.affiliate;
+          } else if (/^kh|KH/.test(u.maKhachHang)) {
+            role = EUserRole.customer;
+          } else {
+            role = EUserRole.staff;
+          }
 
           await this.userRepository.save({
             haravanId: u.haravanId,
