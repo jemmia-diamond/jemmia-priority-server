@@ -344,7 +344,7 @@ export class UserService {
         : crmCusData.cumulativeTovReferral;
 
     let userRole = user?.role;
-    const isAffiliate = customerType?.includes('affiliate') ?? false;
+    const isAffiliate = !!customerType?.includes('affiliate');
     if (isAffiliate) {
       userRole = EUserRole.affiliate;
     } else if (
