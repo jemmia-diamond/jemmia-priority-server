@@ -16,9 +16,6 @@ export class ZaloOtpService {
   async sendOtp(phone: string, domain: string) {
     if (!phone) throw new Error('Phone is required');
     const callbackUrl = `${domain}/zalo-otp/v1/callback`;
-    console.log(
-      `Sending OTP to ${phone} via Zalo with callback URL: ${callbackUrl}`,
-    );
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
