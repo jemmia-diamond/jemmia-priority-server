@@ -208,7 +208,7 @@ export class OrderService {
     };
   }
 
-  calculateCashbackForBusiness = (order: Order) => {
+  calculateCashbackForAffiliate = (order: Order) => {
     if (order.paymentType === PaymentType.POS) {
       return order.totalPrice * EPaymentStatus.POS;
     }
@@ -393,9 +393,9 @@ export class OrderService {
             }
           }
 
-          //Check role của người mua hàng, nếu là affiliate thì cộng cashback riêng
+          //Check the role of customer, if the role is affiliate, then calculate cashback for affiliate
           if (customer.role === EUserRole.affiliate) {
-            order.cashBack += this.calculateCashbackForBusiness(order);
+            order.cashBack += this.calculateCashbackForAffiliate(order);
           }
 
           //Cashback for buyer
@@ -417,14 +417,13 @@ export class OrderService {
       }
 
       if (order.paymentStatus === EFinancialStatus.paid) {
-        //Cộng giá trị đơn tích luỹ
         // customer.accumulatedOrderPoint += order.totalPrice;
       }
 
       await this.orderRepository.save(order);
       await this.userRepository.save(customer);
 
-      //Cập nhật rank
+      //Update the rank
       if (order.paymentStatus === EFinancialStatus.paid) {
         if (couponRef?.owner) {
           console.log('====== U COUPON REF OWNER RANK');
