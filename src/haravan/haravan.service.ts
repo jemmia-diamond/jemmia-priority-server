@@ -300,15 +300,14 @@ export class HaravanService {
 
   async getPaymentType(haravanOrderId: number, role: string) {
     if (role !== 'affiliate') {
-      return PaymentType.NOT_AFFILIATE; // Chỉ trả về NOT_POS nếu không phải affiliate
+      return ''; //Only affiliates can have POS payment type
     }
-    const res = await ax.get(`/com/orders/${haravanOrderId}/transactions.json
-`);
+    const res = await ax.get(`/com/orders/${haravanOrderId}/transactions.json`);
 
     const gateway = res.data?.transactions?.[0]?.gateway || null;
     if (gateway === 'Cà Thẻ Tại Cửa Hàng' || gateway === 'Cà Thẻ Online') {
       return PaymentType.POS;
     }
-    return PaymentType.NOT_POS;
+    return '';
   }
 }

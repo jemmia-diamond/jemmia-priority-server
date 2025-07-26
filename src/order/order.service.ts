@@ -212,7 +212,7 @@ export class OrderService {
     if (order.paymentType === PaymentType.POS) {
       return order.totalPrice * EPaymentStatus.POS;
     }
-    return order.totalPrice * EPaymentStatus.NOT_POS;
+    return order.totalPrice * 0.03;
   };
 
   verifyHaravanHook(data: any, headerSignature: string) {
@@ -398,7 +398,7 @@ export class OrderService {
             order.cashBack += this.calculateCashbackForBusiness(order);
           }
 
-          //Cashback cho người mua
+          //Cashback for buyer
           customer.point += order.cashBack;
 
           //Thông báo cho inviter
