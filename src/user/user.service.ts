@@ -388,9 +388,8 @@ export class UserService {
     for (const u of users.data) {
       try {
         if (u.maKhachHang && u.haravanId) {
-          const customerType = await this.crmService.findCustomerRankByUserCode(
-            u.maKhachHang,
-          );
+          const customerType =
+            await this.crmService.findCustomerRankByCustomerCode(u.maKhachHang);
           const isAffiliate = customerType?.includes('affiliate') ?? false;
           const role = isAffiliate
             ? EUserRole.affiliate
@@ -412,7 +411,7 @@ export class UserService {
         }
         index++;
       } catch (e) {
-        console.log(`Error at index ${index}:`, e);
+        console.error(`Error at index ${index}:`, e);
       }
     }
   }

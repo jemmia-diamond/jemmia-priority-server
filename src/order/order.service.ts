@@ -27,7 +27,7 @@ import { Notification } from '../notification/entities/notification.entity';
 import { NotificationType } from '../notification/enums/noti-type.enum';
 import { CrmService } from '../crm/crm.service';
 import { createHmac } from 'crypto';
-import { EPaymentStatus } from './enum/order-type.dto';
+import { EPaymentStatus } from './enum/order-type.enum';
 import { PaymentType } from '../haravan/enums/payment-type.enum';
 
 @Injectable()

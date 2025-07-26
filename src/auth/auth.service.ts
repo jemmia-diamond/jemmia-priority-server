@@ -101,7 +101,8 @@ export class AuthService {
           new Date(),
         );
       }
-      const customerType = crmCusData.customerTypes?.[0].value || 'customer';
+      const customerType =
+        crmCusData.customerTypes?.[0].value || EUserRole.customer;
       user = await this.userService.syncFromCrm(crmCusData.id, customerType);
     }
 

@@ -91,7 +91,7 @@ export class CrmService {
     return res.data;
   }
 
-  async findCustomerRankByUserCode(
+  async findCustomerRankByCustomerCode(
     MaKhachHang: string,
   ): Promise<string | null> {
     const body = {
@@ -104,12 +104,9 @@ export class CrmService {
       },
       output: 'by-key',
     };
-    console.log('CRM Request Body:', body);
-    console.log(ax.defaults.headers);
 
     try {
       const res = await ax.post('/_api/base-table/find', body);
-      console.log('CRM Response:', res.data);
       const result = res.data?.data?.[0];
 
       if (!result || !result.customer_types?.length) {
