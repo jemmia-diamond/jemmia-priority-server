@@ -258,7 +258,6 @@ export class OrderService {
       let customer = await this.userRepository.findOneBy({
         haravanId: orderDto.customer.id,
       });
-      console.log('FIND CUSTOMER');
 
       //Kiểm tra coupon được sử dụng
       let couponRef: CouponRef;
@@ -273,8 +272,6 @@ export class OrderService {
             },
           },
         });
-        console.log('\n========== COUPON REF/');
-        console.log(JSON.stringify(couponRef));
       }
 
       //Tạo khách hàng nếu không tồn tại
@@ -288,8 +285,6 @@ export class OrderService {
       }
 
       if (!order) {
-        console.log('\n========== ORDER');
-        console.log(JSON.stringify(order));
         const paymentType = await this.haravanService.getPaymentType(
           orderDto.id,
           customer.role,
