@@ -390,7 +390,7 @@ export class UserService {
         if (u.maKhachHang && u.haravanId) {
           const customerType =
             await this.crmService.findCustomerRankByCustomerCode(u.maKhachHang);
-          const isAffiliate = customerType?.includes('affiliate') ?? false;
+          const isAffiliate = !!customerType?.includes('affiliate');
           const role = isAffiliate
             ? EUserRole.affiliate
             : /^kh|KH/.test(u.maKhachHang)
