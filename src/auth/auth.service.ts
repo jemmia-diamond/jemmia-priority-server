@@ -180,7 +180,8 @@ export class AuthService {
     if (otpResult.status !== 200) {
       throw new HttpException(otpResult.message, HttpStatus.UNAUTHORIZED);
     }
-
+    //change phone from 84 to 0
+    phone = phone.replace(/^84/, '0');
     const user = await this.userRepository.findOne({
       where: { phoneNumber: phone },
     });
