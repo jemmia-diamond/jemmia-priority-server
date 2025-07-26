@@ -23,6 +23,7 @@ import {
   HaravanOrderSearchDto,
 } from './dto/haravan-order.dto';
 import { PaymentType } from './enums/payment-type.enum';
+import { GATEWAY_TYPES } from './constants/gateway-type.const';
 
 const ax = axios.create({
   baseURL: process.env.HARAVAN_ENDPOINT,
@@ -305,7 +306,7 @@ export class HaravanService {
     const res = await ax.get(`/com/orders/${haravanOrderId}/transactions.json`);
 
     const gateway = res.data?.transactions?.[0]?.gateway || null;
-    if (gateway === 'Cà Thẻ Tại Cửa Hàng' || gateway === 'Cà Thẻ Online') {
+    if (GATEWAY_TYPES.includes(gateway)) {
       return PaymentType.POS;
     }
     return '';
