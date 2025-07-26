@@ -1,1 +1,1 @@
-export const GATEWAY_TYPES = ['Cà Thẻ Tại Cửa Hàng', 'Cà Thẻ Online'];
+export const GATEWAY_POS_TYPES = ['Cà Thẻ Tại Cửa Hàng', 'Cà Thẻ Online'];
