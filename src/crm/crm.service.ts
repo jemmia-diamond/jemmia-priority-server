@@ -116,7 +116,7 @@ export class CrmService {
         return null;
       }
 
-      // Trả về value đầu tiên trong customer_types
+      // Return the first customer type value
       return result.customer_types[0].value || null;
     } catch (error) {
       this.logger.error('Failed to fetch customer rank from CRM', error);
