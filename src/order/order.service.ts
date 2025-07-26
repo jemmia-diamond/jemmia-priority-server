@@ -28,6 +28,7 @@ import { NotificationType } from '../notification/enums/noti-type.enum';
 import { CrmService } from '../crm/crm.service';
 import { createHmac } from 'crypto';
 import { EPaymentStatus } from './enum/order-type.dto';
+import { PaymentType } from '../haravan/enums/payment-type.enum';
 
 @Injectable()
 export class OrderService {
@@ -208,7 +209,7 @@ export class OrderService {
   }
 
   calculateCashbackForBusiness = (order: Order) => {
-    if (order.paymentType === 'POS') {
+    if (order.paymentType === PaymentType.POS) {
       return order.totalPrice * EPaymentStatus.POS;
     }
     return order.totalPrice * EPaymentStatus.NOT_POS;
@@ -231,8 +232,6 @@ export class OrderService {
       if (!orderDto.customer?.id) {
         return 'CANT FIND CUSTOMER';
       }
-
-      console.log('FIND ORDER');
 
       //Get Order dựa trên haravanId hoặc coupon-ref (Dùng cho trường hợp coupon-ref không giới hạn)
       let order = await this.orderRepository.findOne({
@@ -307,8 +306,6 @@ export class OrderService {
 
       order.paymentStatus = orderDto.financial_status;
       order.totalPrice = orderDto.total_price;
-      console.log('FIND ORDER');
-      console.log(order);
 
       //Cập nhật owner của coupon-ref & gắn vào order
       if (couponRef) {
@@ -348,11 +345,6 @@ export class OrderService {
           order.cashBack = cashbackVal.cashBack;
           order.cashBackRef = cashbackVal.cashBackRef;
           order.cashBackRefA = cashbackVal.cashBackRefA;
-        }
-
-        //Check role của người mua hàng, nếu là affiliate thì cộng cashback riêng
-        if (customer.role === EUserRole.affiliate) {
-          order.cashBack += this.calculateCashbackForBusiness(order);
         }
 
         //Chỉ khi đã thanh toán
@@ -404,6 +396,11 @@ export class OrderService {
               couponRef.owner.invitesCount++;
               await this.userRepository.save(couponRef.owner);
             }
+          }
+
+          //Check role của người mua hàng, nếu là affiliate thì cộng cashback riêng
+          if (customer.role === EUserRole.affiliate) {
+            order.cashBack += this.calculateCashbackForBusiness(order);
           }
 
           //Cashback cho người mua
