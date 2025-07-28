@@ -96,7 +96,7 @@ export class CrmService {
   ): Promise<string | null> {
     const body = {
       table: 'data_customer',
-      limit: 10,
+      limit: 1,
       skip: 0,
       select: ['customer_types'],
       query: {
