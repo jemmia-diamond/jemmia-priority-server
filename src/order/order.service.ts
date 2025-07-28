@@ -29,6 +29,7 @@ import { CrmService } from '../crm/crm.service';
 import { createHmac } from 'crypto';
 import { EPaymentAffiliateCommission } from './enum/order-type.enum';
 import { PaymentType } from '../haravan/enums/payment-type.enum';
+import { PAYMENT_COMMISSION } from './constants/payment-commision';
 
 @Injectable()
 export class OrderService {
@@ -212,7 +213,7 @@ export class OrderService {
     if (order.paymentType === PaymentType.POS) {
       return order.totalPrice * EPaymentAffiliateCommission.POS;
     }
-    return order.totalPrice * 0.03;
+    return order.totalPrice * PAYMENT_COMMISSION.NOT_POS;
   };
 
   verifyHaravanHook(data: any, headerSignature: string) {
