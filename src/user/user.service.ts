@@ -473,7 +473,7 @@ export class UserService {
     const results: any[] = referList.map((r) => ({
       haravanId: r.haravanId,
       totalReferAmount: Number(r.totalReferAmount) || 0,
-      remainingCashBack: Number(r.remainingCashBack) || 0,
+      remainingCashBack: Number(r.remainingCashback) || 0,
       withdrawAmount: withdrawMap.get(r.id) || 0,
     }));
 
