@@ -4,7 +4,7 @@ import { Injectable } from '@nestjs/common';
 export class ZnsCallbackWaiter {
   private waiters = new Map<string, (data: any) => void>();
 
-  waitFor(requestId: string, timeout = 10000): Promise<any> {
+  waitFor(requestId: string, timeout = 60000): Promise<any> {
     return new Promise((resolve) => {
       this.waiters.set(requestId, resolve);
 

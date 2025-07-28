@@ -105,7 +105,7 @@ export class ZaloOtpService {
     if (!data?.message_id) {
       throw new Error('Invalid callback: missing message_id');
     }
-    await this.znsCallbackWaiter.resolve(requestId, data);
+    this.znsCallbackWaiter.resolve(requestId, data);
     return { status: 'ok' };
   }
 }
