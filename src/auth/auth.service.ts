@@ -182,7 +182,7 @@ export class AuthService {
       throw new HttpException(otpResult.message, HttpStatus.UNAUTHORIZED);
     }
     // Normalize phone number
-    phone = phone.replace(/^84/, '0');
+    phone = phone.replace(/^\+?84/, '0');
 
     const user = await this.userRepository.findOne({
       where: { phoneNumber: phone },
