@@ -178,9 +178,11 @@ export class AuthService {
     // Verify Zalo OTP
 
     const otpResult = await this.zaloOtpService.verifyOtp(phone, otp);
+
     if (otpResult.status !== 200) {
-      throw new HttpException(otpResult.message, HttpStatus.UNAUTHORIZED);
+      throw new HttpException(otpResult.message, otpResult.status);
     }
+
     // Normalize phone number
     phone = phone.replace(/^\+?84/, '0');
 
