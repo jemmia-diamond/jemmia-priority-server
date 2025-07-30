@@ -84,11 +84,11 @@ export class ZaloOtpService {
     const storedOtp = await this.otpRedis.get(phone);
 
     if (!storedOtp) {
-      throw new Error('OTP expired or not found');
+      return { status: 404, message: 'OTP not found or expired' };
     }
 
     if (storedOtp !== otp) {
-      throw new Error('Invalid OTP');
+      return { status: 403, message: 'Invalid OTP' };
     }
 
     await this.otpRedis.del(phone);

@@ -180,7 +180,10 @@ export class AuthService {
     const otpResult = await this.zaloOtpService.verifyOtp(phone, otp);
 
     if (otpResult.status !== 200) {
-      throw new HttpException(otpResult.message, otpResult.status);
+      return {
+        status: otpResult.status,
+        message: otpResult.message,
+      };
     }
 
     // Normalize phone number
