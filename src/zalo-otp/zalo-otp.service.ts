@@ -30,12 +30,7 @@ export class ZaloOtpService {
       content: {
         template_id: Number(process.env.ZALOPAY_TEMPLATE_ID),
         template_data: {
-          customer_name: 'User',
-          phone: phone,
-          day: 'today',
-          total_amount: '0',
-          order_code: otp,
-          order_status: 'Mã OTP',
+          otp: otp,
         },
       },
       callback_url: callbackUrl,
