@@ -11,20 +11,22 @@ export class BearerAuthGuard implements CanActivate {
 
   canActivate(context: ExecutionContext): boolean {
     if (!this.validToken) {
-      return false;
+      throw new UnauthorizedException('Bearer token not configured');
     }
 
     const req = context.switchToHttp().getRequest();
     const authHeader = req.headers['authorization'];
 
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return false;
+      throw new UnauthorizedException(
+        'Missing or malformed Authorization header',
+      );
     }
 
     const token = authHeader.split(' ')[1];
 
     if (token !== this.validToken) {
-      return false;
+      throw new UnauthorizedException('Invalid token');
     }
 
     return true;
