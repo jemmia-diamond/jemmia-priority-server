@@ -48,7 +48,7 @@ export class ZaloOtpService {
       await this.otpRedis.set(phone, otp); // Save OTP
 
       const response = await axios.post(
-        'https://dev.zalopay.vn/zns-partner/v1/messages',
+        'https://api-partner.zalopay.vn/zns-partner/v1/messages',
         payloadObj,
         {
           headers: {
