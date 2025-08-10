@@ -10,12 +10,7 @@ import { ValidationPipe } from '@nestjs/common';
 //!SET DEFAULT TIMEZONE
 process.env.TZ = 'Asia/Ho_Chi_Minh';
 Sentry.init({
-  dsn: process.env.SENTRY_DSN,
-  // Performance Monitoring
-  tracesSampleRate: 1.0, //  Capture 100% of the transactions
-
-  // Set sampling rate for profiling - this is relative to tracesSampleRate
-  profilesSampleRate: 1.0,
+  dsn: process.env.SENTRY_DSN
 });
 
 async function bootstrap() {
