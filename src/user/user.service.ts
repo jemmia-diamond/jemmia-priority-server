@@ -304,7 +304,7 @@ export class UserService {
   }
 
   /** Sync thông tin user từ CRM về hệ thống & phân hạng */
-  async syncFromCrm(crmId: string) {
+  async syncFromCrm(crmId: string, customerType?: string) {
     let user: User = await this.userRepository.findOneBy({ crmId });
     const crmCusData = (
       await this.crmService.findAllCustomer({
@@ -344,7 +344,10 @@ export class UserService {
         : crmCusData.cumulativeTovReferral;
 
     let userRole = user?.role;
-    if (
+    const isAffiliate = !!customerType?.includes(EUserRole.affiliate);
+    if (isAffiliate) {
+      userRole = EUserRole.affiliate;
+    } else if (
       (userRole === EUserRole.customer || !userRole) &&
       crmCusData.customerTypes?.[0]?.value === EUserRole.staff
     ) {
@@ -384,8 +387,20 @@ export class UserService {
 
     for (const u of users.data) {
       try {
-        console.log(`${index}/${users.total}`);
         if (u.maKhachHang && u.haravanId) {
+          const customerType =
+            await this.crmService.findCustomerRankByCustomerCode(u.maKhachHang);
+          const isAffiliate = !!customerType?.includes(EUserRole.affiliate);
+
+          let role: EUserRole;
+          if (isAffiliate) {
+            role = EUserRole.affiliate;
+          } else if (/^kh|KH/.test(u.maKhachHang)) {
+            role = EUserRole.customer;
+          } else {
+            role = EUserRole.staff;
+          }
+
           await this.userRepository.save({
             haravanId: u.haravanId,
             crmId: u.id,
@@ -395,14 +410,12 @@ export class UserService {
             address1: u.address1,
             maKhachHang: u.maKhachHang,
             cumulativeTovRecorded: u.cumulativeTovLifeTime,
-            role: /^kh|KH/.test(u.maKhachHang)
-              ? EUserRole.customer
-              : EUserRole.staff,
+            role,
           });
         }
         index++;
       } catch (e) {
-        console.log(e);
+        console.error(`Error at index ${index}:`, e);
       }
     }
   }
