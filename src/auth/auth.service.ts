@@ -1,4 +1,9 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { AuthDto } from './dto/auth.dto';
 import { Repository } from 'typeorm';
 import { User } from '../user/entities/user.entity';
@@ -194,7 +199,7 @@ export class AuthService {
     });
 
     if (!user) {
-      return { status: 404, message: 'User not found' };
+      throw new NotFoundException('User not found');
     }
 
     // return access token and refresh token
