@@ -1,6 +1,6 @@
 // zalo-otp.service.ts
 
-import { Injectable } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { OtpRedis } from './zalo-otp.redis';
 import axios from 'axios';
 import * as crypto from 'crypto';
@@ -15,7 +15,7 @@ export class ZaloOtpService {
 
   async sendOtp(phone: string, domain: string) {
     if (!phone) {
-      return { status: 400, message: 'Phone number is required' };
+      throw new BadRequestException('Phone number is required');
     }
     const callbackUrl = `${domain}/zalo-otp/v1/callback`;
 
@@ -82,7 +82,7 @@ export class ZaloOtpService {
 
   async verifyOtp(phone: string, otp: string) {
     if (!phone || !otp) {
-      return { status: 400, message: 'Phone and OTP are required' };
+      throw new BadRequestException('Phone and OTP are required');
     }
 
     const storedOtp = await this.otpRedis.get(phone);
