@@ -1,4 +1,9 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { AuthDto } from './dto/auth.dto';
 import { Repository } from 'typeorm';
 import { User } from '../user/entities/user.entity';
@@ -174,6 +179,14 @@ export class AuthService {
     };
   }
 
+  async toLocalPhone(phone: string) {
+    return phone.replace(/^\+?84/, '0');
+  }
+
+  async toInternationalPhone(phone: string) {
+    return phone.replace(/^0/, '+84');
+  }
+
   async zaloAuth(phone: string, otp: string) {
     // Verify Zalo OTP
 
@@ -187,14 +200,14 @@ export class AuthService {
     }
 
     // Normalize phone number
-    phone = phone.replace(/^\+?84/, '0');
+    phone = await this.toLocalPhone(phone);
 
     const user = await this.userRepository.findOne({
       where: { phoneNumber: phone },
     });
 
     if (!user) {
-      throw new HttpException('USER_NOT_FOUND', HttpStatus.UNAUTHORIZED);
+      throw new NotFoundException('User not found');
     }
 
     // return access token and refresh token

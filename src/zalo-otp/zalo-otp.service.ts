@@ -1,6 +1,6 @@
 // zalo-otp.service.ts
 
-import { Injectable } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { OtpRedis } from './zalo-otp.redis';
 import axios from 'axios';
 import * as crypto from 'crypto';
@@ -14,7 +14,9 @@ export class ZaloOtpService {
   ) {}
 
   async sendOtp(phone: string, domain: string) {
-    if (!phone) throw new Error('Phone is required');
+    if (!phone) {
+      throw new BadRequestException('Phone number is required');
+    }
     const callbackUrl = `${domain}/zalo-otp/v1/callback`;
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
@@ -47,7 +49,7 @@ export class ZaloOtpService {
     try {
       await this.otpRedis.set(phone, otp); // Save OTP
 
-      const response = await axios.post(
+      await axios.post(
         'https://api-partner.zalopay.vn/zns-partner/v1/messages',
         payloadObj,
         {
@@ -79,7 +81,9 @@ export class ZaloOtpService {
   }
 
   async verifyOtp(phone: string, otp: string) {
-    if (!phone || !otp) throw new Error('Phone and OTP are required');
+    if (!phone || !otp) {
+      throw new BadRequestException('Phone and OTP are required');
+    }
 
     const storedOtp = await this.otpRedis.get(phone);
 
