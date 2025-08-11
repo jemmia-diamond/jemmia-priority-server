@@ -1,15 +1,13 @@
 import {
   Body,
   Controller,
-  HttpCode,
-  HttpStatus,
   Post,
   Headers,
   Req,
   UseGuards,
 } from '@nestjs/common';
 import { ZaloOtpService } from './zalo-otp.service';
-import { SendOtpDto, VerifyOtpDto } from './dto/send-otp.dto';
+import { SendOtpDto } from './dto/send-otp.dto';
 import { Request } from 'express';
 import { BearerAuthGuard } from '../auth/guards/bearer-auth.guard';
 

@@ -194,7 +194,7 @@ export class AuthService {
     });
 
     if (!user) {
-      throw new HttpException('USER_NOT_FOUND', HttpStatus.UNAUTHORIZED);
+      return { status: 404, message: 'User not found' };
     }
 
     // return access token and refresh token
