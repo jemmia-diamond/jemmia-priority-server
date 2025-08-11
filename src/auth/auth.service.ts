@@ -179,6 +179,14 @@ export class AuthService {
     };
   }
 
+  async toLocalPhone(phone: string) {
+    return phone.replace(/^\+?84/, '0');
+  }
+
+  async toInternationalPhone(phone: string) {
+    return phone.replace(/^0/, '+84');
+  }
+
   async zaloAuth(phone: string, otp: string) {
     // Verify Zalo OTP
 
@@ -192,7 +200,7 @@ export class AuthService {
     }
 
     // Normalize phone number
-    phone = phone.replace(/^\+?84/, '0');
+    phone = await this.toLocalPhone(phone);
 
     const user = await this.userRepository.findOne({
       where: { phoneNumber: phone },
