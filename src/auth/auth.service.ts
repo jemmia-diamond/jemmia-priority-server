@@ -207,7 +207,7 @@ export class AuthService {
 
     if (!user) {
       if (phone) {
-        const crmCusData: CrmCustomerDto = (
+        const crmCusData: CrmCustomerDto | undefined = (
           await this.crmService.findAllCustomer({
             limit: 1,
             query: {
@@ -215,6 +215,10 @@ export class AuthService {
             },
           })
         ).data?.[0];
+
+        if (!crmCusData?.id) {
+          throw new NotFoundException('User not found');
+        }
 
         user = await this.userService.syncFromCrm(crmCusData.id);
         await this.userRepository.save(user);
