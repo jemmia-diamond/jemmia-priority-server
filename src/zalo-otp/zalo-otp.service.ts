@@ -24,7 +24,7 @@ export class ZaloOtpService {
     // Define static ZaloPay credentials
     const clientId = process.env.ZALOPAY_CLIENT_ID;
     const secretKey = process.env.ZALOPAY_SECRET_KEY;
-    const requestId = Date.now().toString(); // Or use uuid if preferred
+    const requestId = Date.now().toString();
 
     const payloadObj = {
       zalo_oa_id: process.env.ZALOPAY_OA_ID,
@@ -40,14 +40,14 @@ export class ZaloOtpService {
 
     const payload = JSON.stringify(payloadObj);
     const hashData = `${clientId}|${requestId}|${payload}`;
-
+    console.log(otp);
     const xClientHash = crypto
       .createHmac('sha256', secretKey)
       .update(hashData)
       .digest('hex');
 
     try {
-      await this.otpRedis.set(phone, otp); // Save OTP
+      await this.otpRedis.set(phone, otp);
 
       await axios.post(
         'https://api-partner.zalopay.vn/zns-partner/v1/messages',

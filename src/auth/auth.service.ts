@@ -189,7 +189,6 @@ export class AuthService {
 
   async zaloAuth(phone: string, otp: string) {
     // Verify Zalo OTP
-
     const otpResult = await this.zaloOtpService.verifyOtp(phone, otp);
 
     if (otpResult.status !== 200) {
@@ -202,42 +201,54 @@ export class AuthService {
     // Normalize phone number
     phone = await this.toLocalPhone(phone);
 
-    const user = await this.userRepository.findOne({
+    let user = await this.userRepository.findOne({
       where: { phoneNumber: phone },
     });
 
     if (!user) {
-      throw new NotFoundException('User not found');
+      if (phone) {
+        const crmCusData: CrmCustomerDto = (
+          await this.crmService.findAllCustomer({
+            limit: 1,
+            query: {
+              'phones.value': phone,
+            },
+          })
+        ).data?.[0];
+
+        user = await this.userService.syncFromCrm(crmCusData.id);
+        await this.userRepository.save(user);
+      } else {
+        throw new NotFoundException('User not found');
+      }
     }
 
-    // return access token and refresh token
-    if (user) {
-      const accessToken = await this.signAccessToken({
-        id: user.id,
-        role: user.role,
-        authId: user.authId,
-        sub: user.id,
-        haravanId: user.haravanId?.toString(),
-        crmId: user.crmId,
-      });
+    // Return access token and refresh token
+    const accessToken = await this.signAccessToken({
+      id: user.id,
+      role: user.role,
+      authId: user.authId,
+      sub: user.id,
+      haravanId: user.haravanId?.toString(),
+      crmId: user.crmId,
+    });
 
-      const refreshToken = await this.signRefreshToken({
-        id: user.id,
-        authId: user.authId,
-        sub: user.id,
-      });
+    const refreshToken = await this.signRefreshToken({
+      id: user.id,
+      authId: user.authId,
+      sub: user.id,
+    });
 
-      return {
-        accessToken,
-        refreshToken,
-        user: {
-          ...user,
-          haravan: {},
-          crm: {},
-          rank: user?.rank || ECustomerRankNum.silver,
-          role: user?.role || EUserRole.customer,
-        },
-      };
-    }
+    return {
+      accessToken,
+      refreshToken,
+      user: {
+        ...user,
+        haravan: {},
+        crm: {},
+        rank: user?.rank || ECustomerRankNum.silver,
+        role: user?.role || EUserRole.customer,
+      },
+    };
   }
 }
