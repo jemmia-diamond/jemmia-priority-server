@@ -40,7 +40,6 @@ export class ZaloOtpService {
 
     const payload = JSON.stringify(payloadObj);
     const hashData = `${clientId}|${requestId}|${payload}`;
-    console.log(otp);
     const xClientHash = crypto
       .createHmac('sha256', secretKey)
       .update(hashData)
