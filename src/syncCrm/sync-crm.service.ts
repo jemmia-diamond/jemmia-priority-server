@@ -16,7 +16,7 @@ export class SyncCrmService {
       .select([
         'cf.id AS "id"',
         'u.haravanId AS "haravanId"',
-        'cf.ownerName AS "ownerName"',
+        'u2.haravanId AS "userHaravanId"',
         'cf.couponHaravanCode AS "couponHaravanCode"',
         'cf.couponHaravanId AS "couponHaravanId"',
         'o.paymentStatus AS "paymentStatus"',
@@ -26,6 +26,7 @@ export class SyncCrmService {
       ])
       .leftJoin('users', 'u', 'cf.ownerId = u.id')
       .leftJoin('orders', 'o', 'o.couponRefId = cf.id')
+      .leftJoin('users', 'u2', 'cf.usedById = u2.id')
       .where('cf.role = :role', { role: 'customer' })
       .andWhere('(o.paymentStatus = :paid OR o.paymentStatus = :pending)', {
         paid: 'paid',

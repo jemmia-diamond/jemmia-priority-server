@@ -1,4 +1,9 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { AuthDto } from './dto/auth.dto';
 import { Repository } from 'typeorm';
 import { User } from '../user/entities/user.entity';
@@ -15,6 +20,7 @@ import { ECustomerRankNum } from '../customer-rank/enums/customer-rank.enum';
 import { CrmService } from '../crm/crm.service';
 import { UserService } from '../user/user.service';
 import { CrmCustomerDto } from '../crm/dto/crm-customer.dto';
+import { ZaloOtpService } from '../zalo-otp/zalo-otp.service';
 
 @Injectable()
 export class AuthService {
@@ -28,6 +34,7 @@ export class AuthService {
     private crmService: CrmService,
     private userService: UserService,
     private couponRefService: CouponRefService,
+    private zaloOtpService: ZaloOtpService,
   ) {}
 
   async verifyOAuth(idToken: string) {
@@ -165,6 +172,83 @@ export class AuthService {
     return {
       accessToken,
       refreshToken,
+    };
+  }
+
+  async toLocalPhone(phone: string) {
+    return phone.replace(/^\+?84/, '0');
+  }
+
+  async toInternationalPhone(phone: string) {
+    return phone.replace(/^0/, '+84');
+  }
+
+  async zaloAuth(phone: string, otp: string) {
+    // Verify Zalo OTP
+    const otpResult = await this.zaloOtpService.verifyOtp(phone, otp);
+
+    if (otpResult.status !== 200) {
+      return {
+        status: otpResult.status,
+        message: otpResult.message,
+      };
+    }
+
+    // Normalize phone number
+    phone = await this.toLocalPhone(phone);
+
+    let user = await this.userRepository.findOne({
+      where: { phoneNumber: phone },
+    });
+
+    if (!user) {
+      if (phone) {
+        const crmCusData: CrmCustomerDto | undefined = (
+          await this.crmService.findAllCustomer({
+            limit: 1,
+            query: {
+              'phones.value': phone,
+            },
+          })
+        ).data?.[0];
+
+        if (!crmCusData?.id) {
+          throw new NotFoundException('User not found');
+        }
+
+        user = await this.userService.syncFromCrm(crmCusData.id);
+        await this.userRepository.save(user);
+      } else {
+        throw new NotFoundException('User not found');
+      }
+    }
+
+    // Return access token and refresh token
+    const accessToken = await this.signAccessToken({
+      id: user.id,
+      role: user.role,
+      authId: user.authId,
+      sub: user.id,
+      haravanId: user.haravanId?.toString(),
+      crmId: user.crmId,
+    });
+
+    const refreshToken = await this.signRefreshToken({
+      id: user.id,
+      authId: user.authId,
+      sub: user.id,
+    });
+
+    return {
+      accessToken,
+      refreshToken,
+      user: {
+        ...user,
+        haravan: {},
+        crm: {},
+        rank: user?.rank || ECustomerRankNum.silver,
+        role: user?.role || EUserRole.customer,
+      },
     };
   }
 }
