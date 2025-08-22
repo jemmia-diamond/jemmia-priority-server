@@ -27,6 +27,9 @@ import { Notification } from '../notification/entities/notification.entity';
 import { NotificationType } from '../notification/enums/noti-type.enum';
 import { CrmService } from '../crm/crm.service';
 import { createHmac } from 'crypto';
+import { EPaymentAffiliateCommission } from './enum/order-type.enum';
+import { PaymentType } from '../haravan/enums/payment-type.enum';
+import { PAYMENT_COMMISSION } from './constants/payment-commision';
 
 @Injectable()
 export class OrderService {
@@ -139,7 +142,6 @@ export class OrderService {
   }
 
   async calculateCashback(order: Order) {
-    console.log('========== CALC CASHBACK ==========');
     const couponRef = order.couponRef;
     let cashBack = 0,
       cashBackRef = 0,
@@ -207,6 +209,13 @@ export class OrderService {
     };
   }
 
+  calculateCashbackForAffiliate = (order: Order) => {
+    if (order.paymentType === PaymentType.POS) {
+      return order.totalPrice * EPaymentAffiliateCommission.POS;
+    }
+    return order.totalPrice * PAYMENT_COMMISSION.NOT_POS;
+  };
+
   verifyHaravanHook(data: any, headerSignature: string) {
     const hmac = createHmac('sha256', process.env.HARAVAN_SECRET);
     const hmacData = hmac.update(Buffer.from(JSON.stringify(data), 'utf8'));
@@ -224,8 +233,6 @@ export class OrderService {
       if (!orderDto.customer?.id) {
         return 'CANT FIND CUSTOMER';
       }
-
-      console.log('FIND ORDER');
 
       //Get Order dựa trên haravanId hoặc coupon-ref (Dùng cho trường hợp coupon-ref không giới hạn)
       let order = await this.orderRepository.findOne({
@@ -252,7 +259,6 @@ export class OrderService {
       let customer = await this.userRepository.findOneBy({
         haravanId: orderDto.customer.id,
       });
-      console.log('FIND CUSTOMER');
 
       //Kiểm tra coupon được sử dụng
       let couponRef: CouponRef;
@@ -267,8 +273,6 @@ export class OrderService {
             },
           },
         });
-        console.log('\n========== COUPON REF/');
-        console.log(JSON.stringify(couponRef));
       }
 
       //Tạo khách hàng nếu không tồn tại
@@ -282,21 +286,22 @@ export class OrderService {
       }
 
       if (!order) {
-        console.log('\n========== ORDER');
-        console.log(JSON.stringify(order));
+        const paymentType = await this.haravanService.getPaymentType(
+          orderDto.id,
+          customer.role,
+        );
 
         order = await this.orderRepository.save({
           haravanOrderId: orderDto.id,
           totalPrice: orderDto.total_price,
           paymentStatus: orderDto.financial_status,
           customer,
+          paymentType,
         });
       }
 
       order.paymentStatus = orderDto.financial_status;
       order.totalPrice = orderDto.total_price;
-      console.log('FIND ORDER');
-      console.log(order);
 
       //Cập nhật owner của coupon-ref & gắn vào order
       if (couponRef) {
@@ -389,7 +394,12 @@ export class OrderService {
             }
           }
 
-          //Cashback cho người mua
+          //Check the role of customer, if the role is affiliate, then calculate cashback for affiliate
+          if (customer.role === EUserRole.affiliate) {
+            order.cashBack += this.calculateCashbackForAffiliate(order);
+          }
+
+          //Cashback for buyer
           customer.point += order.cashBack;
 
           //Thông báo cho inviter
@@ -408,14 +418,13 @@ export class OrderService {
       }
 
       if (order.paymentStatus === EFinancialStatus.paid) {
-        //Cộng giá trị đơn tích luỹ
         // customer.accumulatedOrderPoint += order.totalPrice;
       }
 
       await this.orderRepository.save(order);
       await this.userRepository.save(customer);
 
-      //Cập nhật rank
+      //Update the rank
       if (order.paymentStatus === EFinancialStatus.paid) {
         if (couponRef?.owner) {
           console.log('====== U COUPON REF OWNER RANK');
