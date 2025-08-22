@@ -15,7 +15,7 @@ import {
   ECustomerRankConfig,
   ECustomerRankNum,
 } from './enums/customer-rank.enum';
-import { EPaymentStatus } from '../order/enum/payment-status.enum';
+import { EPaymentStatus } from '../order/enum/payment-status.dto';
 import { EFinancialStatus } from '../haravan/dto/haravan-order.dto';
 import { EUserRole } from '../user/enums/user-role.enum';
 import { UserService } from '../user/user.service';
