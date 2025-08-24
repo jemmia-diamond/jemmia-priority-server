@@ -22,8 +22,6 @@ import {
   HaravanOrderDto,
   HaravanOrderSearchDto,
 } from './dto/haravan-order.dto';
-import { PaymentType } from './enums/payment-type.enum';
-import { GATEWAY_POS_TYPES } from './constants/gateway-type.const';
 
 const ax = axios.create({
   baseURL: process.env.HARAVAN_ENDPOINT,
@@ -33,7 +31,6 @@ const ax = axios.create({
     Authorization: `Bearer ${process.env.HARAVAN_SECRET}`,
   },
 });
-import { EUserRole } from '../user/enums/user-role.enum';
 
 @Injectable()
 export class HaravanService {
@@ -83,12 +80,6 @@ export class HaravanService {
     const res = await ax.get(`/com/discounts/${couponId}.json`);
 
     return plainToInstance(HaravanCouponDto, res.data.discount);
-  }
-
-  async findPaymentMethod(orderId: number) {
-    const res = await ax.get(`/com/payment_methods.json`);
-
-    return res.data.payment_methods;
   }
 
   async findAllCoupon(query: HaravanCouponSearchDto) {
@@ -298,18 +289,5 @@ export class HaravanService {
     );
 
     return plainToInstance(HaravanOrderDto, <any>res.data.order);
-  }
-
-  async getPaymentType(haravanOrderId: number, role: string) {
-    if (role !== EUserRole.affiliate) {
-      return ''; //Only affiliates can have POS payment type
-    }
-    const res = await ax.get(`/com/orders/${haravanOrderId}/transactions.json`);
-
-    const gateway = res.data?.transactions?.[0]?.gateway || '';
-    if (GATEWAY_POS_TYPES.includes(gateway)) {
-      return PaymentType.POS;
-    }
-    return '';
   }
 }

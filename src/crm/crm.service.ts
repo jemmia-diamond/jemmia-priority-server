@@ -1,5 +1,3 @@
-import * as dotenv from 'dotenv';
-dotenv.config();
 import { Injectable, Logger } from '@nestjs/common';
 import axios from 'axios';
 import { createHmac } from 'crypto';
@@ -24,6 +22,7 @@ const ax = axios.create({
 ax.interceptors.request.use((config) => {
   const timestamp = Date.now();
   const hmac = createHmac('sha512', process.env.CRM_API_SECRET);
+
   const data = hmac.update(timestamp + process.env.CRM_PROJECT_TOKEN);
   const signature = data.digest('hex');
 
@@ -91,36 +90,5 @@ export class CrmService {
     return res.data;
   }
 
-  async findCustomerRankByCustomerCode(
-    maKhachHang: string,
-  ): Promise<string | null> {
-    const body = {
-      table: 'data_customer',
-      limit: 1,
-      skip: 0,
-      select: ['customer_types'],
-      query: {
-        ma_khach_hang: maKhachHang,
-      },
-      output: 'by-key',
-    };
-
-    try {
-      const res = await ax.post('/_api/base-table/find', body);
-      const result = res.data?.data?.[0];
-
-      if (!result || !result.customer_types?.length) {
-        this.logger.warn(
-          `No CRM customer_types found for maKhachHang: ${maKhachHang}`,
-        );
-        return null;
-      }
-
-      // Return the first customer type value
-      return result.customer_types[0].value || null;
-    } catch (error) {
-      this.logger.error('Failed to fetch customer rank from CRM', error);
-      return null;
-    }
-  }
+  //#endregion
 }

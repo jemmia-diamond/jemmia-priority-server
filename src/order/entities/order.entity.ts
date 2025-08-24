@@ -49,7 +49,4 @@ export class Order {
 
   @CreateDateColumn()
   createdDate: Date;
-
-  @Column({ nullable: true })
-  paymentType: string;
 }
