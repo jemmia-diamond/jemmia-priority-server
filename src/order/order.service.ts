@@ -49,6 +49,8 @@ export class OrderService {
     private readonly userService: UserService,
   ) {}
 
+  processingHaravanOrderId: Set<number> = new Set();
+
   async findAll(query: OrderQueryDto) {
     const limit = query.limit || 1;
     const page = (query.page ?? 0) - 1;
@@ -225,6 +227,12 @@ export class OrderService {
   }
 
   async haravanHook(orderDto: HaravanOrderDto) {
+    //Check order is processing or not
+    if (this.processingHaravanOrderId.has(orderDto.id)) {
+      return 'ORDER IS PROCESSING';
+    }
+    this.processingHaravanOrderId.add(orderDto.id);
+
     //!Xử lý check hook data
     try {
       orderDto = plainToInstance(HaravanOrderDto, orderDto);
@@ -450,6 +458,9 @@ export class OrderService {
     } catch (e) {
       console.log(e);
       return;
+    } finally {
+      //Remove order id from processing set
+      this.processingHaravanOrderId.delete(orderDto.id);
     }
   }
 }
