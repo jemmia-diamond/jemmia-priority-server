@@ -116,7 +116,7 @@ export class User {
   backIDCardImageUrl: string;
 
   /**
-   * Đánh dấu rằng user này đã mua hàng lần đầu tiên
+   * User have first order
    */
   @Column('bool', { default: false })
   isFirstOrder: boolean;
