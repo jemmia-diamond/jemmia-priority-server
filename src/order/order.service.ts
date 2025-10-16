@@ -330,11 +330,7 @@ export class OrderService {
       }
 
       //Xử lý cho lần đầu mua hàng
-      if (
-        // orderDto.customer.ordersCount === 1 ||
-        // orderDto.customer.totalSpent === 0
-        !customer.isFirstOrder
-      ) {
+      if (!customer.isFirstOrder) {
         //Chỉ tính refferral khi mua hàng có giới thiệu
         if (couponRef) {
           const cashbackVal = await this.calculateCashback(order);
