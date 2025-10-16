@@ -4,7 +4,7 @@ WORKDIR /app
 #Install deps
 FROM base AS install
 RUN mkdir -p /temp
-COPY package.json bun.lockb /temp/
+COPY package.json bun.lock /temp/
 RUN cd /temp && bun install
 
 FROM base AS prerelease
