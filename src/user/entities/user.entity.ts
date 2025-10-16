@@ -114,4 +114,10 @@ export class User {
 
   @Column('text', { nullable: true })
   backIDCardImageUrl: string;
+
+  /**
+   * User have first order
+   */
+  @Column('bool', { default: false })
+  isFirstOrder: boolean;
 }

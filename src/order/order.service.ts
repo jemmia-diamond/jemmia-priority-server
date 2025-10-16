@@ -330,10 +330,7 @@ export class OrderService {
       }
 
       //Xử lý cho lần đầu mua hàng
-      if (
-        orderDto.customer.ordersCount === 1 ||
-        orderDto.customer.totalSpent === 0
-      ) {
+      if (!customer.isFirstOrder) {
         //Chỉ tính refferral khi mua hàng có giới thiệu
         if (couponRef) {
           const cashbackVal = await this.calculateCashback(order);
@@ -401,6 +398,9 @@ export class OrderService {
 
           //Cashback for buyer
           customer.point += order.cashBack;
+
+          //Mark have first order
+          customer.isFirstOrder = true;
 
           //Thông báo cho inviter
           const noti = new Notification();
