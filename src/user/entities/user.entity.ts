@@ -114,4 +114,10 @@ export class User {
 
   @Column('text', { nullable: true })
   backIDCardImageUrl: string;
+
+  /**
+   * Đánh dấu rằng user này đã mua hàng lần đầu tiên
+   */
+  @Column('bool', { default: false })
+  isFirstOrder: boolean;
 }

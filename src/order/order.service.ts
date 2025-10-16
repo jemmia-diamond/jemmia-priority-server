@@ -329,10 +329,15 @@ export class OrderService {
         order.paymentStatus = EFinancialStatus.cancelled;
       }
 
+      /**
+       * !TODO: Chạy lại DB check có 1 đơn hoàn thành thì đánh dấu isFirstOrder là true. Mục đích đánh dấu các user đã hoàn thành đơn đầu. Tránh lần kế tiếp đặt lại sẽ lỗi.
+       */
+
       //Xử lý cho lần đầu mua hàng
       if (
-        orderDto.customer.ordersCount === 1 ||
-        orderDto.customer.totalSpent === 0
+        // orderDto.customer.ordersCount === 1 ||
+        // orderDto.customer.totalSpent === 0
+        !customer.isFirstOrder
       ) {
         //Chỉ tính refferral khi mua hàng có giới thiệu
         if (couponRef) {
@@ -401,6 +406,9 @@ export class OrderService {
 
           //Cashback for buyer
           customer.point += order.cashBack;
+
+          //Cập nhật lại isFirstOrder
+          customer.isFirstOrder = true;
 
           //Thông báo cho inviter
           const noti = new Notification();
