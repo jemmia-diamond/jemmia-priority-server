@@ -426,7 +426,7 @@ export class OrderService {
       }
 
       if (order.paymentStatus === EFinancialStatus.paid) {
-        customer.accumulatedOrderPoint += order.totalPrice;
+        // customer.accumulatedOrderPoint += order.totalPrice;
       }
 
       await this.orderRepository.save(order);
