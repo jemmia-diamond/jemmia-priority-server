@@ -64,7 +64,7 @@ import { ZaloOtpModule } from './zalo-otp/zalo-otp.module';
       ],
       database: process.env.DB,
       synchronize: false,
-      logging: true,
+      logging: false,
     }),
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'public'),
