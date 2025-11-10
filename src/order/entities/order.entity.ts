@@ -52,4 +52,16 @@ export class Order {
 
   @Column({ nullable: true })
   paymentType: string;
+
+  /** Cột mới này thay thế cashBack */
+  @Column('double precision', { default: 0 })
+  referralPoint: number;
+
+  /** Cột mới sẽ thay thế cột cashBackRef */
+  @Column('double precision', { default: 0 })
+  referralPointRef: number;
+
+  /** Cột mới sẽ thay thế cột cashBackRefA */
+  @Column('double precision', { default: 0 })
+  referralPointRefA: number;
 }
