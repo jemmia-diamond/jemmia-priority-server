@@ -15,4 +15,6 @@ export class WithdrawMoneyDto {
   amount: number;
 
   remainAmount: number;
+  withdrawPoint: number;
+  withdrawCashAmount: number;
 }

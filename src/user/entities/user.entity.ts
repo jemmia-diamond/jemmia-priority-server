@@ -120,4 +120,8 @@ export class User {
    */
   @Column('bool', { default: false })
   isFirstOrder: boolean;
+
+  /** Cột mới sẽ thay thế point */
+  @Column('double precision', { default: 0 })
+  orderAccumulatedPoint: number;
 }
