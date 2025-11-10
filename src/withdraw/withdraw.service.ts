@@ -30,6 +30,8 @@ export class WithdrawService {
       bankName: withdraw.bankName,
       bankNumber: withdraw.bankNumber,
       amount: withdraw.amount,
+      withdrawPoint: withdraw.withdrawPoint,
+      withdrawCashAmount: withdraw.withdrawCashAmount,
       user: {
         id: user.id,
       },
