@@ -45,14 +45,18 @@ export class WithdrawController {
     }
 
     const amountWTax = body.amount * 1.1;
+    const pointsToDeduct = body.amount * (10 / 9);
 
-    if (user.point > amountWTax) {
+    if (user.point >= pointsToDeduct) {
       user.point -= Math.abs(amountWTax);
+      user.availableAccumulatedPoint -= Math.abs(pointsToDeduct);
       await this.userService.updateNativeUser(user);
 
       body.bankName = user.bankingAccount.bankName;
       body.bankNumber = user.bankingAccount.number;
       body.remainAmount = user.point;
+      body.withdrawPoint = pointsToDeduct;
+      body.withdrawCashAmount = body.amount;
 
       axios.post(
         'https://open.larksuite.com/open-apis/bot/v2/hook/d9bf991e-e01f-47c6-b4c9-cf2689ff023c',
@@ -62,6 +66,7 @@ export class WithdrawController {
             text: `Có yêu cầu rút tiền mới từ ${user.name}
 SĐT: ${user.phoneNumber}
 Số tiền: ${body.amount}
+Số điểm đã trừ: ${pointsToDeduct}
 STK: ${body.bankNumber}
 Ngân hàng: ${body.bankName}`,
           },

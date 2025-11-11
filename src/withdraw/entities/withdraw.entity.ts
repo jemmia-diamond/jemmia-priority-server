@@ -39,4 +39,10 @@ export class Withdraw {
   @IsOptional()
   @CreateDateColumn()
   createdDate?: Date;
+
+  @Column('double precision', { default: 0 })
+  withdrawPoint: number;
+
+  @Column('double precision', { default: 0 })
+  withdrawCashAmount: number;
 }

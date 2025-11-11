@@ -8,7 +8,7 @@ import { HaravanService } from '../haravan/haravan.service';
 import { EUserRole } from '../user/enums/user-role.enum';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../user/entities/user.entity';
-import { In, MoreThan, Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { Order } from './entities/order.entity';
 import { CouponRefService } from '../coupon-ref/coupon-ref.service';
 import { UserService } from '../user/user.service';
@@ -147,13 +147,19 @@ export class OrderService {
     const couponRef = order.couponRef;
     let cashBack = 0,
       cashBackRef = 0,
-      cashBackRefA = 0;
+      cashBackRefA = 0,
+      referralPoint = 0,
+      referralPointRef = 0,
+      referralPointRefA = 0;
 
     if (!couponRef) {
       return {
         cashBack,
         cashBackRef,
         cashBackRefA,
+        referralPoint,
+        referralPointRef,
+        referralPointRefA,
       };
     }
 
@@ -166,9 +172,12 @@ export class OrderService {
     //Tính cashback cho partner A
     if (couponRef.owner?.invitedBy?.role === EUserRole.partnerA) {
       console.log('CALC CASHBACK A');
-      cashBackRefA +=
+      const partnerACashBack =
         totalPrice *
         EPartnerCashbackConfig.partnerRefferalCashbackPercent.partnerA.partnerB;
+
+      cashBackRefA += partnerACashBack;
+      referralPointRefA += partnerACashBack;
     }
 
     //Lấy ra người đã mời khách hàng
@@ -191,21 +200,29 @@ export class OrderService {
         ] || 0;
 
       cashBackRef = totalPrice * cashbackPercent;
+      referralPointRef = totalPrice * cashbackPercent;
     }
 
     // cashBack = totalPrice * EPartnerCashbackConfig.firstBuyCashbackPercent;
     cashBack = 0; //*Set = 0 Vì đã được giảm thẳng khi mua hàng
+    referralPoint = 0;
 
     console.log({
       cashBack: cashBack || 0,
       cashBackRef: cashBackRef || 0,
       cashBackRefA: cashBackRefA || 0,
+      referralPoint: referralPoint || 0,
+      referralPointRef: referralPointRef || 0,
+      referralPointRefA: referralPointRefA || 0,
     });
 
     return {
       cashBack: cashBack || 0,
       cashBackRef: cashBackRef || 0,
       cashBackRefA: cashBackRefA || 0,
+      referralPoint: referralPoint || 0,
+      referralPointRef: referralPointRef || 0,
+      referralPointRefA: referralPointRefA || 0,
       /** Người mời được nhận cashbackRef */
       inviter: inviter,
     };
@@ -346,6 +363,9 @@ export class OrderService {
           order.cashBack = cashbackVal.cashBack;
           order.cashBackRef = cashbackVal.cashBackRef;
           order.cashBackRefA = cashbackVal.cashBackRefA;
+          order.referralPoint = cashbackVal.referralPoint;
+          order.referralPointRef = cashbackVal.referralPointRef;
+          order.referralPointRefA = cashbackVal.referralPointRefA;
         }
 
         //Chỉ khi đã thanh toán
@@ -377,11 +397,17 @@ export class OrderService {
                 couponRef.owner.role === EUserRole.partnerB
               ) {
                 couponRef.owner.invitedBy.point += order.cashBackRefA;
+                couponRef.owner.invitedBy.totalPoint += order.referralPointRefA;
+                couponRef.owner.invitedBy.availableAccumulatedPoint +=
+                  order.referralPointRefA;
                 await this.userRepository.save(couponRef.owner.invitedBy);
               }
 
               //Cashback thông thường theo rank
               couponRef.owner.point += order.cashBackRef;
+              couponRef.owner.totalPoint += order.referralPointRef;
+              couponRef.owner.availableAccumulatedPoint +=
+                order.referralPointRef;
 
               //Set người đã mời khách hàng
               customer.invitedBy = couponRef.owner;
@@ -402,10 +428,13 @@ export class OrderService {
           //Check the role of customer, if the role is affiliate, then calculate cashback for affiliate
           if (customer.role === EUserRole.affiliate) {
             order.cashBack += this.calculateCashbackForAffiliate(order);
+            order.referralPoint += this.calculateCashbackForAffiliate(order);
           }
 
           //Cashback for buyer
           customer.point += order.cashBack;
+          customer.totalPoint += order.referralPoint;
+          customer.availableAccumulatedPoint += order.referralPoint;
 
           //Mark have first order
           customer.isFirstOrder = true;
