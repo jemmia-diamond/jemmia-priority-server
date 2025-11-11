@@ -430,7 +430,7 @@ export class OrderService {
 
           //Cashback for buyer
           customer.point += order.cashBack;
-          customer.orderAccumulatedPoint += order.referralPoint;
+          customer.availableAccumulatedPoint += order.referralPoint;
 
           //Mark have first order
           customer.isFirstOrder = true;

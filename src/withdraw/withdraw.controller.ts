@@ -49,7 +49,7 @@ export class WithdrawController {
 
     if (user.point >= pointsToDeduct) {
       user.point -= Math.abs(amountWTax);
-      user.orderAccumulatedPoint -= Math.abs(pointsToDeduct);
+      user.availableAccumulatedPoint -= Math.abs(pointsToDeduct);
       await this.userService.updateNativeUser(user);
 
       body.bankName = user.bankingAccount.bankName;

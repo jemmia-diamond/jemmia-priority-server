@@ -123,5 +123,5 @@ export class User {
 
   /** Cột mới sẽ thay thế point */
   @Column('double precision', { default: 0 })
-  orderAccumulatedPoint: number;
+  availableAccumulatedPoint: number;
 }
