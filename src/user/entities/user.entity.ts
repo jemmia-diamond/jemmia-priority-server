@@ -124,4 +124,8 @@ export class User {
   /** Cột mới sẽ thay thế point */
   @Column('double precision', { default: 0 })
   availableAccumulatedPoint: number;
+
+  /** Tổng điểm đơn referral */
+  @Column('double precision', { default: 0 })
+  totalPoint: number;
 }

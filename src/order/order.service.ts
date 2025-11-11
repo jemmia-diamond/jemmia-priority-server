@@ -397,6 +397,7 @@ export class OrderService {
                 couponRef.owner.role === EUserRole.partnerB
               ) {
                 couponRef.owner.invitedBy.point += order.cashBackRefA;
+                couponRef.owner.invitedBy.totalPoint += order.referralPointRefA;
                 couponRef.owner.invitedBy.accumulatedRefPoint +=
                   order.referralPointRefA;
                 await this.userRepository.save(couponRef.owner.invitedBy);
@@ -404,7 +405,8 @@ export class OrderService {
 
               //Cashback thông thường theo rank
               couponRef.owner.point += order.cashBackRef;
-              couponRef.owner.accumulatedRefPoint += order.referralPoint;
+              couponRef.owner.totalPoint += order.referralPointRef;
+              couponRef.owner.accumulatedRefPoint += order.referralPointRef;
 
               //Set người đã mời khách hàng
               customer.invitedBy = couponRef.owner;
@@ -430,6 +432,7 @@ export class OrderService {
 
           //Cashback for buyer
           customer.point += order.cashBack;
+          customer.totalPoint += order.referralPoint;
           customer.availableAccumulatedPoint += order.referralPoint;
 
           //Mark have first order
