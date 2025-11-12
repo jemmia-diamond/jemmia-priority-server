@@ -17,4 +17,10 @@ export class ReturnUserPriorityDto extends GetUserPriorityDto {
 
   @ApiProperty({ example: 200000 })
   withdrawAmount: number;
+
+  @ApiProperty({ example: 222222 })
+  withdrawPoint: number;
+
+  @ApiProperty({ example: 200000 })
+  withdrawCashAmount: number;
 }

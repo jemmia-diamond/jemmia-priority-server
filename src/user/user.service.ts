@@ -428,6 +428,11 @@ export class UserService {
       .addSelect('COALESCE(SUM(o.totalPrice), 0)', 'totalReferAmount')
       .addSelect('COALESCE(SUM(c.point), 0)', 'totalCashBack')
       .addSelect('COALESCE(SUM(wd.amount), 0)', 'withdrawAmount')
+      .addSelect('COALESCE(SUM(wd.withdrawPoint), 0)', 'withdrawPoint')
+      .addSelect(
+        'COALESCE(SUM(wd.withdrawCashAmount), 0)',
+        'withdrawCashAmount',
+      )
       .innerJoin('coupon_refs', 'cf', 'c.id = cf.ownerId')
       .innerJoin('orders', 'o', 'o.couponRefId = cf.id')
       .leftJoin('withdraws', 'wd', 'wd.userId = c.id')
@@ -443,6 +448,8 @@ export class UserService {
       totalReferAmount: Number(result?.totalReferAmount) || 0,
       totalCashBack: Number(result?.totalCashBack) || 0,
       withdrawAmount: Number(result?.withdrawAmount) || 0,
+      withdrawPoint: Number(result?.withdrawPoint) || 0,
+      withdrawCashAmount: Number(result?.withdrawCashAmount) || 0,
     };
   }
 
@@ -454,6 +461,8 @@ export class UserService {
       .addSelect('c.haravanId', 'haravanId')
       .addSelect('COALESCE(SUM(o.totalPrice), 0)', 'totalReferAmount')
       .addSelect('COALESCE(c.point, 0)', 'remainingCashback')
+      .addSelect('COALESCE(c.totalPoint, 0)', 'totalPoint')
+      .addSelect('COALESCE(c.availableAccumulatedPoint, 0)', 'availablePoint')
       .innerJoin('coupon_refs', 'cf', 'cf.ownerId = c.id')
       .innerJoin(
         'orders',
@@ -472,23 +481,33 @@ export class UserService {
       .createQueryBuilder()
       .select('w.userId', 'userId')
       .addSelect('COALESCE(SUM(w.amount), 0)', 'withdrawAmount')
+      .addSelect('COALESCE(SUM(w.withdrawPoint), 0)', 'withdrawPoint')
       .from('withdraws', 'w')
       .where('w.status = :status', { status: 'done' })
       .groupBy('w.userId')
       .getRawMany();
 
     // Map withdrawAmount by userId
-    const withdrawMap = new Map<string, number>();
+    const withdrawMap = new Map<string, { amount: number; point: number }>();
     for (const w of withdrawList) {
-      withdrawMap.set(w.userId, Number(w.withdrawAmount) || 0);
+      withdrawMap.set(w.userId, {
+        amount: Number(w.withdrawAmount) || 0,
+        point: Number(w.withdrawPoint) || 0,
+      });
     }
 
-    const results: any[] = referList.map((r) => ({
-      haravanId: r.haravanId,
-      totalReferAmount: Number(r.totalReferAmount) || 0,
-      remainingCashBack: Number(r.remainingCashback) || 0,
-      withdrawAmount: withdrawMap.get(r.id) || 0,
-    }));
+    const results: any[] = referList.map((r) => {
+      const withdraw = withdrawMap.get(r.id) || { amount: 0, point: 0 };
+      return {
+        haravanId: r.haravanId,
+        totalReferAmount: Number(r.totalReferAmount) || 0,
+        remainingCashBack: Number(r.remainingCashback) || 0,
+        withdrawAmount: withdraw.amount,
+        totalCashBack: Number(r.totalPoint) || 0,
+        withdrawPoint: withdraw.point,
+        availablePoint: Number(r.availablePoint) || 0,
+      };
+    });
 
     return { results };
   }
