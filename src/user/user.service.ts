@@ -433,6 +433,19 @@ export class UserService {
         'COALESCE(SUM(wd.withdrawCashAmount), 0)',
         'withdrawCashAmount',
       )
+      .addSelect('c.availableAccumulatedPoint', 'pointAvailable')
+      .addSelect(
+        'COALESCE(SUM(CASE WHEN o.paymentStatus IN ("paid", "partially_paid") THEN o.referralPointRef ELSE 0 END), 0)',
+        'referralsRevenue',
+      )
+      .addSelect(
+        'COALESCE(SUM(CASE WHEN o.paymentStatus = "pending" THEN o.referralPointRef ELSE 0 END), 0)',
+        'pendingCashback',
+      )
+      .addSelect(
+        `(SELECT COALESCE(SUM(o2.totalPrice), 0) FROM orders o2 WHERE o2.userId = c.id AND o2.paymentStatus IN ('paid', 'partially_paid'))`,
+        'trueCumulativeRevenue',
+      )
       .innerJoin('coupon_refs', 'cf', 'c.id = cf.ownerId')
       .innerJoin('orders', 'o', 'o.couponRefId = cf.id')
       .leftJoin('withdraws', 'wd', 'wd.userId = c.id')
@@ -443,6 +456,10 @@ export class UserService {
 
     const result = await query.getRawOne();
 
+    const trueCumulativeRevenue = Number(result?.trueCumulativeRevenue) || 0;
+    const referralsRevenue = Number(result?.referralsRevenue) || 0;
+    const cumulativeRevenue = trueCumulativeRevenue + referralsRevenue;
+
     return {
       haravanId: haravanId,
       totalReferAmount: Number(result?.totalReferAmount) || 0,
@@ -450,6 +467,11 @@ export class UserService {
       withdrawAmount: Number(result?.withdrawAmount) || 0,
       withdrawPoint: Number(result?.withdrawPoint) || 0,
       withdrawCashAmount: Number(result?.withdrawCashAmount) || 0,
+      cumulativeRevenue,
+      trueCumulativeRevenue,
+      referralsRevenue,
+      pendingCashback: Number(result?.pendingCashback) || 0,
+      pointAvailable: Number(result?.pointAvailable) || 0,
     };
   }
 
