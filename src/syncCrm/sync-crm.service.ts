@@ -27,7 +27,6 @@ export class SyncCrmService {
       .leftJoin('users', 'u', 'cf.ownerId = u.id')
       .leftJoin('orders', 'o', 'o.couponRefId = cf.id')
       .leftJoin('users', 'u2', 'cf.usedById = u2.id')
-      .where('cf.role = :role', { role: 'customer' })
       .andWhere('(o.paymentStatus = :paid OR o.paymentStatus = :pending)', {
         paid: 'paid',
         pending: 'pending',
