@@ -36,6 +36,9 @@ export class ReturnUserPriorityDto extends GetUserPriorityDto {
   @ApiProperty({ example: 50000, description: 'Pending Cashback' })
   pendingCashback: number;
 
-  @ApiProperty({ example: 300000, description: 'Available Cashback Point ' })
+  @ApiProperty({ example: 300000, description: 'Available Cashback Point' })
   pointAvailable: number;
+
+  @ApiProperty({ example: 300000, description: 'Total Point' })
+  totalPoint: number;
 }
