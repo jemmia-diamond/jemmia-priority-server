@@ -446,6 +446,7 @@ export class UserService {
         `(SELECT COALESCE(SUM(o2.totalPrice), 0) FROM orders o2 WHERE o2.userId = c.id AND o2.paymentStatus IN ('paid', 'partially_paid'))`,
         'trueCumulativeRevenue',
       )
+      .addSelect(`c.totalPoint`, 'totalPoint')
       .innerJoin('coupon_refs', 'cf', 'c.id = cf.ownerId')
       .innerJoin('orders', 'o', 'o.couponRefId = cf.id')
       .leftJoin('withdraws', 'wd', 'wd.userId = c.id')
@@ -472,6 +473,7 @@ export class UserService {
       referralsRevenue,
       pendingCashback: Number(result?.pendingCashback) || 0,
       pointAvailable: Number(result?.pointAvailable) || 0,
+      totalPoint: Number(result?.totalPoint) || 0,
     };
   }
 
