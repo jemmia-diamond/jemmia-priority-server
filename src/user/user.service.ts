@@ -428,9 +428,12 @@ export class UserService {
       .addSelect('COALESCE(SUM(o.totalPrice), 0)', 'totalReferAmount')
       .addSelect('COALESCE(SUM(c.point), 0)', 'totalCashBack')
       .addSelect('COALESCE(SUM(wd.amount), 0)', 'withdrawAmount')
-      .addSelect('COALESCE(SUM(wd.withdrawPoint), 0)', 'withdrawPoint')
       .addSelect(
-        'COALESCE(SUM(wd.withdrawCashAmount), 0)',
+        `(SELECT COALESCE(SUM(wd2.withdrawPoint), 0) FROM withdraws wd2 WHERE wd2.userId = c.id AND wd2.status = 'done')`,
+        'withdrawPoint',
+      )
+      .addSelect(
+        `(SELECT COALESCE(SUM(wd2.withdrawCashAmount), 0) FROM withdraws wd2 WHERE wd2.userId = c.id AND wd2.status = 'done')`,
         'withdrawCashAmount',
       )
       .addSelect('c.availableAccumulatedPoint', 'pointAvailable')
