@@ -438,11 +438,11 @@ export class UserService {
       )
       .addSelect('c.availableAccumulatedPoint', 'pointAvailable')
       .addSelect(
-        'COALESCE(SUM(CASE WHEN o.paymentStatus IN ("paid", "partially_paid") THEN o.referralPointRef ELSE 0 END), 0)',
+        'COALESCE(SUM(CASE WHEN o.paymentStatus IN ("paid", "partially_paid") THEN o.totalPrice ELSE 0 END), 0)',
         'referralsRevenue',
       )
       .addSelect(
-        'COALESCE(SUM(CASE WHEN o.paymentStatus = "pending" THEN o.referralPointRef ELSE 0 END), 0)',
+        `(SELECT COALESCE(SUM(wd2.withdrawCashAmount), 0) FROM withdraws wd2 WHERE wd2.userId = c.id AND wd2.status = 'pending')`,
         'pendingCashback',
       )
       .addSelect(
