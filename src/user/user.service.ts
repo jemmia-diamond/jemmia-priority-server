@@ -450,6 +450,9 @@ export class UserService {
         'trueCumulativeRevenue',
       )
       .addSelect(`c.totalPoint`, 'totalPoint')
+      .addSelect('c.name', 'name')
+      .addSelect('c.rank', 'rank')
+      .addSelect('c.role', 'role')
       .innerJoin('coupon_refs', 'cf', 'c.id = cf.ownerId')
       .innerJoin('orders', 'o', 'o.couponRefId = cf.id')
       .leftJoin('withdraws', 'wd', 'wd.userId = c.id')
@@ -477,6 +480,9 @@ export class UserService {
       pendingCashback: Number(result?.pendingCashback) || 0,
       pointAvailable: Number(result?.pointAvailable) || 0,
       totalPoint: Number(result?.totalPoint) || 0,
+      name: result?.name || '',
+      rank: Number(result?.rank) || 0,
+      role: result?.role || '',
     };
   }
 
