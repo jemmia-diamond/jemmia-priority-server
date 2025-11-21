@@ -9,6 +9,21 @@ export class GetUserPriorityDto {
 }
 
 export class ReturnUserPriorityDto extends GetUserPriorityDto {
+  @ApiProperty({ example: 'Nguyễn Văn A' })
+  name: string;
+
+  @ApiProperty({
+    example: 2,
+    description: 'Rank: 0=none, 1=staff, 2=silver, 3=gold, 4=platinum',
+  })
+  rank: number;
+
+  @ApiProperty({
+    example: 'customer',
+    description: 'Role: customer, partnerA, partnerB, affiliate, staff, admin',
+  })
+  role: string;
+
   @ApiProperty({ example: 500000 })
   totalReferAmount: number;
 
