@@ -10,7 +10,10 @@ export class SyncCrmController {
 
   @Get('/coupon-ref')
   @UseGuards(BearerAuthGuard)
-  async syncCouponRef(@Query('updatedInCrm') updatedInCrm?: string) {
+  async syncCouponRef(
+    @Query('updatedInCrm') updatedInCrm?: string,
+    @Query('haravanId') haravanId?: string,
+  ) {
     const updatedInCrmFilter =
       updatedInCrm === 'true'
         ? true
@@ -20,6 +23,7 @@ export class SyncCrmController {
 
     return this.syncCrmService.syncCouponRef({
       updatedInCrm: updatedInCrmFilter,
+      haravanId,
     });
   }
 }

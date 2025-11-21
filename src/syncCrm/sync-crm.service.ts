@@ -2,15 +2,21 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, In } from 'typeorm';
 import { CouponRef } from '../coupon-ref/entities/coupon-ref.entity';
+import { User } from '../user/entities/user.entity';
 
 @Injectable()
 export class SyncCrmService {
   constructor(
     @InjectRepository(CouponRef)
     private readonly couponRefRepository: Repository<CouponRef>,
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
   ) {}
 
-  async syncCouponRef(filter: { updatedInCrm?: boolean }): Promise<any[]> {
+  async syncCouponRef(filter: {
+    updatedInCrm?: boolean;
+    haravanId?: string;
+  }): Promise<any[]> {
     const query = this.couponRefRepository
       .createQueryBuilder('cf')
       .select([
@@ -23,6 +29,7 @@ export class SyncCrmService {
         'cf.usedByName AS "usedByName"',
         'o.totalPrice AS "totalPrice"',
         'o.cashBackRef AS "cashBackRef"',
+        'cf.updatedInCrm AS "updatedInCrm"',
       ])
       .leftJoin('users', 'u', 'cf.ownerId = u.id')
       .leftJoin('orders', 'o', 'o.couponRefId = cf.id')
@@ -38,17 +45,27 @@ export class SyncCrmService {
       });
     }
 
+    if (filter?.haravanId) {
+      const user = await this.userRepository.findOne({
+        where: { haravanId: parseInt(filter.haravanId) },
+      });
+
+      if (user) {
+        query.andWhere('cf.ownerId = :userId', {
+          userId: user.id,
+        });
+      } else {
+        return [];
+      }
+    }
+
     const result = await query.getRawMany();
 
-    if (result.length > 0) {
-      try {
-        await this.couponRefRepository.update(
-          { id: In(result.map((r) => r.id)) },
-          { updatedInCrm: true },
-        );
-      } catch (error) {
-        console.error('Failed to update coupon refs:', error);
-      }
+    if (result.length > 0 && !filter?.haravanId) {
+      await this.couponRefRepository.update(
+        { id: In(result.map((r) => r.id)) },
+        { updatedInCrm: true },
+      );
     }
 
     return result;
