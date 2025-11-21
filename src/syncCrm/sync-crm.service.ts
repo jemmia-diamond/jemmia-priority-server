@@ -29,12 +29,14 @@ export class SyncCrmService {
         'cf.usedByName AS "usedByName"',
         'o.totalPrice AS "totalPrice"',
         'o.cashBackRef AS "cashBackRef"',
-        'cf.updatedInCrm AS "updatedInCrm"',
+        'cf.createdDate AS "createdDate"',
+        'cf.startDate AS "startDate"',
+        'cf.endDate AS "endDate"',
       ])
       .leftJoin('users', 'u', 'cf.ownerId = u.id')
       .leftJoin('orders', 'o', 'o.couponRefId = cf.id')
       .leftJoin('users', 'u2', 'cf.usedById = u2.id')
-      .andWhere('(o.paymentStatus = :paid OR o.paymentStatus = :pending)', {
+      .where('(o.paymentStatus = :paid OR o.paymentStatus = :pending)', {
         paid: 'paid',
         pending: 'pending',
       });
