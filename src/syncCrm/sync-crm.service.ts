@@ -32,6 +32,7 @@ export class SyncCrmService {
         'cf.createdDate AS "createdDate"',
         'cf.startDate AS "startDate"',
         'cf.endDate AS "endDate"',
+        'o.haravanOrderId AS "orderHaravanId"',
       ])
       .leftJoin('users', 'u', 'cf.ownerId = u.id')
       .leftJoin('orders', 'o', 'o.couponRefId = cf.id')
