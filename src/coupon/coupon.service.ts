@@ -378,15 +378,17 @@ export class CouponService {
           startDate: MoreThanOrEqual(currentDate),
           endDate: LessThanOrEqual(currentDate),
           quantityLimit: MoreThanOrEqual(1),
-          point: LessThanOrEqual(user.point),
+          point: LessThanOrEqual(user.availableAccumulatedPoint),
           couponUser: [null, couponUser],
         },
       });
+
       if (!couponEntity) {
         throw new BadRequestException('Coupon not found.');
       }
 
       user.point -= Math.abs(couponEntity.point);
+      user.availableAccumulatedPoint -= Math.abs(couponEntity.point);
       await this.userRepository.save(user);
 
       return couponEntity;
@@ -402,9 +404,12 @@ export class CouponService {
       const user = await this.userRepository.findOneBy({ id: userId });
       if (!user) throw new BadRequestException('User not found');
 
-      if (user.point < money)
+      if (user.availableAccumulatedPoint < money) {
         throw new BadRequestException('User point not enough');
+      }
+
       user.point -= money;
+      user.availableAccumulatedPoint -= money;
       await this.userRepository.save(user);
 
       const couponDto = new CouponDto();

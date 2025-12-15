@@ -47,14 +47,19 @@ export class WithdrawController {
     const amountWTax = body.amount * 1.1;
     const pointsToDeduct = body.amount * (10 / 9);
 
-    if (user.point >= pointsToDeduct) {
+    if (user.availableAccumulatedPoint >= pointsToDeduct) {
       user.point -= Math.abs(amountWTax);
       user.availableAccumulatedPoint -= Math.abs(pointsToDeduct);
+
+      if(user.availableAccumulatedPoint < 0) {
+        return 'You do not have enough points to redeem.';
+      }
+
       await this.userService.updateNativeUser(user);
 
       body.bankName = user.bankingAccount.bankName;
       body.bankNumber = user.bankingAccount.number;
-      body.remainAmount = user.point;
+      body.remainAmount = user.availableAccumulatedPoint;
       body.withdrawPoint = pointsToDeduct;
       body.withdrawCashAmount = body.amount;
 
@@ -67,6 +72,7 @@ export class WithdrawController {
 SĐT: ${user.phoneNumber}
 Số tiền: ${body.amount}
 Số điểm đã trừ: ${pointsToDeduct}
+Số điểm còn lại: ${pointsToDeduct}
 STK: ${body.bankNumber}
 Ngân hàng: ${body.bankName}`,
           },
