@@ -28,6 +28,7 @@ import { NotificationType } from '../notification/enums/noti-type.enum';
 import { CrmService } from '../crm/crm.service';
 import { createHmac } from 'crypto';
 import { EPaymentAffiliateCommission } from './enum/order-type.enum';
+import * as Sentry from '@sentry/nestjs';
 import { PaymentType } from '../haravan/enums/payment-type.enum';
 import { PAYMENT_COMMISSION } from './constants/payment-commision';
 
@@ -256,7 +257,7 @@ export class OrderService {
 
       //!Chỉ xử lý các đơn có khách hàng được gán
       if (!orderDto.customer?.id) {
-        return 'CANT FIND CUSTOMER';
+        throw new Error(`Haravan order missing customer`);
       }
 
       //Get Order dựa trên haravanId hoặc coupon-ref (Dùng cho trường hợp coupon-ref không giới hạn)
@@ -486,7 +487,14 @@ export class OrderService {
       console.log('============ RETURN');
     } catch (e) {
       console.log(e);
-      return;
+      Sentry.captureException(e, {
+        extra: {
+          orderId: orderDto?.id,
+          orderNumber: orderDto?.order_number,
+          orderName: orderDto?.name,
+        },
+      });
+      return 'ERROR_PROCESSED';
     } finally {
       //Remove order id from processing set
       this.processingHaravanOrderId.delete(orderDto.id);

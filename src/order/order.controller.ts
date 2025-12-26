@@ -52,7 +52,7 @@ export class OrderController {
   @Post('/haravan/hook')
   async haravanHookCreate(
     @Request() req: RequestPayload,
-    @Body() body: HaravanOrderDto,
+    @Body() body: any,
     @Headers() headers: any,
   ) {
     // if (
@@ -81,6 +81,7 @@ export class OrderController {
     console.log(JSON.stringify(headers));
     console.log(JSON.stringify(body));
 
+    const orderData = body.order || body;
     setImmediate(async () => {
       //Trigger to CRM hook
       await axios.post(
@@ -90,7 +91,7 @@ export class OrderController {
 
       await new Promise((res) => setTimeout(() => res(1), 3000));
 
-      await this.orderService.haravanHook(body);
+      await this.orderService.haravanHook(orderData);
     });
 
     return;
