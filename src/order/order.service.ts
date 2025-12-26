@@ -281,6 +281,10 @@ export class OrderService {
         },
       });
 
+      if (order.haravanOrderId != orderDto.id) {
+        order = null;
+      }
+
       //Sync latest order
       let customer = await this.userRepository.findOneBy({
         haravanId: orderDto.customer.id,
