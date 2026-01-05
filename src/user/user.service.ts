@@ -26,6 +26,7 @@ import { UserUpdateCrmInfoDto } from './dto/user-update-profile.dto';
 import { Withdraw } from '../withdraw/entities/withdraw.entity';
 import { EWithdrawStatus } from '../withdraw/dto/withdraw-status.dto';
 import { ReturnUserPriorityDto } from './dto/get-user-priority.dto';
+import axios from 'axios';
 
 @Injectable()
 export class UserService {
@@ -543,5 +544,18 @@ export class UserService {
     });
 
     return { results };
+  }
+
+  async getFnCustomerByHaravanId(haravanId: string) {
+    const response = await axios.get(
+      `${process.env.FN_BASE_URL}/api/erp/customers/${haravanId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.FN_BEARER_TOKEN}`,
+        },
+      },
+    );
+    
+    return response.data;
   }
 }

@@ -9,7 +9,9 @@ import {
   Query,
   Put,
   Body,
+  Res,
 } from '@nestjs/common';
+import { Response } from 'express';
 import { UserService } from './user.service';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -114,6 +116,22 @@ export class UserController {
     }
 
     return this.userService.updateUser(userId, body);
+  }
+
+  @Get('fn/:haravanId')
+  @ApiOperation({
+    description: 'Get customer cumulative information from erb',
+  })
+  async getFnCustomer(
+    @Param('haravanId') haravanId: string,
+    @Res() res: Response,
+  ) {
+    try {
+      const data = await this.userService.getFnCustomerByHaravanId(haravanId);
+      return res.json(data);
+    } catch {
+      return res.status(500).json({ error: true, message: 'Failed to fetch customer data' });
+    }
   }
 
   @Get('priority/get-all')
