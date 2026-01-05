@@ -35,9 +35,30 @@ const ax = axios.create({
 });
 import { EUserRole } from '../user/enums/user-role.enum';
 
+const PROMOTIONS = [];
+
 @Injectable()
 export class HaravanService {
   constructor() {}
+  async bulkPromotion() {
+    for (const p of PROMOTIONS) {
+      await ax.post('/com/promotions.json', {
+        promotion: {
+          name: p['Tên chương trình khuyến mãi*'],
+          starts_at: '2025-11-11T09:30:00.1Z',
+          ends_at: '2025-11-23T23:50:00.1Z',
+          value: Number(p['Giá trị giảm*']),
+          discount_type: 'same_price',
+          applies_to_quantity: 1,
+          products_selection: 'variant_prerequisite',
+          showOnWebsite: true,
+          entitled_variant_ids: [Number(p['Variant ID'])],
+          locations_selection: 'all',
+        },
+      });
+    }
+  }
+
   //*COUPON
   //#region
   async createCoupon(data: HaravanCouponDto) {
