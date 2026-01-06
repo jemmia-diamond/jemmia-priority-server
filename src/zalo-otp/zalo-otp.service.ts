@@ -49,7 +49,7 @@ export class ZaloOtpService {
       await this.otpRedis.set(phone, otp);
 
       await axios.post(
-        'https://api-partner.zalopay.vn/zns-partner/v1/messages',
+        'https://api-partner.zalopay.vn/zns-partner/v1/pbmessages',
         payloadObj,
         {
           headers: {
