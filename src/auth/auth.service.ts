@@ -60,58 +60,21 @@ export class AuthService {
 
     //VERIFY OAUTH TOKEN
     const tokenPayload = await this.verifyOAuth(payload.token);
-    const fPhoneNum = tokenPayload.phone_number?.replace(/^\+84/, '0');
-    let crmCusData: CrmCustomerDto;
-
-    if (fPhoneNum) {
-      crmCusData = (
-        await this.crmService.findAllCustomer({
-          limit: 1,
-          query: {
-            'phones.value': fPhoneNum,
-          },
-        })
-      ).data?.[0];
-    }
 
     //Trường hợp user k phải admin & cũng không phải khách hàng haravan
-    if (!tokenPayload.email && !crmCusData) {
+    if (!tokenPayload.email) {
       throw new HttpException('USER_NOT_FOUND', HttpStatus.UNAUTHORIZED);
     }
 
-    let user = await this.userRepository.findOne({
+    const user = await this.userRepository.findOne({
       where: [
         {
           //Admin account query
           authId: tokenPayload.email,
           role: tokenPayload.email ? EUserRole.admin : null,
         },
-        {
-          //Customer account query
-          crmId: crmCusData?.id,
-        },
       ],
     });
-
-    //Sync dữ liệu khách hàng <-> CRM
-    if (crmCusData) {
-      if (user?.isLoggedIn) {
-        //Sync thời gian login lần cuối qua CRM
-        await this.userService.updateCrmLastLoginDate(
-          crmCusData.id,
-          new Date(),
-        );
-      } else {
-        //Sync lần login lần đầu qua CRM
-        await this.userService.updateCrmFirstLoginDate(
-          crmCusData.id,
-          new Date(),
-        );
-      }
-      const customerType =
-        crmCusData.customerTypes?.[0].value || EUserRole.customer;
-      user = await this.userService.syncFromCrm(crmCusData.id, customerType);
-    }
 
     //LOGIN
     const refreshToken = await this.signRefreshToken({
@@ -138,8 +101,8 @@ export class AuthService {
       refreshToken,
       user: {
         ...user,
-        haravan: crmCusData || {},
-        crm: crmCusData,
+        haravan: {},
+        crm: {},
         rank: user?.rank || ECustomerRankNum.silver,
         role: user?.role || EUserRole.customer,
       },
@@ -197,30 +160,12 @@ export class AuthService {
     // Normalize phone number
     phone = await this.toLocalPhone(phone);
 
-    let user = await this.userRepository.findOne({
+    const user = await this.userRepository.findOne({
       where: { phoneNumber: phone },
     });
 
     if (!user) {
-      if (phone) {
-        const crmCusData: CrmCustomerDto | undefined = (
-          await this.crmService.findAllCustomer({
-            limit: 1,
-            query: {
-              'phones.value': phone,
-            },
-          })
-        ).data?.[0];
-
-        if (!crmCusData?.id) {
-          throw new NotFoundException('User not found');
-        }
-
-        user = await this.userService.syncFromCrm(crmCusData.id);
-        await this.userRepository.save(user);
-      } else {
-        throw new NotFoundException('User not found');
-      }
+      throw new NotFoundException('User not found');
     }
 
     // Return access token and refresh token

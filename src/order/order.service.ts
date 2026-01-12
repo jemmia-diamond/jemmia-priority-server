@@ -314,6 +314,8 @@ export class OrderService {
         console.log(JSON.stringify(customer));
       }
 
+      if (!customer) return;
+
       if (!order) {
         const paymentType = await this.haravanService.getPaymentType(
           orderDto.id,

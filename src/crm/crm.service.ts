@@ -47,48 +47,53 @@ export class CrmService {
     limit: number;
     total: number;
   }> {
-    await validate(query);
+    //   await validate(query);
 
-    query.limit = query.limit || 1;
-    query.output = query.output || 'original';
-    query.table = 'data_customer';
+    //   query.limit = query.limit || 1;
+    //   query.output = query.output || 'original';
+    //   query.table = 'data_customer';
 
-    const body = instanceToPlain(
-      Object.setPrototypeOf(query, CrmQueryDto.prototype),
-    );
+    //   const body = instanceToPlain(
+    //     Object.setPrototypeOf(query, CrmQueryDto.prototype),
+    //   );
 
-    const res = await ax.post(`/_api/base-table/find`, body);
-    if (res.data.status === -1) {
-      this.logger.error(res.data.msg, new Error().stack);
-    }
+    //   const res = await ax.post(`/_api/base-table/find`, body);
+    //   if (res.data.status === -1) {
+    //     this.logger.error(res.data.msg, new Error().stack);
+    //   }
 
+    //   return {
+    //     data: plainToInstance(CrmCustomerDto, <any[]>res.data.data),
+    //     limit: res.data.limit,
+    //     total: res.data.total,
+    //   };
+    // }
+
+    // async updateCustomer(
+    //   id: string,
+    //   fields: Array<{
+    //     key: string;
+    //     value: any;
+    //   }>,
+    // ) {
+    //   const body = {
+    //     table: 'data_customer',
+    //     data: [
+    //       {
+    //         id: id,
+    //         fields: fields,
+    //       },
+    //     ],
+    //   };
+
+    //   const res = await ax.post(`/_api/base-table/update`, body);
+
+    //   return res.data;
     return {
-      data: plainToInstance(CrmCustomerDto, <any[]>res.data.data),
-      limit: res.data.limit,
-      total: res.data.total,
+      data: [],
+      limit: 10,
+      total: 0,
     };
-  }
-
-  async updateCustomer(
-    id: string,
-    fields: Array<{
-      key: string;
-      value: any;
-    }>,
-  ) {
-    const body = {
-      table: 'data_customer',
-      data: [
-        {
-          id: id,
-          fields: fields,
-        },
-      ],
-    };
-
-    const res = await ax.post(`/_api/base-table/update`, body);
-
-    return res.data;
   }
 
   async findCustomerRankByCustomerCode(

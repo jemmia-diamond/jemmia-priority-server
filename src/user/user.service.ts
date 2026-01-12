@@ -60,7 +60,7 @@ export class UserService {
 
       if (!user) return null;
 
-      user = await this.syncFromCrm(user.crmId);
+      // user = await this.syncFromCrm(user.crmId);
 
       await this.userRedis.set(id, {
         ...user,
@@ -154,26 +154,7 @@ export class UserService {
   }
 
   async createUserFromHaravan(data: HaravanCustomerDto) {
-    //Find from CRM
-    console.log('CREATE USER CRM');
-    console.log({
-      limit: 1,
-      query: {
-        haravan_id: data.id,
-      },
-    });
-    const crmCusData = (
-      await this.crmService.findAllCustomer({
-        limit: 1,
-        query: {
-          haravan_id: data.id.toString(),
-        },
-      })
-    ).data?.[0];
-
-    if (!crmCusData) return;
-
-    return this.syncFromCrm(crmCusData.id);
+    return this.syncFromCrm(data.id, data);
   }
 
   async updateNativeUser(user: User) {
@@ -229,12 +210,12 @@ export class UserService {
   //#region CRM
   /** Sync điểm ref point của hệ thống qua CRM */
   async updateCrmRefPoint(crmId: string, refPoint: number) {
-    await this.crmService.updateCustomer(crmId, [
-      {
-        key: 'cumulative_tov_referral',
-        value: refPoint,
-      },
-    ]);
+    // await this.crmService.updateCustomer(crmId, [
+    //   {
+    //     key: 'cumulative_tov_referral',
+    //     value: refPoint,
+    //   },
+    // ]);
 
     console.log('U CRM REF POINT');
     console.log(refPoint);
@@ -270,19 +251,18 @@ export class UserService {
       },
     );
     console.log(crmPayload);
-    await this.crmService.updateCustomer(crmId, crmPayload);
+    // await this.crmService.updateCustomer(crmId, crmPayload);
   }
 
   //** Sync thời gian login lần đầu qua CRM */
   async updateCrmFirstLoginDate(crmId: string, date: Date) {
     // const formatDate = moment(date).format('HH:mm:ss DD/MM/YYYY');
-
-    await this.crmService.updateCustomer(crmId, [
-      {
-        key: 'app_first_login_date',
-        value: date.getTime(),
-      },
-    ]);
+    // await this.crmService.updateCustomer(crmId, [
+    //   {
+    //     key: 'app_first_login_date',
+    //     value: date.getTime(),
+    //   },
+    // ]);
   }
 
   //*Sync thời gian login lần cuối qua CRM */
@@ -296,27 +276,21 @@ export class UserService {
       },
     ]);
 
-    await this.crmService.updateCustomer(crmId, [
-      {
-        key: 'app_last_login_date',
-        value: formatDate,
-      },
-    ]);
+    // await this.crmService.updateCustomer(crmId, [
+    //   {
+    //     key: 'app_last_login_date',
+    //     value: formatDate,
+    //   },
+    // ]);
   }
 
   /** Sync thông tin user từ CRM về hệ thống & phân hạng */
-  async syncFromCrm(crmId: string, customerType?: string) {
-    let user: User = await this.userRepository.findOneBy({ crmId });
-    const crmCusData = (
-      await this.crmService.findAllCustomer({
-        limit: 1,
-        query: {
-          id: crmId,
-        },
-      })
-    ).data?.[0];
-
-    if (!crmCusData) return null;
+  async syncFromCrm(
+    haravanId: number,
+    haravanCustomerDto: HaravanCustomerDto,
+    customerType?: string,
+  ) {
+    let user: User = await this.userRepository.findOneBy({ haravanId });
 
     if (user) {
       //Tính rank cho user
@@ -325,53 +299,41 @@ export class UserService {
 
     let crmBirtDate: string;
 
-    if (crmCusData.birthDate) {
-      crmBirtDate = moment(crmCusData.birthDate).format('DD/MM/YYYY');
-    }
-
-    crmCusData.cumulativeTovLifeTime =
-      crmCusData.cumulativeTovLifeTime <= 0
-        ? 0
-        : crmCusData.cumulativeTovLifeTime;
-
-    crmCusData.cumulativeTovInLast12mos =
-      crmCusData.cumulativeTovInLast12mos <= 0
-        ? 0
-        : crmCusData.cumulativeTovInLast12mos;
-
-    crmCusData.cumulativeTovReferral =
-      crmCusData.cumulativeTovReferral <= 0
-        ? 0
-        : crmCusData.cumulativeTovReferral;
+    // if (crmCusData.birthDate) {
+    //   crmBirtDate = moment(crmCusData.birthDate).format('DD/MM/YYYY');
+    // }
 
     let userRole = user?.role;
     const isAffiliate = !!customerType?.includes(EUserRole.affiliate);
     if (isAffiliate) {
       userRole = EUserRole.affiliate;
-    } else if (
-      (userRole === EUserRole.customer || !userRole) &&
-      crmCusData.customerTypes?.[0]?.value === EUserRole.staff
-    ) {
-      userRole = EUserRole.staff;
-    } else if (!userRole) {
+    }
+    // else if (
+    //   (userRole === EUserRole.customer || !userRole) &&
+    //   crmCusData.customerTypes?.[0]?.value === EUserRole.staff
+    // ) {
+    //   userRole = EUserRole.staff;
+    // }
+    else if (!userRole) {
       userRole = EUserRole.customer;
     }
 
     user = await this.userRepository.save({
       ...user,
-      haravanId: crmCusData.haravanId,
-      crmId: crmCusData.id,
-      name: crmCusData.name.value,
-      authId: crmCusData.phones?.[0]?.value,
-      phoneNumber: crmCusData.phones?.[0]?.value,
-      address1: crmCusData.address1,
-      maKhachHang: crmCusData.maKhachHang,
-      cumulativeTovRecorded: crmCusData.cumulativeTovRecorded || 0,
-      accumulatedOrderPoint: crmCusData.cumulativeTovInLast12mos || 0,
-      accumulatedRefPoint: crmCusData.cumulativeTovReferral || 0,
-      gender: ECrmCustomerGender[crmCusData.gioiTinh?.[0]?.value] ?? 0,
+      haravanId: haravanId,
+      name: `${haravanCustomerDto.firstName} ${haravanCustomerDto.lastName}`,
+      authId:
+        haravanCustomerDto.phone ?? haravanCustomerDto.addresses?.[0]?.phone,
+      phoneNumber:
+        haravanCustomerDto.phone ?? haravanCustomerDto.addresses?.[0]?.phone,
+      address1: haravanCustomerDto.addresses?.[0]?.address1,
+      maKhachHang: haravanId.toString(),
+      cumulativeTovRecorded: 0,
+      accumulatedOrderPoint: 0,
+      accumulatedRefPoint: 0,
+      gender: haravanCustomerDto.gender ?? 0,
       customerBirthdayUpdatePwa: crmBirtDate,
-      customerEmailUpdatePwa: crmCusData.emails?.[0]?.value,
+      customerEmailUpdatePwa: haravanCustomerDto.email ?? '',
       role: userRole,
     });
 
@@ -555,7 +517,7 @@ export class UserService {
         },
       },
     );
-    
+
     return response.data;
   }
 }
