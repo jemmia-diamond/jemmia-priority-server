@@ -6,11 +6,12 @@ import * as admin from 'firebase-admin';
 import { AllExceptionsFilter } from './shared/filters/all-exception.filter';
 import * as Sentry from '@sentry/nestjs';
 import { ValidationPipe } from '@nestjs/common';
+import { OrderService } from './order/order.service';
 
 //!SET DEFAULT TIMEZONE
 process.env.TZ = 'Asia/Ho_Chi_Minh';
 Sentry.init({
-  dsn: process.env.SENTRY_DSN
+  dsn: process.env.SENTRY_DSN,
 });
 
 async function bootstrap() {

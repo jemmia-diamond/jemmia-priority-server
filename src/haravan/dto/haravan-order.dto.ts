@@ -206,7 +206,7 @@ class BillingAddress {
   @IsOptional()
   // @IsPhoneNumber()
   @IsDefined()
-  phone?: number;
+  phone?: string;
 
   @ApiProperty()
   @IsOptional()

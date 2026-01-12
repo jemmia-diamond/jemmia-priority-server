@@ -55,48 +55,11 @@ export class OrderController {
     @Body() body: any,
     @Headers() headers: any,
   ) {
-    // if (
-    //   this.orderService.verifyHaravanHook(
-    //     body,
-    //     headers['x-haravan-hmacsha256'],
-    //   ) &&
-    //   headers['x-haravan-hmacsha256']
-    // ) {
-    //   console.log('/hook/haravan/create');
-    //   console.log(JSON.stringify(body));
-    //   console.log('========== HANDLE HOOK ===========');
-
-    //   const res = await this.orderService.haravanHook(body);
-    //   return res;
-    // } else {
-    //   await this.telegramBotService.sendException(
-    //     'ORRDER HOOK VERIFY FAILED',
-    //     '',
-    //     JSON.stringify(headers),
-    //     body,
-    //   );
-    //   throw new UnauthorizedException();
-    // }
-
     console.log(JSON.stringify(headers));
     console.log(JSON.stringify(body));
 
     const orderData = body.order || body;
-    setImmediate(async () => {
-      //Trigger to CRM hook
-      // await axios
-      //   .post(
-      //     `https://api.bizfly.vn/webhook/web_hook_haravan?token_crm=c1pGa0FISC96VDd1N3FZR21KakI0bnljRE0zbTB5eDljM01ocW5JWDRBYnNqc215Yi9wMTdhSkd4WXp2Z0R2Sk9qRzZuYUFFOGJPSTFtS09WMnhTb1E9PQ==&project_id=65796b5ad887266a17635b6d`,
-      //     body,
-      //   )
-      //   .catch((e) => {
-      //     console.error(e);
-      //   });
-
-      // await new Promise((res) => setTimeout(() => res(1), 3000));
-
-      await this.orderService.haravanHook(orderData);
-    });
+    await this.orderService.haravanHook(orderData);
 
     return;
   }
