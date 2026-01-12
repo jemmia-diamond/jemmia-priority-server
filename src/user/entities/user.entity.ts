@@ -90,7 +90,7 @@ export class User {
   @CreateDateColumn()
   createdAt: Date;
 
-  @Column('varchar', { unique: true })
+  @Column('varchar', { default: 'MA_KH' })
   maKhachHang: string;
 
   /** Doanh thu tích luỹ haravan */
