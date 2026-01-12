@@ -281,7 +281,7 @@ export class OrderService {
         },
       });
 
-      if (order.haravanOrderId != orderDto.id) {
+      if (order?.haravanOrderId !== orderDto.id) {
         order = null;
       }
 
@@ -314,6 +314,8 @@ export class OrderService {
         );
         console.log(JSON.stringify(customer));
       }
+
+      if (!customer) return;
 
       if (!order) {
         const paymentType = await this.haravanService.getPaymentType(
