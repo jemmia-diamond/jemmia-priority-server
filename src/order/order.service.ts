@@ -280,8 +280,7 @@ export class OrderService {
           couponRef: true,
         },
       });
-
-      if (order.haravanOrderId != orderDto.id) {
+      if (order?.haravanOrderId != orderDto?.id) {
         order = null;
       }
 
@@ -447,7 +446,7 @@ export class OrderService {
           //Thông báo cho inviter
           const noti = new Notification();
           noti.title = `${orderDto.customer.firstName || ''} ${orderDto.customer.lastName || ''} đã mua hàng từ mã giới thiệu của bạn.`;
-          noti.receiver = couponRef.owner;
+          noti.receiver = couponRef?.owner;
           noti.type = NotificationType.ref;
           noti.description = `Bạn vừa nhận ${order.cashBackRef?.toLocaleString('vi')} Points từ ${couponRef.couponHaravanCode}`;
 
