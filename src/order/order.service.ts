@@ -190,15 +190,19 @@ export class OrderService {
     console.log('========== INVITER');
     console.log(JSON.stringify(inviter));
 
+    let rankToCalculate = null;
+    if (inviter.haravanId) {
+      const fnCustomer = await this.userService.getFnCustomerByHaravanId(String(inviter.haravanId));
+      rankToCalculate = fnCustomer?.data?.rank.toLowerCase();
+    }
+    
     //Tính cashback theo rank thông thường
     if (
       inviter?.id !== order.user.id && //Không tự mời chính mình
       couponRef.type === ECouponRefType.invite //Chỉ cashback cho couponRefType === invite
     ) {
       const cashbackPercent =
-        EPartnerCashbackConfig.refferalCashbackPercent[
-          ECustomerRankNum[inviter.rank]
-        ] || 0;
+        EPartnerCashbackConfig.refferalCashbackPercent[rankToCalculate] || 0;
 
       cashBackRef = totalPrice * cashbackPercent;
       referralPointRef = totalPrice * cashbackPercent;
@@ -360,8 +364,11 @@ export class OrderService {
         order.paymentStatus = EFinancialStatus.cancelled;
       }
 
+      const fnCustomer = await this.userService.getFnCustomerByHaravanId(String(customer.haravanId));
+      let isFirstOrder = fnCustomer?.data?.rank?.toLowerCase() === 'no rank';
+      
       //Xử lý cho lần đầu mua hàng
-      if (!customer.isFirstOrder) {
+      if (isFirstOrder) {
         //Chỉ tính refferral khi mua hàng có giới thiệu
         if (couponRef) {
           const cashbackVal = await this.calculateCashback(order);
