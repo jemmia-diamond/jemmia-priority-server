@@ -46,13 +46,18 @@ export class WithdrawController {
 
     const amountWTax = body.amount * 1.1;
     const pointsToDeduct = body.amount * (10 / 9);
-
+    const availablePoint = user.availableAccumulatedPoint;
     if (user.availableAccumulatedPoint >= pointsToDeduct) {
       user.point -= Math.abs(amountWTax);
       user.availableAccumulatedPoint -= Math.abs(pointsToDeduct);
 
       if(user.availableAccumulatedPoint < 0) {
-        return 'You do not have enough points to redeem.';
+        return {
+          message: 'You do not have enough points to redeem.',
+          availablePoint,
+          pointsToDeduct,
+          deductedPoint: user.availableAccumulatedPoint
+        };
       }
 
       await this.userService.updateNativeUser(user);
