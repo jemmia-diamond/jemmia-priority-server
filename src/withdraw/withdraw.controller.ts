@@ -86,7 +86,11 @@ Ngân hàng: ${body.bankName}`,
 
       return this.withdrawService.save(body, user);
     }
-    return 'You do not have enough points to redeem.';
+    return {
+      message: 'You do not have enough points to redeem.',
+      availablePoint,
+      pointsToDeduct
+    };
   }
 
   @Roles(EUserRole.admin)
