@@ -8,6 +8,8 @@ import {
   Put,
   Query,
   BadRequestException,
+  HttpException,
+  HttpStatus,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { RequestPayload } from '../shared/types/controller.type';
@@ -52,12 +54,12 @@ export class WithdrawController {
       user.availableAccumulatedPoint -= Math.abs(pointsToDeduct);
 
       if(user.availableAccumulatedPoint < 0) {
-        return {
+        throw new HttpException({
           message: 'You do not have enough points to redeem.',
           availablePoint,
           pointsToDeduct,
           deductedPoint: user.availableAccumulatedPoint
-        };
+        }, HttpStatus.INTERNAL_SERVER_ERROR);
       }
 
       await this.userService.updateNativeUser(user);
@@ -86,11 +88,11 @@ Ngân hàng: ${body.bankName}`,
 
       return this.withdrawService.save(body, user);
     }
-    return {
+    throw new HttpException({
       message: 'You do not have enough points to redeem.',
       availablePoint,
       pointsToDeduct
-    };
+    }, HttpStatus.INTERNAL_SERVER_ERROR);
   }
 
   @Roles(EUserRole.admin)
