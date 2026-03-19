@@ -59,7 +59,7 @@ export class WithdrawController {
           availablePoint,
           pointsToDeduct,
           deductedPoint: user.availableAccumulatedPoint
-        }, HttpStatus.INTERNAL_SERVER_ERROR);
+        }, HttpStatus.BAD_REQUEST);
       }
 
       await this.userService.updateNativeUser(user);
@@ -92,7 +92,7 @@ Ngân hàng: ${body.bankName}`,
       message: 'You do not have enough points to redeem.',
       availablePoint,
       pointsToDeduct
-    }, HttpStatus.INTERNAL_SERVER_ERROR);
+    }, HttpStatus.BAD_REQUEST);
   }
 
   @Roles(EUserRole.admin)
