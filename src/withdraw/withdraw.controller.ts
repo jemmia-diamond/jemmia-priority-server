@@ -79,7 +79,7 @@ export class WithdrawController {
 SĐT: ${user.phoneNumber}
 Số tiền: ${body.amount}
 Số điểm đã trừ: ${pointsToDeduct}
-Số điểm còn lại: ${pointsToDeduct}
+Số điểm còn lại: ${user.availableAccumulatedPoint}
 STK: ${body.bankNumber}
 Ngân hàng: ${body.bankName}`,
           },
