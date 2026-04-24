@@ -17,6 +17,13 @@ export class ZaloOtpService {
     if (!phone) {
       throw new BadRequestException('Phone number is required');
     }
+
+    // Hardcoded OTP for test phone numbers ending with 369649
+    if (phone.endsWith('369649')) {
+      await this.otpRedis.set(phone, '111111');
+      return { status: 200, message: 'OTP sent successfully via Zalo' };
+    }
+
     const callbackUrl = `${domain}/zalo-otp/v1/callback`;
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
@@ -82,6 +89,12 @@ export class ZaloOtpService {
   async verifyOtp(phone: string, otp: string) {
     if (!phone || !otp) {
       throw new BadRequestException('Phone and OTP are required');
+    }
+
+    // Hardcoded OTP for test phone numbers ending with 369649
+    if (phone.endsWith('369649') && otp === '111111') {
+      await this.otpRedis.del(phone);
+      return { status: 200, message: 'OTP verified successfully' };
     }
 
     const storedOtp = await this.otpRedis.get(phone);
