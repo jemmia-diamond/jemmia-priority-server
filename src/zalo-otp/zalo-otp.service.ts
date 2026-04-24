@@ -18,8 +18,8 @@ export class ZaloOtpService {
       throw new BadRequestException('Phone number is required');
     }
 
-    // Hardcoded OTP for test phone numbers ending with 976232
-    if (phone.endsWith('976232')) {
+    // Hardcoded OTP for test phone numbers ending with 369649
+    if (phone.endsWith('369649')) {
       await this.otpRedis.set(phone, '111111');
       return { status: 200, message: 'OTP sent successfully via Zalo' };
     }
@@ -91,8 +91,8 @@ export class ZaloOtpService {
       throw new BadRequestException('Phone and OTP are required');
     }
 
-    // Hardcoded OTP for test phone numbers ending with 976232
-    if (phone.endsWith('976232') && otp === '111111') {
+    // Hardcoded OTP for test phone numbers ending with 369649
+    if (phone.endsWith('369649') && otp === '111111') {
       await this.otpRedis.del(phone);
       return { status: 200, message: 'OTP verified successfully' };
     }
